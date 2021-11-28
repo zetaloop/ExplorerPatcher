@@ -435,10 +435,10 @@
 
 
 ;f
-;t For settings marked with * to take effect, restart File Explorer. 
+;t For settings marked with * to take effect, restart File Explorer. TEST
 ;u Restart File Explorer
 ;restart
 ;u Restore default settings
 ;reset
-;;u About ExplorerPatcher TESTTEST
+;;u About ExplorerPatcher
 ;;about
