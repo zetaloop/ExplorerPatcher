@@ -1,119 +1,118 @@
 ﻿Windows Registry Editor Version 5.00
 
 
-;M Settings
+;M 设置
 
 
-;T Taskbar
+;T 任务栏
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ExplorerPatcher]
-;z 2 Taskbar style *
-;x 0 Windows 11 (default)
+;z 2 任务栏风格 *
+;x 0 Windows 11 (默认)
 ;x 1 Windows 10
 "OldTaskbar"=dword:00000001
-;y More taskbar options in the Settings app 🡕
+;y 设置里的更多任务栏选项 🡕
 ;ms-settings:taskbar
-;y Customize notification area icons 🡕
+;y 自定义通知栏图标 🡕
 ;shell:::{05d7b0f4-2121-4eff-bf6b-ed3f69b894d9}
-;y Customize system icons in the notification area 🡕
+;y 自定义通知栏系统图标 🡕
 ;shell:::{05d7b0f4-2121-4eff-bf6b-ed3f69b894d9}\SystemIcons
-;t The following settings only apply to the Windows 10 taskbar:                          
+;t 以下设置仅支持 Windows 10 任务栏:                          
 ;;[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ExplorerPatcher]
-;;c 2 Start button style *
-;;x 0 Windows 10 (default)
+;;c 2 开始按钮风格 *
+;;x 0 Windows 10 (默认)
 ;;x 1 Windows 11
 ;;"OrbStyle"=dword:00000000
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
-;c 3 Combine taskbar icons on main taskbar
-;x 0 Always combine
-;x 1 Combine when taskbar is full
-;x 2 Never combine
+;c 3 主任务栏合并图标
+;x 0 始终合并
+;x 1 当任务栏被占满时合并
+;x 2 从不合并
 "TaskbarGlomLevel"=dword:00000002
-;c 3 Combine taskbar icons on other taskbars
-;x 0 Always combine
-;x 1 Combine when taskbar is full
-;x 2 Never combine
+;c 3 其他任务栏合并图标
+;x 0 始终合并
+;x 1 当任务栏被占满时合并
+;x 2 从不合并
 "MMTaskbarGlomLevel"=dword:00000002
-;c 2 Taskbar icon size
-;x 1 Small
-;x 0 Large (default)
+;c 2 任务栏图标大小
+;x 1 小
+;x 0 大 (默认)
 "TaskbarSmallIcons"=dword:00000000
-;c 3 Cortana button should be
-;x 0 Hidden (default)
-;x 2 Shown and open Cortana
-;x 1 Shown and open Widgets
+;c 3 Cortana 按钮
+;x 0 隐藏 (默认)
+;x 2 打开 Cortana
+;x 1 打开小组件
 "TaskbarDa"=dword:00000000
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Search]
-;b Show Search button
+;b 显示搜索按钮
 "SearchboxTaskbarMode"=dword:00000001
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
-;b Show Task view button
+;b 显示任务视图按钮
 "ShowTaskViewButton"=dword:00000001
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People]
-;b Show People on the taskbar *
+;b 显示人脉按钮 *
 "TaskbarMn"=dword:00000000
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
-;b Show Desktop button
+;b 显示桌面按钮
 "TaskbarSD"=dword:00000001
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ExplorerPatcher]
-;b Show separators between toolbars *
+;b 在工具栏之间插入分隔线 *
 "ToolbarSeparators"=dword:00000000
 
 
-;T System tray
+;T 系统托盘
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
-;b Show seconds in the clock
+;b 时间显示秒数
 "ShowSecondsInSystemClock"=dword:00000000
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ExplorerPatcher]
-;b Skin taskbar and tray pop-up menus
+;b 任务栏和托盘菜单应用皮肤
 "SkinMenus"=dword:00000001
-;b Center tray icon pop-up menus
+;b 托盘菜单居中对齐
 "CenterMenus"=dword:00000001
-;b Flyout behavior for tray icon pop-up menus
+;b 托盘菜单弹出动画
 "FlyoutMenus"=dword:00000001
-;b Hide Control Center button *
+;b 隐藏控制中心按钮 *
 "HideControlCenterButton"=dword:00000000
 ;p 2
-;b Apply Windows 11 style to system tray icons *
+;b 系统托盘图标使用 Windows 11 风格 *
 "SkinIcons"=dword:00000001
 [HKEY_CURRENT_USER\Software\Microsoft\TabletTip\1.7]
-;b Show touch keyboard button *
+;b 显示触摸键盘按钮 *
 "TipbandDesiredVisibility"=dword:00000000
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ExplorerPatcher]
-;a Choosing 'Open Network && Internet settings' when right clicking the
-;c 3 network icon should open:
-;x 0 Network section in the Settings app (default)
-;x 1 Network and Sharing Center in Control Panel
-;x 2 Network Connections in Control Panel
+;c 3 右键网络图标并选择“打开网络和 Internet 设置”时打开:
+;x 0 设置“网络和 Internet” (默认)
+;x 1 控制面板“网络和共享中心”
+;x 2 控制面板“网络连接”
 "ReplaceNetwork"=dword:00000000
-;t When clicking a system icon in the tray, open:
+;t 系统托盘按钮控件:
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Control Panel\Settings\Network]
-;c 6 Network
-;x 5 Windows 11 WiFi flyout
-;x 0 Windows 10 flyout (default)
-;x 2 Windows 8 flyout
-;x 1 Network section in the Settings app
-;x 3 Network and Sharing Center in Control Panel
-;x 4 Network Connections in Control Panel
+;c 6 网络
+;x 5 Windows 11 WiFi 控件
+;x 0 Windows 10 控件 (默认)
+;x 2 Windows 8 控件
+;x 1 设置“网络和 Internet”
+;x 3 控制面板“网络和共享中心”
+;x 4 控制面板“网络连接”
 "ReplaceVan"=dword:00000000
 [HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\MTCUVC]
-;c 2 Sound
-;x 1 Windows 10 flyout (default)
-;x 0 Windows 7 flyout
+;c 2 声音
+;x 1 Windows 10 控件 (默认)
+;x 0 Windows 7 控件
 "EnableMtcUvc"=dword:00000001
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\ImmersiveShell]
-;c 3 Clock
-;x 2 Windows 11 flyout
-;x 0 Windows 10 flyout (default)
+;c 3 时间
+;x 2 Windows 11 控件
+;x 0 Windows 10 控件 (默认)
 ;x 1 Windows 7
 "UseWin32TrayClockExperience"=dword:00000000
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\ImmersiveShell]
-;c 2 Battery
-;x 0 Windows 10 flyout (default)
+;c 2 电池
+;x 0 Windows 10 控件 (默认)
 ;x 1 Windows 7
 "UseWin32BatteryFlyout"=dword:00000000
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ExplorerPatcher]
-;c 6 Language switcher *
-;x 0 Windows 11 (default)
+;c 6 语言切换 *
+;x 0 Windows 11 (默认)
 ;x 1 Windows 10
 ;x 2 "LOGONUI"
 ;x 3 "UAC"
@@ -122,35 +121,34 @@
 "IMEStyle"=dword:00000000
 
 
-;T File Explorer
+;T 文件资源管理器
 [-HKEY_CURRENT_USER\Software\Classes\CLSID\{d93ed569-3b3e-4bff-8355-3c44f6a52bb5}\InprocServer32]
-;d Disable the Windows 11 command bar *
+;d 禁用 Windows 11 工具栏 *
 @=""
 [-HKEY_CURRENT_USER\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32]
-;d Disable the Windows 11 context menu *
+;d 禁用 Windows 11 右键菜单 *
 @=""
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ExplorerPatcher]
-;i Use immersive menus when displaying Windows 10 context menus **
+;i 显示 Windows 10 右键菜单时使用沉浸式菜单 **
 "DisableImmersiveContextMenu"=dword:00000000
 [-HKEY_CURRENT_USER\Software\Classes\CLSID\{056440FD-8568-48e7-A632-72157243B55B}\InprocServer32]
-;d Disable navigation bar **
+;d 禁用导航栏 **
 @=""
 [-HKEY_CURRENT_USER\Software\Classes\CLSID\{1d64637d-31e9-4b06-9124-e83fb178ac6e}\TreatAs]
-;d Disable modern search bar
+;d 禁用新款搜索栏样式
 @="{64bc32b5-4eec-4de7-972d-bd8bd0324537}"
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ExplorerPatcher]
-;b Hide search bar completely **
+;b 完全隐藏搜索栏 **
 "HideExplorerSearchBar"=dword:00000000
 ;p 2
-;b Mica effect on title bar
+;b 标题栏云母材质
 "MicaEffectOnTitlebar"=dword:00000000
 [-HKEY_LOCAL_MACHINE\Software\Classes\CLSID\{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}\InprocServer32]
-;d Register as shell extension
+;d 注册为外壳扩展插件
 @="{64bc32b5-4eec-4de7-972d-bd8bd0324537}"
 ;t ________________________
-;e For the settings marked with (**) to work in Open/Save file dialogs as well, register
-;e this utility as shell extension using the option above.
-;y Learn more 🡕
+;e 要使标 ** 的设置在打开/保存对话框也生效，请将本工具注册为外壳扩展插件。
+;y 了解更多 🡕
 ;https://github.com/valinet/ExplorerPatcher/wiki/Using-ExplorerPatcher-as-shell-extension
 
 
@@ -170,7 +168,7 @@
 ;x 3 3
 ;x 4 4
 ;x 5 5
-;x 6 6 (default)
+;x 6 6 (默认)
 ;x 7 7
 ;x 8 8
 ;x 9 9
@@ -190,7 +188,7 @@
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
 ;c 2 Position on screen
 ;x 0 Left
-;x 1 Center (default)
+;x 1 Center (默认)
 "TaskbarAl"=dword:00000001
 
 
@@ -210,17 +208,17 @@
 ;b Show windows only from current monitor
 "PerMonitor"=dword:00000000
 ;c 3 Theme
-;x 2 Mica (default)
+;x 2 Mica (默认)
 ;x 1 Acrylic
 ;x 0 None
 "Theme"=dword:00000002
 ;c 3 Corner preference
-;x 2 Rounded (default)
+;x 2 Rounded (默认)
 ;x 3 Small rounded
 ;x 1 Not rounded
 "CornerPreference"=dword:00000002
 ;c 3 Color scheme
-;x 0 Follow system setting (default)
+;x 0 Follow system setting (默认)
 ;x 1 Light
 ;x 2 Dark
 "ColorScheme"=dword:00000000
@@ -234,7 +232,7 @@
 ;x 75 75 %
 ;x 70 70 %
 ;x 65 65 %
-;x 60 60 % (default)
+;x 60 60 % (默认)
 ;x 55 55 %
 ;x 50 50 %
 ;x 45 45 %
@@ -254,7 +252,7 @@
 ;x 260 260 pt
 ;x 250 250 pt
 ;x 240 240 pt
-;x 230 230 pt (default)
+;x 230 230 pt (默认)
 ;x 220 220 pt
 ;x 210 210 pt
 ;x 200 200 pt
@@ -270,7 +268,7 @@
 ;x 95 95 %
 ;x 90 90 %
 ;x 85 85 %
-;x 80 80 % (default)
+;x 80 80 % (默认)
 ;x 75 75 %
 ;x 70 70 %
 ;x 65 65 %
@@ -282,7 +280,7 @@
 ;x 95 95 %
 ;x 90 90 %
 ;x 85 85 %
-;x 80 80 % (default)
+;x 80 80 % (默认)
 ;x 75 75 %
 ;x 70 70 %
 ;x 65 65 %
@@ -294,7 +292,7 @@
 ;x 25 25 ms
 ;x 50 50 ms
 ;x 75 75 ms
-;x 100 100 ms (default)
+;x 100 100 ms (默认)
 ;x 150 150 ms
 ;x 200 200 ms
 ;x 300 300 ms
@@ -325,7 +323,7 @@
 ;x 1 Sign out
 ;x 16 Sleep
 ;x 64 Hibernate
-;x 2 Shut down (default)
+;x 2 Shut down (默认)
 ;x 4 Restart
 "Start_PowerButtonAction"=dword:00000002
 
@@ -333,7 +331,7 @@
 ;T Updates
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ExplorerPatcher]
 ;z 3 When File Explorer starts
-;x 1 Notify about available updates (default)
+;x 1 Notify about available updates (默认)
 ;x 0 Prompt to install available updates
 ;x 2 Do not check for updates
 "UpdatePolicy"=dword:00000001
@@ -371,7 +369,7 @@
 ;i Do not hook Start menu from main Explorer process (permanently disabled) *
 "HookStartMenu"=dword:00000001
 ;c 12 Supplementary delay at logon *
-;x 0 None (default)
+;x 0 None (默认)
 ;x 300 300 ms
 ;x 600 600 ms
 ;x 1000 1 second
@@ -387,7 +385,7 @@
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ExplorerPatcher]
 ;a Only change the following option if you have a single taskbar !!!
 ;c 21 Always show main taskbar on this monitor * (not working)
-;x 0 Primary (default)
+;x 0 Primary (默认)
 ;x 1 1
 ;x 2 2
 ;x 3 3
@@ -415,30 +413,30 @@
 ;https://github.com/valinet/ExplorerPatcher/wiki/About-advanced-settings
 
 
-;T About
+;T 关于
 ;e ExplorerPatcher
-;e Version %VERSIONINFO%
+;e 版本 %VERSIONINFO%
 ;t Copyright (C) 2006-2021 VALINET Solutions SRL. All rights reserved.
 ;e 
-;e This project aims to bring back a productive working environment on Windows 11.
-;t Proudly programmed by Valentin-Gabriel Radu.
-;y Visit project GitHub (https://github.com/valinet) 🡕
+;e 该工具旨在于 Windows 11 上恢复高效的工作环境。
+;t Valentin-Gabriel Radu 荣誉出品。
+;y 访问 GitHub 项目 (https://github.com/valinet) 🡕
 ;https://github.com/valinet
-;y Visit web site (https://www.valinet.ro) 🡕
+;y 访问网站 (https://www.valinet.ro) 🡕
 ;https://www.valinet.ro
-;y E-mail author (valentingabrielradu@gmail.com) 🡕
+;y 电邮作者 (valentingabrielradu@gmail.com) 🡕
 ;mailto:valentingabrielradu@gmail.com
-;y Donate (using PayPal) 🡕
+;y 捐赠支持 (PayPal) 🡕
 ;https://www.paypal.com/donate?business=valentingabrielradu%40gmail.com&no_recurring=0&item_name=ExplorerPatcher&currency_code=EUR
-;y Frequently Asked Questions 🡕
+;y 常见问题 🡕
 ;https://github.com/valinet/ExplorerPatcher/wiki/Frequently-asked-questions
 
 
 ;f
-;t For settings marked with * to take effect, restart File Explorer. TEST
-;u Restart File Explorer
+;t 要使标 * 的设置生效，请重启文件资源管理器。
+;u 重启文件资源管理器
 ;restart
-;u Restore default settings
+;u 恢复默认设置
 ;reset
-;;u About ExplorerPatcher
+;;u 关于 ExplorerPatcher
 ;;about
