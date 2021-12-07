@@ -79,7 +79,8 @@
 ;b 显示触摸键盘按钮 *
 "TipbandDesiredVisibility"=dword:00000000
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ExplorerPatcher]
-;c 3 右键网络图标并选择“打开网络和 Internet 设置”时打开:
+;a 右键网络图标并选择“打开网络和 Internet 设置”时
+;c 3 打开:
 ;x 0 设置“网络和 Internet” (默认)
 ;x 1 控制面板“网络和共享中心”
 ;x 2 控制面板“网络连接”
@@ -152,17 +153,17 @@
 ;https://github.com/valinet/ExplorerPatcher/wiki/Using-ExplorerPatcher-as-shell-extension
 
 
-;T Start menu
+;T 开始菜单
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StartPage]
-;i Open Start on monitor containing the cursor
+;i 在鼠标光标所在显示器打开开始菜单
 "MonitorOverride"=dword:00000001
-;b Open Start at logon
+;b 登录后打开开始菜单
 "OpenAtLogon"=dword:00000000
-;b Open Start in All apps by default
+;b 默认打开开始菜单的“所有应用”
 "MakeAllAppsDefault"=dword:00000000
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ExplorerPatcher]
-;c 22 Maximum number of frequent apps to show
-;x 0 None
+;c 22 常用应用程序最大数量
+;x 0 无
 ;x 1 1
 ;x 2 2
 ;x 3 3
@@ -183,18 +184,18 @@
 ;x 18 18
 ;x 19 19
 ;x 20 20
-;x 99999 Unlimited
+;x 99999 无限
 "Start_MaximumFrequentApps"=dword:00000006
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
-;c 2 Position on screen
-;x 0 Left
-;x 1 Center (默认)
+;c 2 显示位置
+;x 0 居左
+;x 1 居中 (默认)
 "TaskbarAl"=dword:00000001
 
 
-;T Window switcher
+;T 窗口切换器
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer]
-;z 3 Window switcher (Alt+Tab) style *
+;z 3 窗口切换器 (Alt+Tab) 风格 *
 ;x 0 Windows 11
 ;x 2 Windows 10
 ;x 1 Windows NT
