@@ -2,6 +2,76 @@
 
 This document includes the same release notes as in the [Releases](https://github.com/valinet/ExplorerPatcher/releases) section on GitHub.
 
+## 22000.376.40
+
+Tested on OS build 22000.376.
+
+#### Highlights
+
+* Built-in support for OS build 22000.376 (.12)
+* Primary taskbar remembers position when moved to a secondary monitor (multiple issues, like #504)
+* Ability to set Control Center as network icon action (merged #492)
+* Added possibility to use the original Windows 10 (Alt-Tab) window switcher; thus, the available options are now:
+  * Windows 11 switcher - full screeen, slow, tiny selection outline, slow opening times
+  * Windows 10 switcher - pretty good but lacks customization options
+  * Windows NT switcher - the classic simple icon-based interface hosted by `csrss`
+  * Simple Window Switcher - my own take on implementing this kind of functionality
+* Registry access in the "Properties" GUI is now virtualized; that means, the same lightweight infrastructure is maintained but more complex behaviors can be offered via the improved backend; as such, this version introduces the following new configuration options:
+  * Primary and secondary taskbar placement
+  * Automatically hide the taskbar
+* Proper activation of the "Properties" window when another instance is running and minimized
+* Symbols parsing success notification displays for longer
+* Debug builds are clearly indicated in the "About" page of "Properties"
+* Fixed solution to properly produce a debug setup program
+* Possibility to uninstall by renaming `ep_setup.exe` to `ep_uninstall.exe` and running that (.4)
+* Fixed a bug that crashed the "Properties" GUI when toggling certain settings (#527) (.6)
+* The "Properties" window is restarted unelevated if it was open when application servicing was performed (#528) (.7, .13)
+* Reliability improvements for File Explorer restarts (#529) (.7)
+* When changing the main taskbar position and restarting File Explorer, the new position is now correctly saved and applied when File Explorer restarts (#523) (.7)
+* Mitigation for the issue described in #416 (.7)
+* Fixed a bug that prevented the Windows 10 window switcher from displaying when it was enabled, instead falling back to the Windows NT window switcher (#548) (.8)
+* Fixed the "Show People in the taskbar" option and made it not require a restart to apply (#554) (.10)
+* Ability to choose look of Snap Assist (window list when snapping a window): Windows 11 or Windows 10 style (.11)
+* Fixed a bug that prevented the correct set up of "DisplayVersion" registry entry in the uninstall information registry key (.11)
+* Secondary taskbars' context menu is displayed similarly to the primary taskbar's context menu for Windows 10 style (.12)
+* Safeguards to prevent malicious executions on update mechanism hijacks for systems where User Account Control is disabled (#567) (.13)
+* Option to prevent certain Control Panel links from being redirected to the Settings app (.14), including in build 22523 (.15)
+* Settings are now stored in `HKEY_CURRENT_USER\Software\ExplorerPatcher` so that Windows does not reset them anymore across major OS updates (#576) (.16)
+* Improved Properties UI layout by reducing wasted space and eliminating redundant elements (#590) (.17)
+* Support for the `Win`+`Alt`+`D` shortcut to activate the clock flyout, as in Windows 10 (#591) (.17)
+* Fixes for Windows 11 taskbar:
+  * As shipped by Microsoft, a taskbar displayed on a secondary monitor does not react when the mouse is over it and auto hide is on; fixed this (#589) (.17)
+  * As shipped by Microsoft, under certain circumstances, the main taskbar does not show its system tray when `explorer` starts up and auto hide is on; fixed this (.17)
+  * As shipped by Microsoft, a taskbar displayed on a secondary monitor might display a wrong contextual menu when auto hide is on; fixed this (.17)
+  * The clock flyouts now display correctly when using this taskbar
+  * Fixed a bug that displayed wrong window previews when the combine taskbar buttons option was set to never combine (#564) (.17)
+  * Possibility to set position on screen (top/bottom) from the Properties UI
+* Restoring default settings only asks for elevation if required (for the moment, only if you have registered the application as shell extension) (.18)
+* Fixed the context menu not working (and a potential associated crash) of the new Microsoft IME (#598, #588) (.19) (huge thanks to @Simplestas)
+* GUI: Lock `ExplorerFrame` into memory (.20)
+
+
+#### Simple Window Switcher
+
+* Dramatically improved performance, refactored application; switched to building the window lists faster, on demand, so that the proper windows are always displayed (as far as I remember, the latest `IsAltTabWindow` is based on a function called `IsTaskedWindow` ripped straight from AltTab.dll from Windows 7 6.1.7600.16385)
+* Proper history of window activations is maintained internally
+* Implemented support for layered windows, thus making transparency possible when using the default theme (Acrylic and Mica brushes are still available, but those have the disadvantage that the system can disable them in certain scenarios, like saving energy when working on battery power)
+* Improved reliability of startup delay and window dismiss when quickly Alt-Tabbing
+* Window icons are retrieved async now
+* Better icon drawing using GDI+ flat API
+* Reversed UWP apps detection to checking whether the executable is called ApplicationFrameHost.exe
+* Added some more debug messages
+* Fixed some rendering problems when themes are disabled
+* Fixed regression of [#161](https://github.com/valinet/ExplorerPatcher/issues/161#issuecomment-986234002) (.1)
+* Possibility to disable per-application window lists (`Alt`+`) ([#283](https://github.com/valinet/ExplorerPatcher/issues/283#issuecomment-986261712)) (.2)
+* Fixed bug that prevented proper loading of default settings (.3)
+* Implemented a mitigation for #516: gestures for switching apps on Windows Precision Touchpad devices trigger the Windows 10 switcher instead of the Windows 11 switcher, which is much closer to how Simple Window Switcher looks and behaves; ideally, a full solution for this should be provided in the future, in the form of support for activation and navigation using Windows Precision Touchpad gestures in the Simple Window Switcher (.5)
+* Fixed an issue that could hung the application and made window switchers unavailable (#525) (many thanks to @jdp1024) (.7)
+* Possibility to configure window padding (.7)
+* Support for closing window with middle button ([#110](https://github.com/valinet/ExplorerPatcher/discussions/110#discussioncomment-1793318)) (.9)
+* Mitigated an issue that may have prevented Explorer from launching correctly when Simple Window Switcher is set as window switcher (.9)
+* Fixed a crash that could make Explorer restart repeatedly at startup or even hang indefinitely (#525) (.15)
+
 ## 22000.348.39
 
 Tested on build 22000.348.

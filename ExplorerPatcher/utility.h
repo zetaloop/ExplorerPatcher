@@ -10,6 +10,7 @@
 #include <accctrl.h>
 #include <aclapi.h>
 #include <sddl.h>
+#include <Shobjidl.h>
 #include <Shlobj_core.h>
 #include <restartmanager.h>
 #pragma comment(lib, "Rstrtmgr.lib")
@@ -19,7 +20,9 @@
 #pragma comment(lib, "Psapi.lib")
 
 #define APPID L"Microsoft.Windows.Explorer"
-#define REGPATH "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\ExplorerPatcher"
+#define REGPATH "SOFTWARE\\ExplorerPatcher"
+#define REGPATH_OLD "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\ExplorerPatcher"
+#define REGPATH_STARTMENU REGPATH_OLD
 #define SPECIAL_FOLDER CSIDL_PROGRAM_FILES
 #define SPECIAL_FOLDER_LEGACY CSIDL_APPDATA
 #define PRODUCT_NAME "ExplorerPatcher"
@@ -30,52 +33,56 @@
 #define SETUP_UTILITY_NAME "ep_setup.exe"
 #define TOAST_BUFSIZ 1024
 #define SEH_REGPATH "Control Panel\\Quick Actions\\Control Center\\QuickActionsStateCapture\\ExplorerPatcher"
+#define EP_SETUP_HELPER_SWITCH "/CreateExplorerShellUnelevatedAfterServicing"
 
 #define WM_MSG_GUI_SECTION WM_USER + 1
 #define WM_MSG_GUI_SECTION_GET 1
 
 // This allows compiling with older Windows SDKs as well
-#ifndef DWMWA_USE_HOSTBACKDROPBRUSH
+#ifndef NTDDI_WIN10_CO
 #define DWMWA_USE_HOSTBACKDROPBRUSH 17            // [set] BOOL, Allows the use of host backdrop brushes for the window.
-#endif
-#ifndef DWMWA_USE_IMMERSIVE_DARK_MODE
 #define DWMWA_USE_IMMERSIVE_DARK_MODE 20          // [set] BOOL, Allows a window to either use the accent color, or dark, according to the user Color Mode preferences.
-#endif
-#ifndef DWMWCP_DEFAULT
+#define DWMWA_WINDOW_CORNER_PREFERENCE 33         // [set] WINDOW_CORNER_PREFERENCE, Controls the policy that rounds top-level window corners
+#define DWMWA_BORDER_COLOR 34                     // [set] COLORREF, The color of the thin border around a top-level window
+#define DWMWA_CAPTION_COLOR 35                    // [set] COLORREF, The color of the caption
+#define DWMWA_TEXT_COLOR 36                       // [set] COLORREF, The color of the caption text
+#define DWMWA_VISIBLE_FRAME_BORDER_THICKNESS 37   // [get] UINT, width of the visible border around a thick frame window
 #define DWMWCP_DEFAULT 0
-#endif
-#ifndef DWMWCP_DONOTROUND
 #define DWMWCP_DONOTROUND 1
-#endif
-#ifndef DWMWCP_ROUND
 #define DWMWCP_ROUND 2
-#endif
-#ifndef DWMWCP_ROUNDSMALL
 #define DWMWCP_ROUNDSMALL 3
 #endif
-#ifndef DWMWA_WINDOW_CORNER_PREFERENCE
-#define DWMWA_WINDOW_CORNER_PREFERENCE 33         // [set] WINDOW_CORNER_PREFERENCE, Controls the policy that rounds top-level window corners
-#endif
-#ifndef DWMWA_BORDER_COLOR
-#define DWMWA_BORDER_COLOR 34                     // [set] COLORREF, The color of the thin border around a top-level window
-#endif
-#ifndef DWMWA_CAPTION_COLOR
-#define DWMWA_CAPTION_COLOR 35                    // [set] COLORREF, The color of the caption
-#endif
-#ifndef DWMWA_TEXT_COLOR
-#define DWMWA_TEXT_COLOR 36                       // [set] COLORREF, The color of the caption text
-#endif
-#ifndef DWMWA_VISIBLE_FRAME_BORDER_THICKNESS
-#define DWMWA_VISIBLE_FRAME_BORDER_THICKNESS 37   // [get] UINT, width of the visible border around a thick frame window
-#endif
-#ifndef DWMWA_MICA_EFFFECT
 #define DWMWA_MICA_EFFFECT 1029
-#endif
 
 DEFINE_GUID(CLSID_ImmersiveShell,
     0xc2f03a33,
     0x21f5, 0x47fa, 0xb4, 0xbb,
     0x15, 0x63, 0x62, 0xa2, 0xf2, 0x39
+);
+
+DEFINE_GUID(IID_OpenControlPanel,
+    0xD11AD862,
+    0x66De, 0x4DF4, 0xBf, 0x6C,
+    0x1F, 0x56, 0x21, 0x99, 0x6A, 0xF1
+);
+
+typedef struct _StuckRectsData
+{
+    int pvData[6];
+    RECT rc;
+    POINT pt;
+} StuckRectsData;
+
+HRESULT FindDesktopFolderView(REFIID riid, void** ppv);
+
+HRESULT GetDesktopAutomationObject(REFIID riid, void** ppv);
+
+HRESULT ShellExecuteFromExplorer(
+    PCWSTR pszFile,
+    PCWSTR pszParameters,
+    PCWSTR pszDirectory,
+    PCWSTR pszOperation,
+    int nShowCmd
 );
 
 #pragma region "Weird stuff"
@@ -379,6 +386,23 @@ inline BOOL ExitExplorer()
     return PostMessageW(hWndTray, 0x5B4, 0, 0);
 }
 
+inline void StartExplorerWithDelay(int delay)
+{
+    WCHAR wszPath[MAX_PATH];
+    ZeroMemory(wszPath, MAX_PATH * sizeof(WCHAR));
+    GetWindowsDirectoryW(wszPath, MAX_PATH);
+    wcscat_s(wszPath, MAX_PATH, L"\\explorer.exe");
+    Sleep(delay);
+    ShellExecuteW(
+        NULL,
+        L"open",
+        wszPath,
+        NULL,
+        NULL,
+        SW_SHOWNORMAL
+    );
+}
+
 inline void StartExplorer()
 {
 
@@ -450,5 +474,51 @@ inline BOOL IncrementDLLReferenceCount(HINSTANCE hinst)
         GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
         hinst,
         &hMod);
+}
+
+inline BOOL WINAPI PatchContextMenuOfNewMicrosoftIME(BOOL* bFound)
+{
+    // huge thanks to @Simplestas: https://github.com/valinet/ExplorerPatcher/issues/598
+    if (bFound) *bFound = FALSE;
+    const DWORD patch_from = 0x50653844, patch_to = 0x54653844; // cmp byte ptr [rbp+50h], r12b
+    HMODULE hInputSwitch = NULL;
+    if (!GetModuleHandleExW(0, L"InputSwitch.dll", &hInputSwitch))
+    {
+        return FALSE;
+    }
+    PIMAGE_DOS_HEADER dosHeader = (PIMAGE_DOS_HEADER)hInputSwitch;
+    PIMAGE_NT_HEADERS pNTHeader = (PIMAGE_NT_HEADERS)((DWORD_PTR)dosHeader + dosHeader->e_lfanew);
+    PIMAGE_SECTION_HEADER pSectionHeader = (PIMAGE_SECTION_HEADER)(pNTHeader + 1);
+    char* mod = 0;
+    int i;
+    for (i = 0; i < pNTHeader->FileHeader.NumberOfSections; i++)
+    {
+        //if (strcmp((char*)pSectionHeader[i].Name, ".text") == 0)
+        if ((pSectionHeader[i].Characteristics & IMAGE_SCN_CNT_CODE) && pSectionHeader[i].SizeOfRawData)
+        {
+            mod = (char*)dosHeader + pSectionHeader[i].VirtualAddress;
+            break;
+        }
+    }
+    if (!mod)
+    {
+        return FALSE;
+    }
+    for (size_t off = 0; off < pSectionHeader[i].Misc.VirtualSize - sizeof(DWORD); ++off)
+    {
+        DWORD* ptr = (DWORD*)(mod + off);
+        if (*ptr == patch_from)
+        {
+            if (bFound) *bFound = TRUE;
+            DWORD prot;
+            if (VirtualProtect(ptr, sizeof(DWORD), PAGE_EXECUTE_READWRITE, &prot))
+            {
+                *ptr = patch_to;
+                VirtualProtect(ptr, sizeof(DWORD), prot, &prot);
+            }
+            break;
+        }
+    }
+    return TRUE;
 }
 #endif

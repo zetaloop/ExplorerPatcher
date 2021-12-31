@@ -94,9 +94,9 @@ BOOL SetupUninstallEntry(BOOL bInstall, WCHAR* wszPath)
                 }
                 if (!dwLastError)
                 {
-                    PathRemoveFileSpecW(wszPath);
-                    wcscat_s(wszPath, MAX_PATH, L"\\" _T(PRODUCT_NAME) L".amd64.dll");
-                    HMODULE hEP = LoadLibraryExW(wszPath, NULL, LOAD_LIBRARY_AS_DATAFILE);
+                    PathRemoveFileSpecW(wszPath + 1);
+                    wcscat_s(wszPath + 1, MAX_PATH - 2, L"\\" _T(PRODUCT_NAME) L".amd64.dll");
+                    HMODULE hEP = LoadLibraryExW(wszPath + 1, NULL, LOAD_LIBRARY_AS_DATAFILE);
                     if (hEP)
                     {
                         DWORD dwLeftMost = 0;
@@ -106,8 +106,8 @@ BOOL SetupUninstallEntry(BOOL bInstall, WCHAR* wszPath)
 
                         QueryVersionInfo(hEP, VS_VERSION_INFO, &dwLeftMost, &dwSecondLeft, &dwSecondRight, &dwRightMost);
 
-                        WCHAR wszBuf[20];
-                        swprintf_s(wszBuf, 20, L"%d.%d.%d.%d", dwLeftMost, dwSecondLeft, dwSecondRight, dwRightMost);
+                        WCHAR wszBuf[30];
+                        swprintf_s(wszBuf, 30, L"%d.%d.%d.%d", dwLeftMost, dwSecondLeft, dwSecondRight, dwRightMost);
 
                         if (!dwLastError)
                         {
@@ -291,7 +291,7 @@ int WINAPI wWinMain(
     _In_ int nShowCmd
 )
 {
-    BOOL bOk = TRUE, bInstall = TRUE, bWasShellExt = FALSE, bIsUpdate = FALSE;
+    BOOL bOk = TRUE, bInstall = TRUE, bWasShellExt = FALSE, bIsUpdate = FALSE, bForcePromptForUninstall = FALSE;
 
     SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
@@ -336,9 +336,26 @@ int WINAPI wWinMain(
         return 0;
     }
 
+    WCHAR wszOwnPath[MAX_PATH];
+    ZeroMemory(wszOwnPath, ARRAYSIZE(wszOwnPath));
+    if (!GetModuleFileNameW(NULL, wszOwnPath, ARRAYSIZE(wszOwnPath)))
+    {
+        exit(0);
+    }
+
     bInstall = !(argc >= 1 && (!_wcsicmp(wargv[0], L"/uninstall") || !_wcsicmp(wargv[0], L"/uninstall_silent")));
+    PathStripPathW(wszOwnPath);
+    if (!_wcsicmp(wszOwnPath, L"ep_uninstall.exe"))
+    {
+        bInstall = FALSE;
+        bForcePromptForUninstall = _wcsicmp(wargv[0], L"/uninstall_silent");
+    }
+    if (!GetModuleFileNameW(NULL, wszOwnPath, ARRAYSIZE(wszOwnPath)))
+    {
+        exit(0);
+    }
     bIsUpdate = (argc >= 1 && !_wcsicmp(wargv[0], L"/update_silent"));
-    if (!bInstall && !_wcsicmp(wargv[0], L"/uninstall"))
+    if (!bInstall && (!_wcsicmp(wargv[0], L"/uninstall") || bForcePromptForUninstall))
     {
         if (MessageBoxW(
             NULL,
@@ -353,27 +370,22 @@ int WINAPI wWinMain(
 
     if (!IsAppRunningAsAdminMode())
     {
-        WCHAR wszPath[MAX_PATH];
-        ZeroMemory(wszPath, ARRAYSIZE(wszPath));
-        if (GetModuleFileNameW(NULL, wszPath, ARRAYSIZE(wszPath)))
+        SHELLEXECUTEINFOW sei;
+        ZeroMemory(&sei, sizeof(SHELLEXECUTEINFOW));
+        sei.cbSize = sizeof(sei);
+        sei.lpVerb = L"runas";
+        sei.lpFile = wszOwnPath;
+        sei.lpParameters = !bInstall ? L"/uninstall_silent" : lpCmdLine;
+        sei.hwnd = NULL;
+        sei.nShow = SW_NORMAL;
+        if (!ShellExecuteExW(&sei))
         {
-            SHELLEXECUTEINFOW sei;
-            ZeroMemory(&sei, sizeof(SHELLEXECUTEINFOW));
-            sei.cbSize = sizeof(sei);
-            sei.lpVerb = L"runas";
-            sei.lpFile = wszPath;
-            sei.lpParameters = !bInstall ? L"/uninstall_silent" : lpCmdLine;
-            sei.hwnd = NULL;
-            sei.nShow = SW_NORMAL;
-            if (!ShellExecuteExW(&sei))
+            DWORD dwError = GetLastError();
+            if (dwError == ERROR_CANCELLED)
             {
-                DWORD dwError = GetLastError();
-                if (dwError == ERROR_CANCELLED)
-                {
-                }
             }
-            exit(0);
         }
+        exit(0);
     }
 
     SHGetFolderPathW(NULL, SPECIAL_FOLDER, NULL, SHGFP_TYPE_CURRENT, wszPath);
@@ -383,9 +395,26 @@ int WINAPI wWinMain(
     {
         bOk = TRUE;
 
-        BeginExplorerRestart();
+        HWND hShellTrayWnd = FindWindowW(L"Shell_TrayWnd", NULL);
+        if (hShellTrayWnd)
+        {
+            PDWORD_PTR res = -1;
+            if (!SendMessageTimeoutW(hShellTrayWnd, 1460, 0, 0, SMTO_ABORTIFHUNG, 2000, &res) && res)
+            {
+                HANDLE hExplorerRestartThread = CreateThread(NULL, 0, BeginExplorerRestart, NULL, 0, NULL);
+                if (hExplorerRestartThread)
+                {
+                    WaitForSingleObject(hExplorerRestartThread, 2000);
+                    CloseHandle(hExplorerRestartThread);
+                    hExplorerRestartThread = NULL;
+                }
+                else
+                {
+                    BeginExplorerRestart();
+                }
+            }
+        }
         Sleep(100);
-
         GetSystemDirectoryW(wszPath, MAX_PATH);
         wcscat_s(wszPath, MAX_PATH, L"\\taskkill.exe");
         SHELLEXECUTEINFOW sei;
@@ -645,17 +674,7 @@ int WINAPI wWinMain(
             );
         }
 
-        GetWindowsDirectoryW(wszPath, MAX_PATH);
-        wcscat_s(wszPath, MAX_PATH, L"\\explorer.exe");
-        Sleep(1000);
-        ShellExecuteW(
-            NULL,
-            L"open",
-            wszPath,
-            NULL,
-            NULL,
-            SW_SHOWNORMAL
-        );
+        StartExplorerWithDelay(1000);
     }
 
 	return GetLastError();
