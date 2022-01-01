@@ -30,6 +30,8 @@ extern HMODULE hModule;
 #define UPDATES_RELEASE_INFO_URL_STABLE   "https://github.com/valinet/ExplorerPatcher/releases/latest"
 #define UPDATES_RELEASE_INFO_URL_STAGING  "https://api.github.com/repos/valinet/ExplorerPatcher/releases?per_page=1"
 
+#define TESTCWORD "测试"
+
 typedef struct IsUpdateAvailableParameters
 {
 	HINTERNET hInternet;
