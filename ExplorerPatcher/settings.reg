@@ -22,23 +22,23 @@
 ;;x 1 Windows 11
 ;;"OrbStyle"=dword:00000000
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;c 4 Primary taskbar location on screen *
-;x 3 Bottom (默认)
-;x 1 Top
-;x 0 Left
-;x 2 Right
+;c 4 主任务栏位置 *
+;x 3 底部 (默认)
+;x 1 顶部
+;x 0 左侧
+;x 2 右侧
 "Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_TaskbarPosition"=dword:00000003
-;c 4 Secondary taskbar(s) location on screen
-;x 3 Bottom (默认)
-;x 1 Top
-;x 0 Left
-;x 2 Right
+;c 4 副任务栏位置
+;x 3 底部 (默认)
+;x 1 顶部
+;x 0 左侧
+;x 2 右侧
 "Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_MMTaskbarPosition"=dword:00000003
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
-;c 3 Extra button should be
+;c 3 Cortana 按钮
 ;x 0 隐藏 (默认)
-;x 2 Shown and open Cortana
-;x 1 Shown and open Widgets
+;x 2 打开 Cortana
+;x 1 打开小组件
 "TaskbarDa"=dword:00000000
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Search]
 ;b 显示搜索按钮
@@ -50,87 +50,87 @@
 ;b 显示桌面按钮
 "TaskbarSD"=dword:00000001
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;b Automatically hide the taskbar
+;b 自动隐藏任务栏
 "Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_AutoHideTaskbar"=dword:00000000
-;t The following settings only apply to the Windows 10 taskbar:                          
+;t 以下设置仅支持 Windows 10 任务栏:                          
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;c 3 Combine taskbar icons on primary taskbar
-;x 0 Always combine
-;x 1 Combine when taskbar is full
-;x 2 Never combine (默认)
+;c 3 主任务栏合并图标
+;x 0 始终合并
+;x 1 当任务栏被占满时合并
+;x 2 从不合并 (默认)
 "TaskbarGlomLevel"=dword:00000002
-;c 3 Combine taskbar icons on secondary taskbar(s)
-;x 0 Always combine
-;x 1 Combine when taskbar is full
-;x 2 Never combine (默认)
+;c 3 副任务栏合并图标
+;x 0 始终合并
+;x 1 当任务栏被占满时合并
+;x 2 从不合并 (默认)
 "MMTaskbarGlomLevel"=dword:00000002
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
-;c 2 Taskbar icon size
-;x 1 Small
-;x 0 Large (默认)
+;c 2 任务栏图标大小
+;x 1 小
+;x 0 大 (默认)
 "TaskbarSmallIcons"=dword:00000000
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People]
-;b Show People on the taskbar
+;b 显示人脉按钮
 "Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_PeopleBand"=dword:00000000
 
 
-;T System tray
+;T 托盘菜单
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;b Skin taskbar and tray pop-up menus
+;b 任务栏和托盘图标弹窗启用皮肤
 "SkinMenus"=dword:00000001
-;b Center tray icon pop-up menus
+;b 托盘图标弹窗居中对齐
 "CenterMenus"=dword:00000001
-;b Flyout behavior for tray icon pop-up menus
+;b 托盘图标弹窗弹出动画
 "FlyoutMenus"=dword:00000001
 [HKEY_CURRENT_USER\Software\Microsoft\TabletTip\1.7]
-;b Show touch keyboard button *
+;b 显示触摸键盘按钮 *
 "TipbandDesiredVisibility"=dword:00000000
-;t The following settings only apply to the Windows 10 taskbar:
+;t 以下设置仅支持 Windows 10 任务栏:
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;p 2
-;b Apply Windows 11 style to system tray icons *
+;b 显示 Windows 11 样式的系统图标 *
 "SkinIcons"=dword:00000001
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
-;b Show seconds in the clock
+;b 时间显示秒数
 "ShowSecondsInSystemClock"=dword:00000000
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;b Hide Control Center button *
+;b 隐藏控制中心按钮 *
 "HideControlCenterButton"=dword:00000000
-;a Choosing 'Open Network && Internet settings' when right clicking the
-;c 3 network icon should open:
-;x 0 Network section in the Settings app (默认)
-;x 1 Network and Sharing Center in Control Panel
-;x 2 Network Connections in Control Panel
+;a 右键网络图标并选择“打开网络和 Internet 设置”时
+;c 3 打开:
+;x 0 设置“网络和 Internet” (默认)
+;x 1 控制面板“网络和共享中心”
+;x 2 控制面板“网络连接”
 "ReplaceNetwork"=dword:00000000
-;t When clicking a system icon in the Windows 10 taskbar system tray, open:
+;t 系统托盘按钮控件:
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Control Panel\Settings\Network]
-;c 7 Network
-;x 6 Control Center
-;x 5 Windows 11 WiFi flyout
-;x 0 Windows 10 flyout (默认)
-;x 2 Windows 8 flyout
-;x 1 Network section in the Settings app
-;x 3 Network and Sharing Center in Control Panel
-;x 4 Network Connections in Control Panel
+;c 7 网络
+;x 6 控制中心
+;x 5 Windows 11 WiFi 弹窗
+;x 0 Windows 10 弹窗 (默认)
+;x 2 Windows 8 弹窗
+;x 1 设置“网络和 Internet”
+;x 3 控制面板“网络和共享中心”
+;x 4 控制面板“网络连接”
 "ReplaceVan"=dword:00000000
 [HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\MTCUVC]
-;c 2 Sound
-;x 1 Windows 10 flyout (默认)
-;x 0 Windows 7 flyout
+;c 2 声音
+;x 1 Windows 10 弹窗 (默认)
+;x 0 Windows 7 弹窗
 "EnableMtcUvc"=dword:00000001
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\ImmersiveShell]
-;c 3 Clock
-;x 2 Windows 11 flyout
-;x 0 Windows 10 flyout (默认)
+;c 3 时间
+;x 2 Windows 11 弹窗
+;x 0 Windows 10 弹窗 (默认)
 ;x 1 Windows 7
 "UseWin32TrayClockExperience"=dword:00000000
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\ImmersiveShell]
-;c 2 Battery
-;x 0 Windows 10 flyout (默认)
+;c 2 电池
+;x 0 Windows 10 弹窗 (默认)
 ;x 1 Windows 7
 "UseWin32BatteryFlyout"=dword:00000000
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;c 6 Language switcher *
+;c 6 语言切换 *
 ;x 0 Windows 11 (默认)
 ;x 1 Windows 10
 ;x 2 "LOGONUI"
@@ -140,48 +140,48 @@
 "IMEStyle"=dword:00000000
 
 
-;T File Explorer
+;T 文件管理器
 [-HKEY_CURRENT_USER\Software\Classes\CLSID\{d93ed569-3b3e-4bff-8355-3c44f6a52bb5}\InprocServer32]
-;d Disable the Windows 11 command bar *
+;d 禁用 Windows 11 工具栏 *
 @=""
 [-HKEY_CURRENT_USER\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32]
-;d Disable the Windows 11 context menu *
+;d 禁用 Windows 11 右键菜单 *
 @=""
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;i Use immersive menus when displaying Windows 10 context menus **
+;i 显示 Windows 10 右键菜单时使用沉浸式菜单 **
 "DisableImmersiveContextMenu"=dword:00000000
 [-HKEY_CURRENT_USER\Software\Classes\CLSID\{056440FD-8568-48e7-A632-72157243B55B}\InprocServer32]
-;d Disable navigation bar **
+;d 禁用导航栏 **
 @=""
 [-HKEY_CURRENT_USER\Software\Classes\CLSID\{1d64637d-31e9-4b06-9124-e83fb178ac6e}\TreatAs]
-;d Disable modern search bar
+;d 禁用新款搜索栏样式
 @="{64bc32b5-4eec-4de7-972d-bd8bd0324537}"
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;b Hide search bar completely **
+;b 完全隐藏搜索栏 **
 "HideExplorerSearchBar"=dword:00000000
 ;p 2
-;b Mica effect on title bar
+;b 标题栏云母材质
 "MicaEffectOnTitlebar"=dword:00000000
 [-HKEY_LOCAL_MACHINE\Software\Classes\CLSID\{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}\InprocServer32]
-;d Register as shell extension
+;d 注册为外壳扩展插件
 @="{64bc32b5-4eec-4de7-972d-bd8bd0324537}"
-;e For the settings marked with (**) to work in Open/Save file dialogs as well, register
-;e this utility as shell extension using the option above.
-;y Learn more 🡕
+;e 要使标 ** 的设置在打开/保存对话框也生效，
+;e 请将本工具注册为外壳扩展插件。
+;y 了解更多 🡕
 ;https://github.com/valinet/ExplorerPatcher/wiki/Using-ExplorerPatcher-as-shell-extension
 
 
-;T Start menu
+;T 开始菜单
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StartPage]
-;i Open Start on monitor containing the cursor
+;i 在鼠标光标所在显示器打开开始菜单
 "MonitorOverride"=dword:00000001
-;b Open Start at logon
+;b 登录后打开开始菜单
 "OpenAtLogon"=dword:00000000
-;b Open Start in All apps by default
+;b 默认打开开始菜单的“所有应用”
 "MakeAllAppsDefault"=dword:00000000
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ExplorerPatcher]
-;c 22 Maximum number of frequent apps to show
-;x 0 None
+;c 22 常用应用程序最大数量
+;x 0 0
 ;x 1 1
 ;x 2 2
 ;x 3 3
@@ -202,16 +202,16 @@
 ;x 18 18
 ;x 19 19
 ;x 20 20
-;x 99999 Unlimited
+;x 99999 ∞
 "Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_Start_MaximumFrequentApps"=dword:00000006
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
-;c 2 Position on screen
-;x 0 Left
-;x 1 Center (默认)
+;c 2 显示位置
+;x 0 靠左
+;x 1 居中 (默认)
 "TaskbarAl"=dword:00000001
 
 
-;T Window switcher
+;T 窗口切换器
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer]
 ;z 4 Window switcher (Alt+Tab) style *
 ;x 0 Windows 11 (默认)
@@ -453,7 +453,7 @@
 ;e 
 ;e 该工具旨在为 Windows 11 恢复高效的工作环境
 ;t Valentin-Gabriel Radu 荣誉出品
-;y 查看 GitHub (https://github.com/valinet) 🡕
+;y 查看代码 (https://github.com/valinet) 🡕
 ;https://github.com/valinet
 ;y 访问网站 (https://www.valinet.ro) 🡕
 ;https://www.valinet.ro
