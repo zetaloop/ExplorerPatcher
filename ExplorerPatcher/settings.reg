@@ -231,8 +231,8 @@
 "NoPerApplicationList"=dword:00000000
 ;c 3 材质
 ;x 0 默认
-;x 1 Win10 亚克力
-;x 2 Win11 云母 (不透明)
+;x 1 亚克力
+;x 2 云母 (不透明)
 "Theme"=dword:00000000
 [HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MultitaskingView\AltTabViewHost]
 ;c 19 不透明度
