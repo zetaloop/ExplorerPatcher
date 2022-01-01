@@ -655,17 +655,17 @@ BOOL ShowUpdateSuccessNotification(
 
     __x_ABI_CWindows_CData_CXml_CDom_CIXmlDocument* inputXml = NULL;
     const wchar_t text[] =
-        u8"<toast displayTimestamp=\"2021-08-29T00:00:00.000Z\" scenario=\"reminder\" "
-        u8"activationType=\"protocol\" launch=\"" _T(UPDATES_RELEASE_INFO_URL) L"\" duration=\"short\">\r\n"
-        u8"	<visual>\r\n"
-        u8"		<binding template=\"ToastGeneric\">\r\n"
-        u8"			<text><![CDATA[更新成功]]></text>\r\n"
-        u8"			<text><![CDATA[当前版本: %d.%d.%d.%d]]></text>\r\n"
-        u8"			<text placement=\"attribution\"><![CDATA[ExplorerPatcher]]></text>\r\n"
-        u8"		</binding>\r\n"
-        u8"	</visual>\r\n"
-        u8"	<audio src=\"ms-winsoundevent:Notification.Default\" loop=\"false\" silent=\"false\"/>\r\n"
-        u8"</toast>\r\n";
+        L"<toast displayTimestamp=\"2021-08-29T00:00:00.000Z\" scenario=\"reminder\" "
+        L"activationType=\"protocol\" launch=\"" _T(UPDATES_RELEASE_INFO_URL) L"\" duration=\"short\">\r\n"
+        L"	<visual>\r\n"
+        L"		<binding template=\"ToastGeneric\">\r\n"
+        L"			<text><![CDATA[更新成功]]></text>\r\n"
+        L"			<text><![CDATA[当前版本: %d.%d.%d.%d]]></text>\r\n"
+        L"			<text placement=\"attribution\"><![CDATA[ExplorerPatcher]]></text>\r\n"
+        L"		</binding>\r\n"
+        L"	</visual>\r\n"
+        L"	<audio src=\"ms-winsoundevent:Notification.Default\" loop=\"false\" silent=\"false\"/>\r\n"
+        L"</toast>\r\n";
     swprintf_s(buf, TOAST_BUFSIZ, text, dwLeftMost, dwSecondLeft, dwSecondRight, dwRightMost);
     String2IXMLDocument(
         buf,
@@ -746,17 +746,17 @@ BOOL InstallUpdatesIfAvailable(
     if (dwOperation == UPDATES_OP_INSTALL)
     {
         const wchar_t text[] =
-            u8"<toast displayTimestamp=\"2021-08-29T00:00:00.000Z\" scenario=\"reminder\" "
-            u8"activationType=\"protocol\" launch=\"" _T(UPDATES_RELEASE_INFO_URL) L"\" duration=\"long\">\r\n"
-            u8"	<visual>\r\n"
-            u8"		<binding template=\"ToastGeneric\">\r\n"
-            u8"			<text><![CDATA[正在下载和安装更新]]></text>\r\n"
-            u8"			<text><![CDATA[当前版本: %d.%d.%d.%d]]></text>\r\n"
-            u8"			<text placement=\"attribution\"><![CDATA[ExplorerPatcher]]></text>\r\n"
-            u8"		</binding>\r\n"
-            u8"	</visual>\r\n"
-            u8"	<audio src=\"ms-winsoundevent:Notification.Default\" loop=\"false\" silent=\"false\"/>\r\n"
-            u8"</toast>\r\n";
+            L"<toast displayTimestamp=\"2021-08-29T00:00:00.000Z\" scenario=\"reminder\" "
+            L"activationType=\"protocol\" launch=\"" _T(UPDATES_RELEASE_INFO_URL) L"\" duration=\"long\">\r\n"
+            L"	<visual>\r\n"
+            L"		<binding template=\"ToastGeneric\">\r\n"
+            L"			<text><![CDATA[正在下载和安装更新]]></text>\r\n"
+            L"			<text><![CDATA[当前版本: %d.%d.%d.%d]]></text>\r\n"
+            L"			<text placement=\"attribution\"><![CDATA[ExplorerPatcher]]></text>\r\n"
+            L"		</binding>\r\n"
+            L"	</visual>\r\n"
+            L"	<audio src=\"ms-winsoundevent:Notification.Default\" loop=\"false\" silent=\"false\"/>\r\n"
+            L"</toast>\r\n";
         swprintf_s(buf, TOAST_BUFSIZ, text, dwLeftMost, dwSecondLeft, dwSecondRight, dwRightMost);
         String2IXMLDocument(
             buf,
@@ -768,17 +768,17 @@ BOOL InstallUpdatesIfAvailable(
     else if (dwOperation == UPDATES_OP_CHECK)
     {
         const wchar_t text[] =
-            u8"<toast displayTimestamp=\"2021-08-29T00:00:00.000Z\" scenario=\"reminder\" "
-            u8"activationType=\"protocol\" launch=\"" _T(UPDATES_RELEASE_INFO_URL) L"\" duration=\"long\">\r\n"
-            u8"	<visual>\r\n"
-            u8"		<binding template=\"ToastGeneric\">\r\n"
-            u8"			<text><![CDATA[正在检查更新]]></text>\r\n"
-            u8"			<text><![CDATA[当前版本: %d.%d.%d.%d]]></text>\r\n"
-            u8"			<text placement=\"attribution\"><![CDATA[ExplorerPatcher]]></text>\r\n"
-            u8"		</binding>\r\n"
-            u8"	</visual>\r\n"
-            u8"	<audio src=\"ms-winsoundevent:Notification.Default\" loop=\"false\" silent=\"false\"/>\r\n"
-            u8"</toast>\r\n";
+            L"<toast displayTimestamp=\"2021-08-29T00:00:00.000Z\" scenario=\"reminder\" "
+            L"activationType=\"protocol\" launch=\"" _T(UPDATES_RELEASE_INFO_URL) L"\" duration=\"long\">\r\n"
+            L"	<visual>\r\n"
+            L"		<binding template=\"ToastGeneric\">\r\n"
+            L"			<text><![CDATA[正在检查更新]]></text>\r\n"
+            L"			<text><![CDATA[当前版本: %d.%d.%d.%d]]></text>\r\n"
+            L"			<text placement=\"attribution\"><![CDATA[ExplorerPatcher]]></text>\r\n"
+            L"		</binding>\r\n"
+            L"	</visual>\r\n"
+            L"	<audio src=\"ms-winsoundevent:Notification.Default\" loop=\"false\" silent=\"false\"/>\r\n"
+            L"</toast>\r\n";
         swprintf_s(buf, TOAST_BUFSIZ, text, dwLeftMost, dwSecondLeft, dwSecondRight, dwRightMost);
         String2IXMLDocument(
             buf,
