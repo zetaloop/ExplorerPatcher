@@ -1,53 +1,53 @@
 ﻿Windows Registry Editor Version 5.00
 
 
-;M Settings
+;M 设置
 
 
-;T Taskbar
+;T 任务栏
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;z 2 Taskbar style *
-;x 0 Windows 11 (default)
+;z 2 任务栏样式 *
+;x 0 Windows 11 (默认)
 ;x 1 Windows 10
 "OldTaskbar"=dword:00000001
-;y More taskbar options in the Settings app 🡕
+;y 任务栏设置 🡕
 ;ms-settings:taskbar
-;y Customize notification area icons 🡕
+;y 管理通知栏图标 🡕
 ;shell:::{05d7b0f4-2121-4eff-bf6b-ed3f69b894d9}
-;y Customize system icons in the notification area 🡕
+;y 管理系统图标 🡕
 ;shell:::{05d7b0f4-2121-4eff-bf6b-ed3f69b894d9}\SystemIcons
 ;;[HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;;c 2 Start button style *
-;;x 0 Windows 10 (default)
+;;c 2 开始按钮样式 *
+;;x 0 Windows 10 (默认)
 ;;x 1 Windows 11
 ;;"OrbStyle"=dword:00000000
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;c 4 Primary taskbar location on screen *
-;x 3 Bottom (default)
+;x 3 Bottom (默认)
 ;x 1 Top
 ;x 0 Left
 ;x 2 Right
 "Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_TaskbarPosition"=dword:00000003
 ;c 4 Secondary taskbar(s) location on screen
-;x 3 Bottom (default)
+;x 3 Bottom (默认)
 ;x 1 Top
 ;x 0 Left
 ;x 2 Right
 "Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_MMTaskbarPosition"=dword:00000003
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
 ;c 3 Extra button should be
-;x 0 Hidden (default)
+;x 0 隐藏 (默认)
 ;x 2 Shown and open Cortana
 ;x 1 Shown and open Widgets
 "TaskbarDa"=dword:00000000
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Search]
-;b Show Search button
+;b 显示搜索按钮
 "SearchboxTaskbarMode"=dword:00000001
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
-;b Show Task view button
+;b 显示任务视图按钮
 "ShowTaskViewButton"=dword:00000001
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
-;b Show Desktop button
+;b 显示桌面按钮
 "TaskbarSD"=dword:00000001
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;b Automatically hide the taskbar
@@ -57,17 +57,17 @@
 ;c 3 Combine taskbar icons on primary taskbar
 ;x 0 Always combine
 ;x 1 Combine when taskbar is full
-;x 2 Never combine (default)
+;x 2 Never combine (默认)
 "TaskbarGlomLevel"=dword:00000002
 ;c 3 Combine taskbar icons on secondary taskbar(s)
 ;x 0 Always combine
 ;x 1 Combine when taskbar is full
-;x 2 Never combine (default)
+;x 2 Never combine (默认)
 "MMTaskbarGlomLevel"=dword:00000002
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
 ;c 2 Taskbar icon size
 ;x 1 Small
-;x 0 Large (default)
+;x 0 Large (默认)
 "TaskbarSmallIcons"=dword:00000000
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People]
 ;b Show People on the taskbar
@@ -98,7 +98,7 @@
 "HideControlCenterButton"=dword:00000000
 ;a Choosing 'Open Network && Internet settings' when right clicking the
 ;c 3 network icon should open:
-;x 0 Network section in the Settings app (default)
+;x 0 Network section in the Settings app (默认)
 ;x 1 Network and Sharing Center in Control Panel
 ;x 2 Network Connections in Control Panel
 "ReplaceNetwork"=dword:00000000
@@ -107,7 +107,7 @@
 ;c 7 Network
 ;x 6 Control Center
 ;x 5 Windows 11 WiFi flyout
-;x 0 Windows 10 flyout (default)
+;x 0 Windows 10 flyout (默认)
 ;x 2 Windows 8 flyout
 ;x 1 Network section in the Settings app
 ;x 3 Network and Sharing Center in Control Panel
@@ -115,23 +115,23 @@
 "ReplaceVan"=dword:00000000
 [HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\MTCUVC]
 ;c 2 Sound
-;x 1 Windows 10 flyout (default)
+;x 1 Windows 10 flyout (默认)
 ;x 0 Windows 7 flyout
 "EnableMtcUvc"=dword:00000001
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\ImmersiveShell]
 ;c 3 Clock
 ;x 2 Windows 11 flyout
-;x 0 Windows 10 flyout (default)
+;x 0 Windows 10 flyout (默认)
 ;x 1 Windows 7
 "UseWin32TrayClockExperience"=dword:00000000
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\ImmersiveShell]
 ;c 2 Battery
-;x 0 Windows 10 flyout (default)
+;x 0 Windows 10 flyout (默认)
 ;x 1 Windows 7
 "UseWin32BatteryFlyout"=dword:00000000
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;c 6 Language switcher *
-;x 0 Windows 11 (default)
+;x 0 Windows 11 (默认)
 ;x 1 Windows 10
 ;x 2 "LOGONUI"
 ;x 3 "UAC"
@@ -187,7 +187,7 @@
 ;x 3 3
 ;x 4 4
 ;x 5 5
-;x 6 6 (default)
+;x 6 6 (默认)
 ;x 7 7
 ;x 8 8
 ;x 9 9
@@ -207,14 +207,14 @@
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
 ;c 2 Position on screen
 ;x 0 Left
-;x 1 Center (default)
+;x 1 Center (默认)
 "TaskbarAl"=dword:00000001
 
 
 ;T Window switcher
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer]
 ;z 4 Window switcher (Alt+Tab) style *
-;x 0 Windows 11 (default)
+;x 0 Windows 11 (默认)
 ;x 3 Windows 10
 ;x 1 Windows NT
 ;x 2 Simple Window Switcher
@@ -239,7 +239,7 @@
 ;x 100 Opaque
 ;x 98 98 %
 ;x 96 96 %
-;x 95 95 % (default)
+;x 95 95 % (默认)
 ;x 94 94 %
 ;x 92 92 %
 ;x 90 90 %
@@ -258,13 +258,13 @@
 "Grid_backgroundPercent"=dword:0000005F
 [HKEY_CURRENT_USER\Software\ExplorerPatcher\sws]
 ;c 3 Color scheme
-;x 0 Follow system setting (default)
+;x 0 Follow system setting (默认)
 ;x 1 Light
 ;x 2 Dark
 "ColorScheme"=dword:00000000
 [HKEY_CURRENT_USER\Software\ExplorerPatcher\sws]
 ;c 3 Corner preference
-;x 2 Rounded (default)
+;x 2 Rounded (默认)
 ;x 3 Small rounded
 ;x 1 Not rounded
 "CornerPreference"=dword:00000002
@@ -280,7 +280,7 @@
 ;x 260 260 pt
 ;x 250 250 pt
 ;x 240 240 pt
-;x 230 230 pt (default)
+;x 230 230 pt (默认)
 ;x 220 220 pt
 ;x 210 210 pt
 ;x 200 200 pt
@@ -296,7 +296,7 @@
 ;x 95 95 %
 ;x 90 90 %
 ;x 85 85 %
-;x 80 80 % (default)
+;x 80 80 % (默认)
 ;x 75 75 %
 ;x 70 70 %
 ;x 65 65 %
@@ -308,7 +308,7 @@
 ;x 95 95 %
 ;x 90 90 %
 ;x 85 85 %
-;x 80 80 % (default)
+;x 80 80 % (默认)
 ;x 75 75 %
 ;x 70 70 %
 ;x 65 65 %
@@ -318,7 +318,7 @@
 ;c 11 Window padding
 ;x 50 50 pt
 ;x 45 45 pt
-;x 40 40 pt (default)
+;x 40 40 pt (默认)
 ;x 35 30 pt
 ;x 30 30 pt
 ;x 25 25 pt
@@ -333,7 +333,7 @@
 ;x 25 25 ms
 ;x 50 50 ms
 ;x 75 75 ms
-;x 100 100 ms (default)
+;x 100 100 ms (默认)
 ;x 125 125 ms
 ;x 150 150 ms
 ;x 200 200 ms
@@ -368,12 +368,12 @@
 ;x 1 Sign out
 ;x 16 Sleep
 ;x 64 Hibernate
-;x 2 Shut down (default)
+;x 2 Shut down (默认)
 ;x 4 Restart
 "Start_PowerButtonAction"=dword:00000002
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;c 2 Snap Assist style
-;x 0 Windows 11 (default)
+;x 0 Windows 11 (默认)
 ;x 3 Windows 10
 "SnapAssistSettings"=dword:00000000
 ;t Prevent the following Control Panel links from being redirected to the Settings app:
@@ -391,7 +391,7 @@
 ;T Updates
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;z 3 When File Explorer starts
-;x 1 Notify about available updates (default)
+;x 1 Notify about available updates (默认)
 ;x 0 Prompt to install available updates
 ;x 2 Do not check for updates
 "UpdatePolicy"=dword:00000001
@@ -428,7 +428,7 @@
 ;i Do not hook Start menu from main Explorer process (permanently disabled) *
 "HookStartMenu"=dword:00000001
 ;c 12 Supplementary delay at logon *
-;x 0 None (default)
+;x 0 None (默认)
 ;x 300 300 ms
 ;x 600 600 ms
 ;x 1000 1 second
@@ -446,31 +446,31 @@
 ;https://github.com/valinet/ExplorerPatcher/wiki/About-advanced-settings
 
 
-;T About
+;T 关于
 ;e ExplorerPatcher
-;e Version %VERSIONINFORMATIONSTRING%
+;e 版本 %VERSIONINFORMATIONSTRING%
 ;t Copyright (C) 2006-2022 VALINET Solutions SRL. All rights reserved.
 ;e 
-;e This project aims to bring back a productive working environment on Windows 11
-;t Proudly engineered by Valentin-Gabriel Radu
-;y Visit project GitHub (https://github.com/valinet) 🡕
+;e 该工具旨在为 Windows 11 恢复高效的工作环境
+;t Valentin-Gabriel Radu 荣誉出品
+;y 查看 GitHub (https://github.com/valinet) 🡕
 ;https://github.com/valinet
-;y Visit web site (https://www.valinet.ro) 🡕
+;y 访问网站 (https://www.valinet.ro) 🡕
 ;https://www.valinet.ro
-;y E-mail author (valentingabrielradu@gmail.com) 🡕
+;y 电邮作者 (valentingabrielradu@gmail.com) 🡕
 ;mailto:valentingabrielradu@gmail.com
-;y Donate (using PayPal) 🡕
+;y 捐赠支持 (PayPal) 🡕
 ;https://www.paypal.com/donate?business=valentingabrielradu%40gmail.com&no_recurring=0&item_name=ExplorerPatcher&currency_code=EUR
-;y Frequently Asked Questions 🡕
+;y 常见问题 🡕
 ;https://github.com/valinet/ExplorerPatcher/wiki/Frequently-asked-questions
 ;u Restore default settings
 ;reset
 
 
 ;f
-;u Restart File Explorer (*)
+;u 重启文件管理器 (*)
 ;restart
-;;u Restore default settings
+;;u 恢复默认设置
 ;;reset
-;;u About ExplorerPatcher
+;;u 关于 ExplorerPatcher
 ;;about
