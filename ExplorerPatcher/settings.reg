@@ -97,7 +97,7 @@
 ;b 隐藏控制中心按钮 *
 "HideControlCenterButton"=dword:00000000
 ;a 右键网络图标打开“网络和 Internet 设置”
-;c 3 打开:
+;c 3 打开
 ;x 0 设置“网络和 Internet” (默认)
 ;x 1 控制面板“网络和共享中心”
 ;x 2 控制面板“网络连接”
