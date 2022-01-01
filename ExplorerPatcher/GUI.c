@@ -1852,7 +1852,7 @@ static BOOL GUI_Build(HDC hDC, HWND hwnd, POINT pt)
                                 0
                             );
                             //swprintf(text + 3, MAX_LINE_LENGTH, L"Disable per-application window list ( Alt + %c )", key);
-                            swprintf(text + 3, MAX_LINE_LENGTH, L" ( Alt + %c )", key);
+                            swprintf(text + 11, MAX_LINE_LENGTH, L" ( Alt + %c )", key);
                         }
                         if (IsThemeActive())
                         {
