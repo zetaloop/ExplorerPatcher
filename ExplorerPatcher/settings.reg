@@ -227,7 +227,7 @@
 "PrimaryOnly"=dword:00000000
 ;b 仅显示当前显示器的窗口
 "PerMonitor"=dword:00000000
-;b %PLACEHOLDER_0001%
+;b 禁用应用窗口列表%PLACEHOLDER_0001%
 "NoPerApplicationList"=dword:00000000
 ;c 3 材质
 ;x 0 默认
