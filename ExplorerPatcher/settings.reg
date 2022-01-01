@@ -52,7 +52,7 @@
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;b 自动隐藏任务栏
 "Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_AutoHideTaskbar"=dword:00000000
-;t 以下设置仅支持 Windows 10 任务栏:                          
+;t 仅支持 Windows 10 任务栏:                          
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;c 3 主任务栏合并图标
 ;x 0 始终合并
@@ -85,7 +85,7 @@
 [HKEY_CURRENT_USER\Software\Microsoft\TabletTip\1.7]
 ;b 显示触摸键盘按钮 *
 "TipbandDesiredVisibility"=dword:00000000
-;t 以下设置仅支持 Windows 10 任务栏:
+;t 仅支持 Windows 10 任务栏:
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;p 2
 ;b 显示 Windows 11 样式的系统图标 *
@@ -96,7 +96,7 @@
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;b 隐藏控制中心按钮 *
 "HideControlCenterButton"=dword:00000000
-;a 右键网络图标并选择“打开网络和 Internet 设置”时
+;a 右键网络图标打开“网络和 Internet 设置”
 ;c 3 打开:
 ;x 0 设置“网络和 Internet” (默认)
 ;x 1 控制面板“网络和共享中心”
@@ -167,7 +167,7 @@
 @="{64bc32b5-4eec-4de7-972d-bd8bd0324537}"
 ;e 要使标 ** 的设置在打开/保存对话框也生效，
 ;e 请将本工具注册为外壳扩展插件。
-;y 了解更多 🡕
+;y 详细了解 🡕
 ;https://github.com/valinet/ExplorerPatcher/wiki/Using-ExplorerPatcher-as-shell-extension
 
 
@@ -213,30 +213,30 @@
 
 ;T 窗口切换器
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer]
-;z 4 Window switcher (Alt+Tab) style *
+;z 3 窗口切换器 (Alt+Tab) 样式 *
 ;x 0 Windows 11 (默认)
 ;x 3 Windows 10
 ;x 1 Windows NT
-;x 2 Simple Window Switcher
+;x 2 简易窗口切换器
 "AltTabSettings"=dword:00000000
-;t The following settings only apply to the Simple Window Switcher:
+;t 仅支持简易窗口切换器:
 [HKEY_CURRENT_USER\Software\ExplorerPatcher\sws]
-;b Include desktop
+;b 包括桌面
 "IncludeWallpaper"=dword:00000001
-;b Always show on primary monitor
+;b 始终显示在主显示器
 "PrimaryOnly"=dword:00000000
-;b Show windows only from current monitor
+;b 仅显示当前显示器的窗口
 "PerMonitor"=dword:00000000
 ;b %PLACEHOLDER_0001%
 "NoPerApplicationList"=dword:00000000
-;c 3 Theme
-;x 0 Default
-;x 1 Acrylic
-;x 2 Mica (always opaque)
+;c 3 材质
+;x 0 默认
+;x 1 Win10 亚克力
+;x 2 Win11 云母 (不透明)
 "Theme"=dword:00000000
 [HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MultitaskingView\AltTabViewHost]
-;c 19 Opacity
-;x 100 Opaque
+;c 19 不透明度
+;x 100 100 %
 ;x 98 98 %
 ;x 96 96 %
 ;x 95 95 % (默认)
@@ -257,19 +257,19 @@
 ;x 30 30 %
 "Grid_backgroundPercent"=dword:0000005F
 [HKEY_CURRENT_USER\Software\ExplorerPatcher\sws]
-;c 3 Color scheme
-;x 0 Follow system setting (默认)
-;x 1 Light
-;x 2 Dark
+;c 3 配色
+;x 0 跟随系统 (默认)
+;x 1 亮
+;x 2 暗
 "ColorScheme"=dword:00000000
 [HKEY_CURRENT_USER\Software\ExplorerPatcher\sws]
-;c 3 Corner preference
-;x 2 Rounded (默认)
-;x 3 Small rounded
-;x 1 Not rounded
+;c 3 边角样式
+;x 2 圆角 (默认)
+;x 3 小圆角
+;x 1 直角
 "CornerPreference"=dword:00000002
 [HKEY_CURRENT_USER\Software\ExplorerPatcher\sws]
-;c 20 Row height
+;c 20 行高
 ;x 330 330 pt
 ;x 320 320 pt
 ;x 310 310 pt
@@ -291,8 +291,8 @@
 ;x 150 150 pt
 ;x 140 140 pt
 "RowHeight"=dword:000000e6
-;c 10 Maximum width (percentage of screen width)
-;x 100 100 % (not recommended)
+;c 10 最大宽度 (屏幕比例)
+;x 100 100 % (不推荐)
 ;x 95 95 %
 ;x 90 90 %
 ;x 85 85 %
@@ -303,8 +303,8 @@
 ;x 60 60 %
 ;x 55 55 %
 "MaxWidth"=dword:00000050
-;c 10 Maximum height (percentage of screen height)
-;x 100 100 % (not recommended)
+;c 10 最大高度 (屏幕比例)
+;x 100 100 % (不推荐)
 ;x 95 95 %
 ;x 90 90 %
 ;x 85 85 %
@@ -315,7 +315,7 @@
 ;x 60 60 %
 ;x 55 55 %
 "MaxHeight"=dword:00000050
-;c 11 Window padding
+;c 11 边框厚度
 ;x 50 50 pt
 ;x 45 45 pt
 ;x 40 40 pt (默认)
@@ -326,10 +326,10 @@
 ;x 15 15 pt
 ;x 10 10 pt
 ;x 5 5 pt
-;x 0 None
+;x 0 无
 "MasterPadding"=dword:00000028
-;c 11 Show delay
-;x 0 None
+;c 11 显示延时
+;x 0 无
 ;x 25 25 ms
 ;x 50 50 ms
 ;x 75 75 ms
@@ -341,10 +341,10 @@
 ;x 400 400 ms
 ;x 500 500 ms
 "ShowDelay"=dword:00000064
-;y Learn more about Simple Window Switcher 🡕
+;y 详细了解简易窗口切换器 🡕
 ;https://github.com/valinet/ExplorerPatcher/wiki/Simple-Window-Switcher
 
-;T Other
+;T 其他
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;b Remember last used section in this window
 "LastSectionInProperties"=dword:00000000
@@ -449,7 +449,8 @@
 ;T 关于
 ;e ExplorerPatcher
 ;e 版本 %VERSIONINFORMATIONSTRING%
-;t Copyright (C) 2006-2022 VALINET Solutions SRL. All rights reserved.
+;t 版权所有 (C) 2006-2022 VALINET Solutions SRL.
+;t 保留所有权利.
 ;e 
 ;e 该工具旨在为 Windows 11 恢复高效的工作环境
 ;t Valentin-Gabriel Radu 荣誉出品
@@ -463,7 +464,7 @@
 ;https://www.paypal.com/donate?business=valentingabrielradu%40gmail.com&no_recurring=0&item_name=ExplorerPatcher&currency_code=EUR
 ;y 常见问题 🡕
 ;https://github.com/valinet/ExplorerPatcher/wiki/Frequently-asked-questions
-;u Restore default settings
+;u 恢复默认设置
 ;reset
 
 
