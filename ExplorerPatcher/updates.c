@@ -654,12 +654,13 @@ BOOL ShowUpdateSuccessNotification(
     QueryVersionInfo(hModule, VS_VERSION_INFO, &dwLeftMost, &dwSecondLeft, &dwSecondRight, &dwRightMost);
 
     __x_ABI_CWindows_CData_CXml_CDom_CIXmlDocument* inputXml = NULL;
+    string TEST=L"测试"
     const wchar_t text[] =
         L"<toast displayTimestamp=\"2021-08-29T00:00:00.000Z\" scenario=\"reminder\" "
         L"activationType=\"protocol\" launch=\"" _T(UPDATES_RELEASE_INFO_URL) L"\" duration=\"short\">\r\n"
         L"	<visual>\r\n"
         L"		<binding template=\"ToastGeneric\">\r\n"
-        L"			<text><![CDATA[更新成功]]></text>\r\n"
+        L"			<text><![CDATA[" _T(TEST) L"更新成功]]></text>\r\n"
         L"			<text><![CDATA[当前版本: %d.%d.%d.%d]]></text>\r\n"
         L"			<text placement=\"attribution\"><![CDATA[ExplorerPatcher]]></text>\r\n"
         L"		</binding>\r\n"
@@ -673,6 +674,7 @@ BOOL ShowUpdateSuccessNotification(
         &inputXml,
         NULL
     );
+    XMLDocument.Encoding   :=   'GB2312';
     if (*toast)
     {
         if (notifier)
