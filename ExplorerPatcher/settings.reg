@@ -390,9 +390,9 @@
 
 ;T 更新
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;z 3 文件管理器启动时自动更新
+;z 3 自动更新
 ;x 1 仅通知 (默认)
-;x 0 弹窗安装
+;x 0 自动安装
 ;x 2 不检查更新
 "UpdatePolicy"=dword:00000001
 ;b 接收测试版更新 (不推荐)
@@ -403,9 +403,10 @@
 ;;;EP_INSTALL_UPDATES
 ;y 新版本变化 🡕
 ;https://github.com/valinet/ExplorerPatcher/blob/master/CHANGELOG.md
-;t 汉化请勿更新。
 ;y 更多信息 🡕
 ;https://github.com/valinet/ExplorerPatcher/wiki/Configure-updates
+;y 关于汉化版更新 🡕
+;https://github.com/ZetaSp/ExplorerPatcher#%E6%9B%B4%E6%96%B0
 
 
 ;T 高级
@@ -454,7 +455,7 @@
 ;t 保留所有权利。
 ;e 
 ;e 该工具旨在为 Windows 11 恢复高效的工作环境。
-;t Valentin-Gabriel Radu 荣誉出品。
+;e Valentin-Gabriel Radu 荣誉出品。
 ;y 查看代码 (https://github.com/valinet) 🡕
 ;https://github.com/valinet
 ;y 访问网站 (https://www.valinet.ro) 🡕
