@@ -356,7 +356,7 @@ BOOL IsUpdateAvailableHelper(
                                 );
 
                                 WCHAR wszMsg[500];
-                                swprintf_s(wszMsg, 500, L"Would you like to install an update for " _T(PRODUCT_NAME) L"?\n\nDownloaded from:\n%s", wszURL2);
+                                swprintf_s(wszMsg, 500, L"请问，Would you like to install an update for " _T(PRODUCT_NAME) L"?\n\nDownloaded from:\n%s", wszURL2);
                                 if (MessageBoxW(
                                     FindWindowW(L"ExplorerPatcher_GUI_" _T(EP_CLSID), NULL),
                                     wszMsg,
@@ -659,8 +659,8 @@ BOOL ShowUpdateSuccessNotification(
         L"activationType=\"protocol\" launch=\"" _T(UPDATES_RELEASE_INFO_URL) L"\" duration=\"short\">\r\n"
         L"	<visual>\r\n"
         L"		<binding template=\"ToastGeneric\">\r\n"
-        L"			<text><![CDATA[Update successful]]></text>\r\n"
-        L"			<text><![CDATA[Installed version: %d.%d.%d.%d]]></text>\r\n"
+        L"			<text><![CDATA[更新成功]]></text>\r\n"
+        L"			<text><![CDATA[当前版本: %d.%d.%d.%d]]></text>\r\n"
         L"			<text placement=\"attribution\"><![CDATA[ExplorerPatcher]]></text>\r\n"
         L"		</binding>\r\n"
         L"	</visual>\r\n"
@@ -750,8 +750,8 @@ BOOL InstallUpdatesIfAvailable(
             L"activationType=\"protocol\" launch=\"" _T(UPDATES_RELEASE_INFO_URL) L"\" duration=\"long\">\r\n"
             L"	<visual>\r\n"
             L"		<binding template=\"ToastGeneric\">\r\n"
-            L"			<text><![CDATA[Downloading and installing updates]]></text>\r\n"
-            L"			<text><![CDATA[Installed version: %d.%d.%d.%d]]></text>\r\n"
+            L"			<text><![CDATA[正在下载和安装更新]]></text>\r\n"
+            L"			<text><![CDATA[当前版本: %d.%d.%d.%d]]></text>\r\n"
             L"			<text placement=\"attribution\"><![CDATA[ExplorerPatcher]]></text>\r\n"
             L"		</binding>\r\n"
             L"	</visual>\r\n"
@@ -772,8 +772,8 @@ BOOL InstallUpdatesIfAvailable(
             L"activationType=\"protocol\" launch=\"" _T(UPDATES_RELEASE_INFO_URL) L"\" duration=\"long\">\r\n"
             L"	<visual>\r\n"
             L"		<binding template=\"ToastGeneric\">\r\n"
-            L"			<text><![CDATA[Checking for updates]]></text>\r\n"
-            L"			<text><![CDATA[Installed version: %d.%d.%d.%d]]></text>\r\n"
+            L"			<text><![CDATA[正在检查更新]]></text>\r\n"
+            L"			<text><![CDATA[当前版本: %d.%d.%d.%d]]></text>\r\n"
             L"			<text placement=\"attribution\"><![CDATA[ExplorerPatcher]]></text>\r\n"
             L"		</binding>\r\n"
             L"	</visual>\r\n"
@@ -838,8 +838,8 @@ BOOL InstallUpdatesIfAvailable(
                         L"activationType=\"protocol\" launch=\"" _T(UPDATES_RELEASE_INFO_URL) L"\" duration=\"short\">\r\n"
                         L"	<visual>\r\n"
                         L"		<binding template=\"ToastGeneric\">\r\n"
-                        L"			<text><![CDATA[Update failed]]></text>\r\n"
-                        L"			<text><![CDATA[The request was declined or an error has occured when attempting to install this update.]]></text>\r\n"
+                        L"			<text><![CDATA[更新失败]]></text>\r\n"
+                        L"			<text><![CDATA[安装更新被拒绝，安装出错。]]]></text>\r\n"
                         L"			<text placement=\"attribution\"><![CDATA[ExplorerPatcher]]></text>\r\n"
                         L"		</binding>\r\n"
                         L"	</visual>\r\n"
@@ -880,13 +880,25 @@ BOOL InstallUpdatesIfAvailable(
         }
         else if ((dwOperation == UPDATES_OP_DEFAULT && dwUpdatePolicy == UPDATE_POLICY_NOTIFY) || (dwOperation == UPDATES_OP_CHECK))
         {
-            const wchar_t text[] =
+            /*const wchar_t text[] =
                 L"<toast displayTimestamp=\"2021-08-29T00:00:00.000Z\" scenario=\"reminder\" "
                 L"activationType=\"protocol\" launch=\"%s\" duration=\"long\">\r\n"
                 L"	<visual>\r\n"
                 L"		<binding template=\"ToastGeneric\">\r\n"
                 L"			<text><![CDATA[New version available]]></text>\r\n"
                 L"			<text><![CDATA[You can update by right clicking the taskbar, choosing \"Properties\", then \"Updates\". Click here to learn more about this update.]]></text>\r\n"
+                L"			<text placement=\"attribution\"><![CDATA[ExplorerPatcher]]></text>\r\n"
+                L"		</binding>\r\n"
+                L"	</visual>\r\n"
+                L"	<audio src=\"ms-winsoundevent:Notification.Default\" loop=\"false\" silent=\"false\"/>\r\n"
+                L"</toast>\r\n";*/
+            const wchar_t text[] =
+                L"<toast displayTimestamp=\"2021-08-29T00:00:00.000Z\" scenario=\"reminder\" "
+                L"activationType=\"protocol\" launch=\"%s\" duration=\"long\">\r\n"
+                L"	<visual>\r\n"
+                L"		<binding template=\"ToastGeneric\">\r\n"
+                L"			<text><![CDATA[有版本更新]]></text>\r\n"
+                L"			<text><![CDATA[您可以右键任务栏，选择属性，在设置中进行更新。点击这里了解更多。]]></text>\r\n"
                 L"			<text placement=\"attribution\"><![CDATA[ExplorerPatcher]]></text>\r\n"
                 L"		</binding>\r\n"
                 L"	</visual>\r\n"
@@ -942,8 +954,8 @@ BOOL InstallUpdatesIfAvailable(
                 L"activationType=\"protocol\" launch=\"" _T(UPDATES_RELEASE_INFO_URL) L"\" duration=\"short\">\r\n"
                 L"	<visual>\r\n"
                 L"		<binding template=\"ToastGeneric\">\r\n"
-                L"			<text><![CDATA[No updates are available]]></text>\r\n"
-                L"			<text><![CDATA[Please check back later.]]></text>\r\n"
+                L"			<text><![CDATA[已是最新版本]]></text>\r\n"
+                L"			<text><![CDATA[当前没有版本更新。]]></text>\r\n"
                 L"			<text placement=\"attribution\"><![CDATA[ExplorerPatcher]]></text>\r\n"
                 L"		</binding>\r\n"
                 L"	</visual>\r\n"
@@ -954,8 +966,8 @@ BOOL InstallUpdatesIfAvailable(
                 L"activationType=\"protocol\" launch=\"" _T(UPDATES_RELEASE_INFO_URL) L"\" duration=\"short\">\r\n"
                 L"	<visual>\r\n"
                 L"		<binding template=\"ToastGeneric\">\r\n"
-                L"			<text><![CDATA[Unable to check for updates]]></text>\r\n"
-                L"			<text><![CDATA[Make sure that you are connected to the Internet and that the remote server is online.]]></text>\r\n"
+                L"			<text><![CDATA[无法检查更新]]></text>\r\n"
+                L"			<text><![CDATA[无法连接服务器，请检查您的网络连接。]]></text>\r\n"
                 L"			<text placement=\"attribution\"><![CDATA[ExplorerPatcher]]></text>\r\n"
                 L"		</binding>\r\n"
                 L"	</visual>\r\n"
