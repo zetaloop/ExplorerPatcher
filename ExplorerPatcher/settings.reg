@@ -346,7 +346,7 @@
 
 ;T 其他
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;b 记住此窗口中上次使用的选项Remember last used section in this window
+;b 记住此窗口中上次使用的选项
 "LastSectionInProperties"=dword:00000000
 ;b 按 Win+C 时打开时间，而非打开 Teams
 "ClockFlyoutOnWinC"=dword:00000000

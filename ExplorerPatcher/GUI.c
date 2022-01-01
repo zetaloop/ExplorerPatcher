@@ -1850,7 +1850,7 @@ static BOOL GUI_Build(HDC hDC, HWND hwnd, POINT pt)
                                 1,
                                 0
                             );
-                            swprintf(text + 3, MAX_LINE_LENGTH, L"Disable per-application window list ( Alt + %c )", key);
+                            swprintf(text + 3, MAX_LINE_LENGTH, L"禁用应用窗口列表 ( Alt + %c )", key);
                         }
                         if (IsThemeActive())
                         {
@@ -2450,7 +2450,7 @@ __declspec(dllexport) int ZZGUI(HWND hWnd, HINSTANCE hInstance, LPSTR lpszCmdLin
         }
     }
 
-    printf("Started \"GUI\" thread.\n");
+    printf("启动 \"GUI\" 进程.\n");
 
     SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
@@ -2632,5 +2632,5 @@ __declspec(dllexport) int ZZGUI(HWND hWnd, HINSTANCE hInstance, LPSTR lpszCmdLin
     _getch();
 #endif
 
-    printf("Ended \"GUI\" thread.\n");
+    printf("结束 \"GUI\" 进程.\n");
 }
