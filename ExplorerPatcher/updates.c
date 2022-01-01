@@ -673,7 +673,6 @@ BOOL ShowUpdateSuccessNotification(
         &inputXml,
         NULL
     );
-    XMLDocument.Encoding   :=   'GB2312';
     if (*toast)
     {
         if (notifier)
