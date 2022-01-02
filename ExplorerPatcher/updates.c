@@ -659,7 +659,7 @@ BOOL ShowUpdateSuccessNotification(
         L"activationType=\"protocol\" launch=\"" _T(UPDATES_RELEASE_INFO_URL) L"\" duration=\"short\">\r\n"
         L"	<visual>\r\n"
         L"		<binding template=\"ToastGeneric\">\r\n"
-        L"			<text><![CDATA[更新" _T(TESTCWORD) L"成功]]></text>\r\n"
+        L"			<text><![CDATA[更新成功]]></text>\r\n"
         L"			<text><![CDATA[当前版本: %d.%d.%d.%d]]></text>\r\n"
         L"			<text placement=\"attribution\"><![CDATA[ExplorerPatcher]]></text>\r\n"
         L"		</binding>\r\n"
