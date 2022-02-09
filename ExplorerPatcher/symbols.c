@@ -20,7 +20,7 @@ const char* startdocked_SN[STARTDOCKED_SB_CNT] = {
 };
 
 const wchar_t DownloadSymbolsXML[] =
-L"<toast displayTimestamp=\"2021-08-29T00:00:00.000Z\" scenario=\"reminder\" "
+L"<toast scenario=\"reminder\" "
 L"activationType=\"protocol\" launch=\"https://github.com/valinet/ExplorerPatcher\" duration=\"short\">\r\n"
 L"	<visual>\r\n"
 L"		<binding template=\"ToastGeneric\">\r\n"
@@ -33,7 +33,7 @@ L"	<audio src=\"ms-winsoundevent:Notification.Default\" loop=\"false\" silent=\"
 L"</toast>\r\n";
 
 const wchar_t DownloadOKXML[] =
-L"<toast displayTimestamp=\"2021-08-29T01:00:00.000Z\" scenario=\"reminder\" "
+L"<toast scenario=\"reminder\" "
 L"activationType=\"protocol\" launch=\"https://github.com/valinet/ExplorerPatcher\" duration=\"long\">\r\n"
 L"	<visual>\r\n"
 L"		<binding template=\"ToastGeneric\">\r\n"
@@ -46,7 +46,7 @@ L"	<audio src=\"ms-winsoundevent:Notification.Default\" loop=\"false\" silent=\"
 L"</toast>\r\n";
 
 const wchar_t InstallOK[] =
-L"<toast displayTimestamp=\"2021-08-29T01:00:00.000Z\" scenario=\"reminder\" "
+L"<toast scenario=\"reminder\" "
 L"activationType=\"protocol\" launch=\"https://github.com/valinet/ExplorerPatcher\" duration=\"long\">\r\n"
 L"	<visual>\r\n"
 L"		<binding template=\"ToastGeneric\">\r\n"
@@ -62,6 +62,8 @@ DWORD DownloadSymbols(DownloadSymbolsParams* params)
 {
     HKEY hKey = NULL;
     DWORD dwDisposition;
+    WCHAR hash[100];
+    WCHAR wszPath[MAX_PATH];
 
     HMODULE hModule = params->hModule;
 
@@ -161,6 +163,8 @@ DWORD DownloadSymbols(DownloadSymbolsParams* params)
 
 
 
+    ZeroMemory(hash, sizeof(WCHAR) * 100);
+    ZeroMemory(wszPath, sizeof(WCHAR) * 100);
     char twinui_pcshell_sb_dll[MAX_PATH];
     ZeroMemory(
         twinui_pcshell_sb_dll,
@@ -207,7 +211,10 @@ DWORD DownloadSymbols(DownloadSymbolsParams* params)
         }
         return 9;
     }
-    printf("[Symbols] Downloading symbols for \"%s\"...\n", twinui_pcshell_sb_dll);
+    GetSystemDirectoryW(wszPath, MAX_PATH);
+    wcscat_s(wszPath, MAX_PATH, L"\\" _T(TWINUI_PCSHELL_SB_NAME) L".dll");
+    ComputeFileHash(wszPath, hash, 100);
+    printf("[Symbols] Downloading symbols for \"%s\" (\"%s\")...\n", twinui_pcshell_sb_dll, hash);
     if (VnDownloadSymbols(
         NULL,
         twinui_pcshell_sb_dll,
@@ -234,7 +241,7 @@ DWORD DownloadSymbols(DownloadSymbolsParams* params)
         TWINUI_PCSHELL_SB_CNT
     ))
     {
-        printf("[Symbols] Hooking Win+C is not available for this build.\n");
+        //printf("[Symbols] Hooking Win+C is not available in this build.\n");
         DWORD dwZero = 0;
         RegSetValueExW(
             hKey,
@@ -251,15 +258,33 @@ DWORD DownloadSymbols(DownloadSymbolsParams* params)
             TWINUI_PCSHELL_SB_CNT - 1
         ))
         {
-            printf("[Symbols] Failure in reading symbols for \"%s\".\n", twinui_pcshell_sb_dll);
-            if (params->bVerbose)
+            printf("[Symbols] Windows 10 window switcher style is not available in this build.\n");
+            DWORD dwZero = 0;
+            RegSetValueExW(
+                hKey,
+                TEXT(TWINUI_PCSHELL_SB_7),
+                0,
+                REG_DWORD,
+                &dwZero,
+                sizeof(DWORD)
+            );
+            if (VnGetSymbols(
+                szSettingsPath,
+                symbols_PTRS.twinui_pcshell_PTRS,
+                twinui_pcshell_SN,
+                TWINUI_PCSHELL_SB_CNT - 2
+            ))
             {
-                FreeLibraryAndExitThread(
-                    hModule,
-                    5
-                );
+                printf("[Symbols] Failure in reading symbols for \"%s\".\n", twinui_pcshell_sb_dll);
+                if (params->bVerbose)
+                {
+                    FreeLibraryAndExitThread(
+                        hModule,
+                        5
+                    );
+                }
+                return 5;
             }
-            return 5;
         }
     }
     RegSetValueExW(
@@ -338,6 +363,8 @@ DWORD DownloadSymbols(DownloadSymbolsParams* params)
 
 
 
+    ZeroMemory(hash, sizeof(WCHAR) * 100);
+    ZeroMemory(wszPath, sizeof(WCHAR) * 100);
     char startdocked_sb_dll[MAX_PATH];
     ZeroMemory(
         startdocked_sb_dll,
@@ -362,7 +389,10 @@ DWORD DownloadSymbols(DownloadSymbolsParams* params)
         MAX_PATH,
         ".dll"
     );
-    printf("[Symbols] Downloading symbols for \"%s\"...\n", startdocked_sb_dll);
+    GetWindowsDirectoryW(wszPath, MAX_PATH);
+    wcscat_s(wszPath, MAX_PATH, L"\\SystemApps\\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\\" _T(STARTDOCKED_SB_NAME) L".dll");
+    ComputeFileHash(wszPath, hash, 100);
+    printf("[Symbols] Downloading symbols for \"%s\" (\"%s\")...\n", startdocked_sb_dll, hash);
     if (VnDownloadSymbols(
         NULL,
         startdocked_sb_dll,
@@ -611,7 +641,7 @@ BOOL LoadSymbols(symbols_addr* symbols_PTRS, HMODULE hModule)
         symbols_PTRS->twinui_pcshell_PTRS[8] = 0x52980;
         bIsTwinuiPcshellHardcoded = TRUE;
     }
-    else if (!_stricmp(hash, "03487ccd5bc5a194fad61b616b0a2b28") || !_stricmp(hash, "3f6ef12a59a2f84a3296771ea7753e01")) // 346, 348, 376
+    else if (!_stricmp(hash, "03487ccd5bc5a194fad61b616b0a2b28") || !_stricmp(hash, "3f6ef12a59a2f84a3296771ea7753e01")) // 346, 348, 376, 434, 438
     {
         symbols_PTRS->twinui_pcshell_PTRS[0] = 0x21B036;
         symbols_PTRS->twinui_pcshell_PTRS[1] = 0x5CD740;
@@ -622,6 +652,19 @@ BOOL LoadSymbols(symbols_addr* symbols_PTRS, HMODULE hModule)
         symbols_PTRS->twinui_pcshell_PTRS[6] = 0x5CEB90;
         symbols_PTRS->twinui_pcshell_PTRS[7] = 0x5f861c;
         symbols_PTRS->twinui_pcshell_PTRS[8] = 0x4D780;
+        bIsTwinuiPcshellHardcoded = TRUE;
+    }
+    else if (!_stricmp(hash, "6399b5913a7048c4422e3cfb03860da2") || !_stricmp(hash, "99dea5939a2b1945b2d3fd65433ca401")) // 466, 469
+    {
+        symbols_PTRS->twinui_pcshell_PTRS[0] = 0x229fa6;
+        symbols_PTRS->twinui_pcshell_PTRS[1] = 0x5dc500;
+        symbols_PTRS->twinui_pcshell_PTRS[2] = 0x5fa868;
+        symbols_PTRS->twinui_pcshell_PTRS[3] = 0x5fb070;
+        symbols_PTRS->twinui_pcshell_PTRS[4] = 0x5df640;
+        symbols_PTRS->twinui_pcshell_PTRS[5] = 0x5df2f4;
+        symbols_PTRS->twinui_pcshell_PTRS[6] = 0x5dd910;
+        symbols_PTRS->twinui_pcshell_PTRS[7] = 0x5fbe2c;
+        symbols_PTRS->twinui_pcshell_PTRS[8] = 0x5dd910;
         bIsTwinuiPcshellHardcoded = TRUE;
     }
     if (bIsTwinuiPcshellHardcoded)
@@ -641,7 +684,7 @@ BOOL LoadSymbols(symbols_addr* symbols_PTRS, HMODULE hModule)
         symbols_PTRS->startdocked_PTRS[4] = 0x160AEC;
         bIsStartHardcoded = TRUE;
     }
-    else if (!_stricmp(hash, "e9c1c45a659dafabf671cb0ae195f8d9") || !_stricmp(hash, "7e652d78661ba62e33d41ad1d3180344")) // 346, 348, 376
+    else if (!_stricmp(hash, "e9c1c45a659dafabf671cb0ae195f8d9") || !_stricmp(hash, "7e652d78661ba62e33d41ad1d3180344")) // 346, 348, 376, 434, 438, 466
     {
         symbols_PTRS->startdocked_PTRS[0] = 0x18969C;
         symbols_PTRS->startdocked_PTRS[1] = 0x18969C;
@@ -856,7 +899,8 @@ BOOL LoadSymbols(symbols_addr* symbols_PTRS, HMODULE hModule)
     for (UINT i = 0; i < sizeof(symbols_addr) / sizeof(DWORD); ++i)
     {
         if (!((DWORD*)symbols_PTRS)[i] &&
-            (((DWORD*)symbols_PTRS) + i) != symbols_PTRS->twinui_pcshell_PTRS + TWINUI_PCSHELL_SB_CNT - 1
+            (((DWORD*)symbols_PTRS) + i) != symbols_PTRS->twinui_pcshell_PTRS + TWINUI_PCSHELL_SB_CNT - 1 &&
+            (((DWORD*)symbols_PTRS) + i) != symbols_PTRS->twinui_pcshell_PTRS + TWINUI_PCSHELL_SB_CNT - 2
             )
         {
             bNeedToDownload = TRUE;

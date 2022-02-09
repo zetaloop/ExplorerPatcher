@@ -18,22 +18,9 @@
 #include <valinet/universal/toast/toast.h>
 #include "queryversion.h"
 #pragma comment(lib, "Psapi.lib")
+#include <activscp.h>
 
-#define APPID L"Microsoft.Windows.Explorer"
-#define REGPATH "SOFTWARE\\ExplorerPatcher"
-#define REGPATH_OLD "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\ExplorerPatcher"
-#define REGPATH_STARTMENU REGPATH_OLD
-#define SPECIAL_FOLDER CSIDL_PROGRAM_FILES
-#define SPECIAL_FOLDER_LEGACY CSIDL_APPDATA
-#define PRODUCT_NAME "ExplorerPatcher"
-#define PRODUCT_PUBLISHER "VALINET Solutions SRL"
-#define APP_RELATIVE_PATH "\\" PRODUCT_NAME
-#define EP_CLSID "{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}"
-#define DOSMODE_OFFSET 78
-#define SETUP_UTILITY_NAME "ep_setup.exe"
-#define TOAST_BUFSIZ 1024
-#define SEH_REGPATH "Control Panel\\Quick Actions\\Control Center\\QuickActionsStateCapture\\ExplorerPatcher"
-#define EP_SETUP_HELPER_SWITCH "/CreateExplorerShellUnelevatedAfterServicing"
+#include "def.h"
 
 #define WM_MSG_GUI_SECTION WM_USER + 1
 #define WM_MSG_GUI_SECTION_GET 1
@@ -66,6 +53,12 @@ DEFINE_GUID(IID_OpenControlPanel,
     0x1F, 0x56, 0x21, 0x99, 0x6A, 0xF1
 );
 
+DEFINE_GUID(CLSID_VBScript,
+    0xB54F3741, 
+    0x5B07, 0x11CF, 0xA4, 0xB0, 
+    0x00, 0xAA, 0x00, 0x4A, 0x55, 0xE8
+);
+
 typedef struct _StuckRectsData
 {
     int pvData[6];
@@ -84,6 +77,8 @@ HRESULT ShellExecuteFromExplorer(
     PCWSTR pszOperation,
     int nShowCmd
 );
+
+void ToggleTaskbarAutohide();
 
 #pragma region "Weird stuff"
 INT64 STDMETHODCALLTYPE nimpl4_1(INT64 a1, DWORD* a2);
@@ -232,17 +227,54 @@ static void(*AllowDarkModeForWindow)(HWND hWnd, INT64 bAllowDark);
 
 static BOOL(*ShouldAppsUseDarkMode)();
 
+static BOOL(*ShouldSystemUseDarkMode)();
+
 static void(*GetThemeName)(void*, void*, void*);
 
 static BOOL AppsShouldUseDarkMode() { return TRUE; }
 
 void* ReadFromFile(wchar_t* wszFileName, DWORD* dwSize);
 
-int ComputeFileHash(LPCWSTR filename, LPCSTR hash, DWORD dwHash);
+int ComputeFileHash(LPCWSTR filename, LPSTR hash, DWORD dwHash);
+
+int ComputeFileHash2(HMODULE hModule, LPCWSTR filename, LPSTR hash, DWORD dwHash);
 
 void LaunchPropertiesGUI(HMODULE hModule);
 
 BOOL SystemShutdown(BOOL reboot);
+
+LSTATUS RegisterDWMService(DWORD dwDesiredState, DWORD dwOverride);
+
+char* StrReplaceAllA(const char* s, const char* oldW, const char* newW, int* dwNewSize);
+
+WCHAR* StrReplaceAllW(const WCHAR* s, const WCHAR* oldW, const WCHAR* newW, int* dwNewSize);
+
+HRESULT InputBox(BOOL bPassword, HWND hWnd, LPCWSTR wszPrompt, LPCWSTR wszTitle, LPCWSTR wszDefault, LPWSTR wszAnswer, DWORD cbAnswer, BOOL* bCancelled);
+
+inline BOOL IsHighContrast()
+{
+    HIGHCONTRASTW highContrast;
+    ZeroMemory(&highContrast, sizeof(HIGHCONTRASTW));
+    highContrast.cbSize = sizeof(highContrast);
+    if (SystemParametersInfoW(SPI_GETHIGHCONTRAST, sizeof(highContrast), &highContrast, FALSE))
+        return highContrast.dwFlags & HCF_HIGHCONTRASTON;
+    return FALSE;
+}
+
+// https://codereview.stackexchange.com/questions/29198/random-string-generator-in-c
+static inline WCHAR* rand_string(WCHAR* str, size_t size)
+{
+    const WCHAR charset[] = L"abcdefghijklmnopqrstuvwxyz";
+    if (size) {
+        --size;
+        for (size_t n = 0; n < size; n++) {
+            int key = rand() % (int)(sizeof charset - 1);
+            str[n] = charset[key];
+        }
+        str[size] = L'\0';
+    }
+    return str;
+}
 
 inline long long milliseconds_now() {
     LARGE_INTEGER s_frequency;

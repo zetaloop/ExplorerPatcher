@@ -123,6 +123,9 @@
     <ClInclude Include="..\libs\sws\SimpleWindowSwitcher\sws_IconPainter.h">
       <Filter>Header Files\sws</Filter>
     </ClInclude>
+    <ClInclude Include="def.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ExplorerPatcher.rc">

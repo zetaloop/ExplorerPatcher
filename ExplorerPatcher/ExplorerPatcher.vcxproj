@@ -306,6 +306,7 @@
     <ClInclude Include="..\libs\sws\SimpleWindowSwitcher\sws_WindowSwitcherLayoutWindow.h" />
     <ClInclude Include="..\version.h" />
     <ClInclude Include="ArchiveMenu.h" />
+    <ClInclude Include="def.h" />
     <ClInclude Include="dxgi_imp.h" />
     <ClInclude Include="fmemopen.h" />
     <ClInclude Include="getline.h" />

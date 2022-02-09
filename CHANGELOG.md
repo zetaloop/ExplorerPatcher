@@ -2,6 +2,82 @@
 
 This document includes the same release notes as in the [Releases](https://github.com/valinet/ExplorerPatcher/releases) section on GitHub.
 
+## 22000.493.42
+
+Tested on OS build 22000.493.
+
+#### New features
+
+* Built-in support for OS build 22000.493.
+* Implemented Weather widget for the classic taskbar, similar to what is available in the more recent updates to Windows 10. Read more about it [here](https://github.com/valinet/ExplorerPatcher/wiki/Weather).
+* Implemented 2 features that help in replacing the functionality of the quick launch toolbar with pinned taskbar items. Read more about it [here](https://github.com/valinet/ExplorerPatcher/discussions/819) (.7).
+* Implemented option to have Start open on a specific monitor (#821) (.8)
+
+#### Feature enhancements
+
+* The weather widget recomputes its area automatically, by default, in order to fit its contents, instead of remaining at a fixed size; there is also an option to choose between the two behaviors (.1)
+* Possibility to disable the icon in the weather widget (.1)
+* The weather widget defaults to showing in the preferred language set in Windows, instead of English (#734) (.2)
+* The weather widget shows an error screen when an error happens (like, using an incorrect location, or the network not working etc) (.3)
+* The weather widget supports dark mode (thanks @krlvm) (#755) (.4)
+* The weather widget supports setting window corner preference (rounded/not rounded) (.8)
+
+#### Fixes
+
+* Fixed a bug that prevented the weather widget flyout from displaying correctly when the taskbar was using small icons (#741) (.1)
+* Fixed inconsistencies when displaying the weather widget and the system themes are disabled (aka the classic theme is used) (.1)
+* Screen readers now read the weather data when requested for the weather widget (.1)
+* Changing the Start button style or weather widget layout does not toggle taskbar auto-hide now; instead, the settings take effect immediately (.1)
+* Fixed a bug that could corrupt registry entries of type REG_SZ set via the Properties UI (#734) (.2)
+* Fixed a bug that reset the setting when pressing "Cancel" in an input box in the Properties UI (#734) (.2)
+* The weather widget adjusts its size vertically to accommodate the entire contents (#734) (.3)
+* Fixed a bug that prevented correct registration of the weather flyout on certain systems (26b6646) (.5)
+* Fixed a bug that made the weather flyout open with noticeable delay under certain circumstances (.5)
+* Fixed a bug that prevented correct operation on builds without built-in symbols (#783) (.5)
+* Fixed several race conditions that could lead to incorrect operation of the weather widget (for example, `explorer.exe` crashing when disabling or enabling the widget) (.6)
+
+## 22000.469.41
+
+Tested on OS build 22000.434.
+
+#### New features
+
+* Built-in support for OS builds 22000.434, 22000.438, 22000.466, and 22000.469
+* Ability to choose a Windows 10 or Windows 11 Start button style for the Windows 10 taskbar (#436, thanks @krlvm)
+* Support for screen readers in the Properties window (#627) (.1)
+* Option to disable `Office` hotkeys (`Ctrl`+`Alt`+`Shift`+`Windows` key combinations) (#661) (.4)
+* Simple Window Switcher can switch applications instead of windows (#665) (.5, .6)
+* Option to disable rounded corners for windows (.7)
+* Ability to hide the "Properties" item from the taskbar context menu (.9)
+* Import/export functionality for program settings (.11)
+
+#### Feature enhancements
+
+* The option to toggle taskbar auto hide when double clicking the taskbar now works with the Windows 11 taskbar as well
+* Performing a memory leak dump now displays GDI, peak GDI, USER and peak USER object counts as well
+* The language switcher list displays only the options that work (previously, it showed some cryptic internal implementations, like "LOGONUI", "UAC", "SETTINGPAGE" and "OOBE"). Thus, the list of language switchers offers the following choices:
+  * Windows 11 (default)
+  * Windows 10 (with link to "Language Preferences")
+  * Windows 10
+* Simple Window Switcher now highlights windows that require user attention (windows that have their taskbar button flash and colored in orange) (.8)
+* Reliability improvements for the option that maps the `Win`+`C` shortcut to open the clock flyout instead of Microsoft Teams (eliminated dependency on symbol data) (.10)
+* When an update is available, the notification displays the version of the update (.12)
+* The updater correctly detects when the current version is a pre-release but the user has switched the update channel to stable and does not suggest the older stable version as an update anymore (multiple reports, #540, #710) (.12)
+* Import/export settings suggests a file name automatically (.15)
+
+
+#### Fixes
+
+* Fixed a bug that prevented the Properties UI's system menu from displaying and working correctly
+* Fixed a bug that displayed a wrong timestamp (29/08/2021) instead of the current date and time on the notifications generated by ExplorerPatcher
+* Fixed a wrong function prototype (5b4bd07#r62018175, thanks @Simplestas)
+* Protected some state variables from changing internally if modified in the registry until `explorer` is restarted
+* Fixed a bug that could unexpectedly prevent the [Win]+[Alt]+[D] shortcut from working properly
+* Windows 10 language switcher displays correctly when the taskbar is placed in some location other than the bottom of the screen (#629) (.2)
+* Available symbols download properly on Insider builds (tested on 22526.1000) (.3)
+* Mitigated an `explorer.exe` bug where Windows 10 taskbar buttons were becoming too large under certain circumstances when the setting to show labels/never combine is used and the screen resolution/DPI changes (#664) (.6)
+* Performance improvements and bug fixes for Simple Window Switcher (.8)
+
 ## 22000.376.40
 
 Tested on OS build 22000.376.

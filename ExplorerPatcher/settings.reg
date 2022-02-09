@@ -2,7 +2,7 @@
 
 
 ;M 设置
-
+;q
 
 ;T 任务栏
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
@@ -16,24 +16,19 @@
 ;shell:::{05d7b0f4-2121-4eff-bf6b-ed3f69b894d9}
 ;y 管理系统图标 🡕
 ;shell:::{05d7b0f4-2121-4eff-bf6b-ed3f69b894d9}\SystemIcons
-;;[HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;;c 2 开始按钮样式 *
-;;x 0 Windows 10 (默认)
-;;x 1 Windows 11
-;;"OrbStyle"=dword:00000000
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;c 4 主任务栏位置 *
 ;x 3 底部 (默认)
 ;x 1 顶部
 ;x 0 左侧
 ;x 2 右侧
-"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_TaskbarPosition"=dword:00000003
+;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_TaskbarPosition"=dword:00000003
 ;c 4 副任务栏位置
 ;x 3 底部 (默认)
 ;x 1 顶部
 ;x 0 左侧
 ;x 2 右侧
-"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_MMTaskbarPosition"=dword:00000003
+;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_MMTaskbarPosition"=dword:00000003
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
 ;c 3 Cortana 按钮
 ;x 0 隐藏 (默认)
@@ -51,9 +46,13 @@
 "TaskbarSD"=dword:00000001
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;b 自动隐藏任务栏
-"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_AutoHideTaskbar"=dword:00000000
+;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_AutoHideTaskbar"=dword:00000000
 ;t 仅支持 Windows 10 任务栏:                          
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
+;c 2 开始按钮样式
+;x 0 Windows 10 (默认)
+;x 1 Windows 11
+"OrbStyle"=dword:00000000
 ;c 3 主任务栏合并图标
 ;x 0 始终合并
 ;x 1 当任务栏被占满时合并
@@ -69,9 +68,7 @@
 ;x 1 小
 ;x 0 大 (默认)
 "TaskbarSmallIcons"=dword:00000000
-[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People]
-;b 显示人脉按钮
-"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_PeopleBand"=dword:00000000
+;e 
 
 
 ;T 托盘菜单
@@ -102,6 +99,7 @@
 ;x 1 控制面板“网络和共享中心”
 ;x 2 控制面板“网络连接”
 "ReplaceNetwork"=dword:00000000
+;q
 ;t 系统托盘按钮控件:
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Control Panel\Settings\Network]
 ;c 7 网络
@@ -130,17 +128,19 @@
 ;x 1 Windows 7
 "UseWin32BatteryFlyout"=dword:00000000
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;c 6 语言切换 *
+;c 3 语言切换 *
 ;x 0 Windows 11 (默认)
-;x 1 Windows 10
-;x 2 "LOGONUI"
-;x 3 "UAC"
-;x 4 "SETTINGSPANE"
-;x 5 "OOBE"
+;x 1 Windows 10 (带有“语言设置”链接)
+;x 4 Windows 10
 "IMEStyle"=dword:00000000
 
 
 ;T 文件管理器
+;e 要使标 ** 的设置在打开/保存对话框也生效，
+;e 请将本工具注册为外壳扩展插件。
+;y 更多信息 🡕
+;https://github.com/valinet/ExplorerPatcher/wiki/Using-ExplorerPatcher-as-shell-extension
+;q
 [-HKEY_CURRENT_USER\Software\Classes\CLSID\{d93ed569-3b3e-4bff-8355-3c44f6a52bb5}\InprocServer32]
 ;d 禁用 Windows 11 工具栏 *
 @=""
@@ -162,24 +162,18 @@
 ;p 2
 ;b 标题栏云母材质
 "MicaEffectOnTitlebar"=dword:00000000
-[-HKEY_LOCAL_MACHINE\Software\Classes\CLSID\{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}\InprocServer32]
-;d 注册为外壳扩展插件
-@="{64bc32b5-4eec-4de7-972d-bd8bd0324537}"
-;e 要使标 ** 的设置在打开/保存对话框也生效，
-;e 请将本工具注册为外壳扩展插件。
-;y 更多信息 🡕
-;https://github.com/valinet/ExplorerPatcher/wiki/Using-ExplorerPatcher-as-shell-extension
+[HKEY_CURRENT_USER\Software\ExplorerPatcher]
+;b 注册为外壳扩展插件
+;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_RegisterAsShellExtension"=dword:00000000
 
 
 ;T 开始菜单
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StartPage]
-;i 在鼠标光标所在显示器打开开始菜单
-"MonitorOverride"=dword:00000001
 ;b 登录后打开开始菜单
 "OpenAtLogon"=dword:00000000
 ;b 默认打开开始菜单的“所有应用”
 "MakeAllAppsDefault"=dword:00000000
-[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\ExplorerPatcher]
+[HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;c 22 常用应用程序最大数量
 ;x 0 0
 ;x 1 1
@@ -203,12 +197,27 @@
 ;x 19 19
 ;x 20 20
 ;x 99999 ∞
-"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_Start_MaximumFrequentApps"=dword:00000006
+;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_Start_MaximumFrequentApps"=dword:00000006
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
 ;c 2 显示位置
 ;x 0 靠左
 ;x 1 居中 (默认)
 "TaskbarAl"=dword:00000001
+[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StartPage]
+;a 使用多个显示器时，用键盘打开开始菜单，
+;c 10 开始带单的打开位置:
+;x 1 主显示器 (默认)
+;x 0 鼠标光标所在显示器
+;x 2 显示器 #2
+;x 3 显示器 #3
+;x 4 显示器 #4
+;x 5 显示器 #5
+;x 6 显示器 #6
+;x 7 显示器 #7
+;x 8 显示器 #8
+;x 9 显示器 #9
+"MonitorOverride"=dword:00000001
+;a 如果所选显示器不可用，开始菜单将在主显示器打开。
 
 
 ;T 窗口切换器
@@ -227,6 +236,8 @@
 "PrimaryOnly"=dword:00000000
 ;b 仅显示当前显示器的窗口
 "PerMonitor"=dword:00000000
+;b 仅显示最近的窗口（各应用切换器）
+"SwitcherIsPerApplication"=dword:00000000
 ;b 禁用应用窗口列表%PLACEHOLDER_0001%
 "NoPerApplicationList"=dword:00000000
 ;c 3 材质
@@ -341,17 +352,79 @@
 ;x 400 400 ms
 ;x 500 500 ms
 "ShowDelay"=dword:00000064
+;q
 ;y 关于简易窗口切换器 🡕
 ;https://github.com/valinet/ExplorerPatcher/wiki/Simple-Window-Switcher
+
+
+
+;T 天气
+;t The following settings only apply to the Windows 10 taskbar:
+[HKEY_CURRENT_USER\Software\ExplorerPatcher]
+;b 显示任务栏天气按钮
+;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_PeopleBand"=dword:00000000
+;c 5 Layout
+;x 0 Icon and description (default)
+;x 3 Icon and temperature
+;x 1 Icon only
+;x 4 Temperature only
+;x 5 Temperature and description
+"WeatherViewMode"=dword:00000000
+;c 2 Widget size
+;x 0 Enlarge/shrink to fit contents (default)
+;x 1 Fixed
+"WeatherFixedSize"=dword:00000000
+;c 7 Update frequency
+;x 60 Every minute
+;x 300 Every 5 minutes
+;x 900 Every 15 minutes
+;x 1200 Every 20 minutes (default)
+;x 1800 Every half an hour
+;x 3600 Every hour
+;x 7200 Every couple of hours
+"WeatherContentUpdateMode"=dword:000004B0
+;c 2 Temperature unit
+;x 0 Celsius (default)
+;x 1 Fahrenheit
+"WeatherTemperatureUnit"=dword:00000000
+;w Location
+;Search City or Zip Code; the program looks up "weather in /* what you typed */" on Google. Leave blank for the default value (current location).
+;Current location (default)
+"WeatherLocation"=""
+;;;c 2 Location accuracy
+;;;x 0 Generic (based on the IP address) (default)
+;;;x 1 Precise (geolocation)
+;;"WeatherLocationType"=dword:00000000
+;w Language
+;Type the short code for the language you'd like the weather data to be displayed in. For example, try "en", "ro", "de", "fr" etc. Leave blank for the default value (language of the Windows OS).
+;System language (default)
+"WeatherLanguage"=""
+;c 3 Color scheme
+;x 0 Follow system setting (default)
+;x 1 Light
+;x 2 Dark
+"WeatherTheme"=dword:00000000
+;c 3 Corner preference
+;x 2 Rounded (default)
+;x 3 Small rounded
+;x 1 Not rounded
+"WeatherWindowCornerPreference"=dword:00000002
+;q
+;t Weather data courtesy of Google, and weather.com.
+;y Learn more about the Weather taskbar widget 🡕
+;https://github.com/valinet/ExplorerPatcher/wiki/Weather
+;u Refresh weather data
+;update_weather
+
+
+
 
 ;T 其他
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;b 记住此窗口中上次使用的选项
 "LastSectionInProperties"=dword:00000000
-;b 按 Win+C 时打开时间，而非打开 Teams
+;b 按 Win+C 时打开时间，而非打开 Teams *
 "ClockFlyoutOnWinC"=dword:00000000
-;b 双击主任务栏切换任务栏自动隐藏
-"TaskbarAutohideOnDoubleClick"=dword:00000000
 ;b 任务栏工具栏之间显示分隔符 *
 "ToolbarSeparators"=dword:00000000
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
@@ -362,6 +435,10 @@
 "PropertiesInWinX"=dword:00000000
 ;b 在 Win+X 菜单中 EP 设置项移除快捷键
 "NoMenuAccelerator"=dword:00000000
+;b Disable Office hotkeys (Ctrl+Alt+Shift+Windows key combinations) *
+"DisableOfficeHotkeys"=dword:00000000
+;b Disable rounded corners for application windows
+;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_DisableRoundedCorners"=dword:00000000
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
 ;c 6 桌面 Alt+F4 对话框默认操作
 ;x 256 切换用户
@@ -397,6 +474,15 @@
 "UpdatePolicy"=dword:00000001
 ;b 接收测试版更新 (不推荐)
 "UpdatePreferStaging"=dword:00000000
+;t 更新服务器:
+;w Releases
+;Type a URL that serves resources adhering to GitHub's releases API. To learn how to configure your own update server, please consult the wiki.
+;github.com/valinet/ExplorerPatcher/releases/latest
+"UpdateURL"=""
+;w Pre-releases
+;Type a URL that serves resources adhering to GitHub's pre-releases API. To learn how to configure your own update server, please consult the wiki.
+;api.github.com/repos/valinet/ExplorerPatcher/releases?per_page=1
+"UpdateURLStaging"=""
 ;y 检查更新
 ;;;EP_CHECK_FOR_UPDATES
 ;y 更新并重启任务管理器
@@ -410,14 +496,20 @@
 
 
 ;T 高级
+;e 请在阅读文档后再更改这些设置。
+;y 更多信息 🡕
+;https://github.com/valinet/ExplorerPatcher/wiki/About-advanced-settings
+;q
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;b 启用控制台
 "AllocConsole"=dword:00000000
 ;b 转储内存泄漏
 "Memcheck"=dword:00000000
+;b 双击任务栏切换任务栏自动隐藏 (仅在任务栏锁定时有效) 
+"TaskbarAutohideOnDoubleClick"=dword:00000000
 [HKEY_CURRENT_USER\Control Panel\Desktop]
 ;b 桌面显示 Windows 版本水印 *
-"PaintDesktopversion"=dword:00000000
+"PaintDesktopVersion"=dword:00000000
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;b 启用高级缓解措施适配经典主题 *
 "ClassicThemeMitigations"=dword:00000000
@@ -425,6 +517,8 @@
 ;d 启用旧版视图控件 SysListView32 *
 @=""
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
+;b Hide the program settings item ("Properties") from the taskbar context menu
+"NoPropertiesInContextMenu"=dword:00000000
 ;b 启用符号文件下载 *
 "EnableSymbolDownload"=dword:00000001
 ;i 不从文件管理器主进程挂接开始菜单 (永久禁用) *
@@ -443,22 +537,25 @@
 ;x 8000 8 s
 ;x 10000 10 s
 "ExplorerReadyDelay"=dword:00000000
-;e 请在阅读文档后再更改这些设置。
-;y 更多信息 🡕
-;https://github.com/valinet/ExplorerPatcher/wiki/About-advanced-settings
+;t The following settings only apply to the Windows 10 taskbar:                          
+;b Pinned items act as quick launch (don't group pinned items with active apps) *
+"PinnedItemsActAsQuickLaunch"=dword:00000000
+;b When the taskbar shows button labels, remove the extra gap around pinned items
+"RemoveExtraGapAroundPinnedItems"=dword:00000000
 
 
 ;T 关于
 ;e ExplorerPatcher
 ;e 版本 %VERSIONINFORMATIONSTRING%
-;t 版权所有 (C) 2006-2022 VALINET Solutions SRL
+;t 版权所有 © 2006-2022 VALINET Solutions SRL
 ;t 保留所有权利。
 ;e 
 ;e 该工具旨在为 Windows 11 恢复高效的工作环境。
-;e Valentin-Gabriel Radu 荣誉出品。
-;y 查看代码 (https://github.com/valinet) 🡕
+;t Valentin-Gabriel Radu 荣誉出品。
+;y 访问 GitHub 项目 (https://github.com/valinet) 🡕
 ;https://github.com/valinet
-;y 访问网站 (https://www.valinet.ro) 🡕
+;q
+;y Visit web site (https://www.valinet.ro) 🡕
 ;https://www.valinet.ro
 ;y 电邮作者 (valentingabrielradu@gmail.com) 🡕
 ;mailto:valentingabrielradu@gmail.com
@@ -466,8 +563,15 @@
 ;https://www.paypal.com/donate?business=valentingabrielradu%40gmail.com&no_recurring=0&item_name=ExplorerPatcher&currency_code=EUR
 ;y 常见问题 🡕
 ;https://github.com/valinet/ExplorerPatcher/wiki/Frequently-asked-questions
+;y Learn more managing these settings 🡕
+;https://github.com/valinet/ExplorerPatcher/wiki/Settings-management
+;u 导入设置
+;import
+;u 导出设置
+;export
 ;u 恢复默认设置
 ;reset
+
 
 
 ;f
