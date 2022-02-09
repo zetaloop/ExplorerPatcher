@@ -82,7 +82,7 @@
 [HKEY_CURRENT_USER\Software\Microsoft\TabletTip\1.7]
 ;b 显示触摸键盘按钮 *
 "TipbandDesiredVisibility"=dword:00000000
-;t 仅支持 Windows 10 任务栏:
+;t 仅支持 Windows 10 任务栏 :
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;p 2
 ;b 显示 Windows 11 样式的系统图标 *
@@ -93,14 +93,14 @@
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;b 隐藏控制中心按钮 *
 "HideControlCenterButton"=dword:00000000
-;a 右键网络图标打开“网络和 Internet 设置”
+;a 右键网络图标打开“网络和 Internet 设置”时，
 ;c 3 打开
 ;x 0 设置“网络和 Internet” (默认)
 ;x 1 控制面板“网络和共享中心”
 ;x 2 控制面板“网络连接”
 "ReplaceNetwork"=dword:00000000
 ;q
-;t 系统托盘按钮控件:
+;t 系统托盘按钮控件 :
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Control Panel\Settings\Network]
 ;c 7 网络
 ;x 6 控制中心
@@ -204,8 +204,8 @@
 ;x 1 居中 (默认)
 "TaskbarAl"=dword:00000001
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StartPage]
-;a 使用多个显示器时，用键盘打开开始菜单，
-;c 10 开始带单的打开位置:
+;a 使用多个显示器时，若使用键盘打开开始菜单，
+;c 10 打开位置
 ;x 1 主显示器 (默认)
 ;x 0 鼠标光标所在显示器
 ;x 2 显示器 #2
@@ -359,61 +359,61 @@
 
 
 ;T 天气
-;t The following settings only apply to the Windows 10 taskbar:
+;t 仅支持 Windows 10 任务栏 :
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;b 显示任务栏天气按钮
 ;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_PeopleBand"=dword:00000000
-;c 5 Layout
-;x 0 Icon and description (default)
-;x 3 Icon and temperature
-;x 1 Icon only
-;x 4 Temperature only
-;x 5 Temperature and description
+;c 5 布局
+;x 0 图标和描述 (默认)
+;x 3 图标和温度
+;x 1 仅图标
+;x 4 仅温度
+;x 5 温度和描述
 "WeatherViewMode"=dword:00000000
-;c 2 Widget size
-;x 0 Enlarge/shrink to fit contents (default)
-;x 1 Fixed
+;c 2 小组件弹窗尺寸
+;x 0 随内容变化 (默认)
+;x 1 固定
 "WeatherFixedSize"=dword:00000000
-;c 7 Update frequency
-;x 60 Every minute
-;x 300 Every 5 minutes
-;x 900 Every 15 minutes
-;x 1200 Every 20 minutes (default)
-;x 1800 Every half an hour
-;x 3600 Every hour
-;x 7200 Every couple of hours
+;c 7 更新频率
+;x 60 每分钟
+;x 300 每五分钟
+;x 900 每十五分钟
+;x 1200 每二十分钟 (默认)
+;x 1800 每半小时
+;x 3600 每小时
+;x 7200 每两小时
 "WeatherContentUpdateMode"=dword:000004B0
-;c 2 Temperature unit
-;x 0 Celsius (default)
-;x 1 Fahrenheit
+;c 2 温度单位
+;x 0 摄氏度℃ (默认)
+;x 1 华氏度℉
 "WeatherTemperatureUnit"=dword:00000000
-;w Location
-;Search City or Zip Code; the program looks up "weather in /* what you typed */" on Google. Leave blank for the default value (current location).
-;Current location (default)
+;w 位置
+;输入城市名称或邮政编码，程序将用谷歌查找该位置的天气。不填默认为当前位置。
+;当前位置 (默认)
 "WeatherLocation"=""
-;;;c 2 Location accuracy
-;;;x 0 Generic (based on the IP address) (default)
-;;;x 1 Precise (geolocation)
+;;;c 2 定位精度
+;;;x 0 通用 (基于 IP 地址) (默认)
+;;;x 1 精确 (获取定位信息)
 ;;"WeatherLocationType"=dword:00000000
-;w Language
-;Type the short code for the language you'd like the weather data to be displayed in. For example, try "en", "ro", "de", "fr" etc. Leave blank for the default value (language of the Windows OS).
-;System language (default)
+;w 语言
+;在此输入显示语言的语言代码，例如“en”、“ro”、“de”、“fr”等。不填默认为系统语言。
+;系统语言 (默认)
 "WeatherLanguage"=""
-;c 3 Color scheme
-;x 0 Follow system setting (default)
-;x 1 Light
-;x 2 Dark
+;c 3 配色
+;x 0 跟随系统 (默认)
+;x 1 亮
+;x 2 暗
 "WeatherTheme"=dword:00000000
-;c 3 Corner preference
-;x 2 Rounded (default)
-;x 3 Small rounded
-;x 1 Not rounded
+;c 3 边角样式
+;x 2 圆角 (默认)
+;x 3 小圆角
+;x 1 直角
 "WeatherWindowCornerPreference"=dword:00000002
 ;q
-;t Weather data courtesy of Google, and weather.com.
-;y Learn more about the Weather taskbar widget 🡕
+;t 天气数据由 Google 与 weather.com 提供。
+;y 关于天气小组件 🡕
 ;https://github.com/valinet/ExplorerPatcher/wiki/Weather
-;u Refresh weather data
+;u 刷新天气数据
 ;update_weather
 
 
@@ -435,9 +435,9 @@
 "PropertiesInWinX"=dword:00000000
 ;b 在 Win+X 菜单中 EP 设置项移除快捷键
 "NoMenuAccelerator"=dword:00000000
-;b Disable Office hotkeys (Ctrl+Alt+Shift+Windows key combinations) *
+;b 禁用 Office 快捷键 (Ctrl+Alt+Shift+Win) *
 "DisableOfficeHotkeys"=dword:00000000
-;b Disable rounded corners for application windows
+;b 禁用窗口圆角
 ;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_DisableRoundedCorners"=dword:00000000
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
 ;c 6 桌面 Alt+F4 对话框默认操作
@@ -475,12 +475,12 @@
 ;b 接收测试版更新 (不推荐)
 "UpdatePreferStaging"=dword:00000000
 ;t 更新服务器:
-;w Releases
-;Type a URL that serves resources adhering to GitHub's releases API. To learn how to configure your own update server, please consult the wiki.
+;w 稳定版
+;输入一个支持 GitHub release API 的网址。如需自建更新服务器，请查阅软件 Wiki。
 ;github.com/valinet/ExplorerPatcher/releases/latest
 "UpdateURL"=""
-;w Pre-releases
-;Type a URL that serves resources adhering to GitHub's pre-releases API. To learn how to configure your own update server, please consult the wiki.
+;w 测试版
+;输入一个支持 GitHub pre-release API 的网址。如需自建更新服务器，请查阅软件 Wiki。
 ;api.github.com/repos/valinet/ExplorerPatcher/releases?per_page=1
 "UpdateURLStaging"=""
 ;y 检查更新
@@ -517,7 +517,7 @@
 ;d 启用旧版视图控件 SysListView32 *
 @=""
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;b Hide the program settings item ("Properties") from the taskbar context menu
+;b 在任务栏右键菜单中不显示本设置 (“属性”)
 "NoPropertiesInContextMenu"=dword:00000000
 ;b 启用符号文件下载 *
 "EnableSymbolDownload"=dword:00000001
@@ -537,10 +537,10 @@
 ;x 8000 8 s
 ;x 10000 10 s
 "ExplorerReadyDelay"=dword:00000000
-;t The following settings only apply to the Windows 10 taskbar:                          
-;b Pinned items act as quick launch (don't group pinned items with active apps) *
+;t 仅支持 Windows 10 任务栏 :
+;b 固定项充当快速启动 (不把固定项和活动应用分组) *
 "PinnedItemsActAsQuickLaunch"=dword:00000000
-;b When the taskbar shows button labels, remove the extra gap around pinned items
+;b 任务栏显示按钮标签时，移除固定项周围的额外间隙
 "RemoveExtraGapAroundPinnedItems"=dword:00000000
 
 
@@ -552,10 +552,10 @@
 ;e 
 ;e 该工具旨在为 Windows 11 恢复高效的工作环境。
 ;t Valentin-Gabriel Radu 荣誉出品。
-;y 访问 GitHub 项目 (https://github.com/valinet) 🡕
+;y 查看项目 (https://github.com/valinet) 🡕
 ;https://github.com/valinet
 ;q
-;y Visit web site (https://www.valinet.ro) 🡕
+;y 访问官网 (https://www.valinet.ro) 🡕
 ;https://www.valinet.ro
 ;y 电邮作者 (valentingabrielradu@gmail.com) 🡕
 ;mailto:valentingabrielradu@gmail.com
@@ -563,7 +563,7 @@
 ;https://www.paypal.com/donate?business=valentingabrielradu%40gmail.com&no_recurring=0&item_name=ExplorerPatcher&currency_code=EUR
 ;y 常见问题 🡕
 ;https://github.com/valinet/ExplorerPatcher/wiki/Frequently-asked-questions
-;y Learn more managing these settings 🡕
+;y 配置指南 🡕
 ;https://github.com/valinet/ExplorerPatcher/wiki/Settings-management
 ;u 导入设置
 ;import
