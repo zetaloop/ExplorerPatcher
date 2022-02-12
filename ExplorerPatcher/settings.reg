@@ -505,7 +505,7 @@
 "AllocConsole"=dword:00000000
 ;b 转储内存泄漏
 "Memcheck"=dword:00000000
-;b 双击任务栏切换任务栏自动隐藏 (仅在任务栏锁定时有效) 
+;b 双击任务栏切换自动隐藏 (仅在任务栏锁定时有效)
 "TaskbarAutohideOnDoubleClick"=dword:00000000
 [HKEY_CURRENT_USER\Control Panel\Desktop]
 ;b 桌面显示 Windows 版本水印 *
