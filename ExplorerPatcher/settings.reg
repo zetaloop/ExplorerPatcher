@@ -581,11 +581,11 @@
 ;t 更新服务器:
 ;w 稳定版
 ;输入一个支持 GitHub release API 的网址。如需自建更新服务器，请查阅软件 Wiki。
-;github.com/valinet/ExplorerPatcher/releases/latest
+;github.com/ZetaSp/ExplorerPatcher/releases/latest
 "UpdateURL"=""
 ;w 测试版
 ;输入一个支持 GitHub pre-release API 的网址。如需自建更新服务器，请查阅软件 Wiki。
-;api.github.com/repos/valinet/ExplorerPatcher/releases?per_page=1
+;api.github.com/repos/ZetaSp/ExplorerPatcher/releases?per_page=1
 "UpdateURLStaging"=""
 ;y 检查更新
 ;;;EP_CHECK_FOR_UPDATES
