@@ -1,60 +1,62 @@
-# ExplorerPatcher
-This project aims to enhance the working environment on Windows.
+# ExplorerPatcher 汉化版
+该项目旨在为 Windows 11 恢复高效的工作环境。
 
-PayPal donations: [here](https://www.paypal.com/donate?business=valentingabrielradu%40gmail.com&no_recurring=0&item_name=ExplorerPatcher&currency_code=EUR) or using e-mail address valentingabrielradu@gmail.com
+这是简体中文的修改版。由 [Zetaspace](https://github.com/ZetaSp) 制作并分享。遵循原软件 GPL 协议。
 
-![Build status](https://github.com/valinet/ExplorerPatcher/actions/workflows/build.yml/badge.svg)
+原作 PayPal 捐赠：[点击链接](https://www.paypal.com/donate?business=valentingabrielradu%40gmail.com&no_recurring=0&item_name=ExplorerPatcher&currency_code=EUR) 或通过邮箱地址 valentingabrielradu@gmail.com
 
-## Feature summary
+![Build status](https://github.com/ZetaSp/ExplorerPatcher/actions/workflows/build.yml/badge.svg)
 
-* Choose between Windows 11 or Windows 10 taskbar (with labels support, small icons and lots of customization).
-* Disable Windows 11 context menu and command bar in File Explorer and more.
-* Open Start to All apps by default, choose number of frequent apps to show, display on active monitor and more.
-* Choose between the Windows 11, Windows 10 and Windows NT Alt-Tab window switcher with customization.
-* Lots of quality of life improvements for the shell, like:
-  * Skin tray menus to match Windows style, make them behave like flyouts and center them relative to the icon.
-  * Choose action when left and/or right clicking the network icon.
-  * Revert to the Windows 7 search box in File Explorer, or disable Windows Search altogether.
-  * Disable immersive menus and use mitigations that help you run the real classic theme without glitches.
-  * Learn more about all the functionality offered by this program starting with this article in the wiki, [here](https://github.com/valinet/ExplorerPatcher/wiki/All-features).
+## 功能介绍
 
-Some features may not be available on Windows 10.
+* 自由选择 Win10 和 Win11 款式的任务栏，支持从不合并、小图标和大量自定义。
+* 禁用 Win11 右键菜单和命令栏。
+* 开始菜单默认打开所有应用、设定显示常用应用个数、是否在当前显示器显示等等。
+* 挑选心仪的应用切换器，Win11、Win10，还是 Win NT？
+* 为 Shell 提供了许多改进：
+  * 为托盘菜单着色，与系统主题相匹配，使其拥有弹出动画并与图标居中。
+  * 左键/右键网络图标时，触发不同功能。
+  * 恢复 Win7 的文件管理器搜索框，或者隐藏整个搜索栏。
+  * 可禁用沉浸式菜单并采取缓解措施适配经典主题。
+* [阅读百科](https://github.com/valinet/ExplorerPatcher/wiki/All-features)以了解程序提供的所有功能。
 
-## How to?
+部分功能在 Win10 上不可用。
 
-1. Download the latest version of the [setup program](https://github.com/valinet/ExplorerPatcher/releases/latest/download/ep_setup.exe).
-2. Run the installer. It will automatically prompt for elevation, after which it will install the necessary files.
-3. When done, you will be greeted with the familiar Windows 10 taskbar. To customize the options offered by the program, right click the taskbar and choose "Properties".
+## 开始使用
 
-That's it. It's that simple.
+1. 下载最新安装包 [ep_setup.exe](https://github.com/ZetaSp/ExplorerPatcher/releases/latest/download/ep_setup.exe)。
+2. 运行安装包，允许管理员权限，自动开始安装。（可能会暂时退出文件管理器、桌面）
+3. 安装完成后，迎接你的将是熟悉的 Win10 任务栏。如需进行个性化配置，右键任务栏打开“属性”即可设置。
 
-## What next?
+完成了，仅此而已。
 
-* Consult the [wiki](https://github.com/valinet/ExplorerPatcher/wiki) - this is highly recommended. There you will find information about more advanced tasks, modes of operation and features offered by this patcher.
-* Get familiar with most of the features offered by this patcher [here](https://github.com/valinet/ExplorerPatcher/wiki/All-features).
-* Learn how to manage updates and what to expect from new versions and new Windows builds [here](https://github.com/valinet/ExplorerPatcher/wiki/Configure-updates).
-* Have a question? Consult the [Frequently Asked Questions](https://github.com/valinet/ExplorerPatcher/wiki/Frequently-asked-questions).
-* Some other question? Open a thread in [Discussions](https://github.com/valinet/ExplorerPatcher/discussions).
-* Found a bug, have an issue or a problem with the application? Read [here](https://github.com/valinet/ExplorerPatcher/wiki/Reporting-problems) what to do next.
-* I highly encourage you to check out the [source code](https://github.com/valinet/ExplorerPatcher/tree/master) and tinker with it. I am open to merging new features, enhancements and fixes; also, I think it provides good insights on topics of interests in this area.
+## 进阶指南
 
-## Known issues
+* 这是[软件百科](https://github.com/valinet/ExplorerPatcher/wiki)。这里有本软件的高级用法、更多操作方式和特性的相关信息。
+  * [百科：更多特性](https://github.com/valinet/ExplorerPatcher/wiki/All-features)
+  * [百科：配置更新](https://github.com/valinet/ExplorerPatcher/wiki/Configure-updates)
+  * [百科：常见问题](https://github.com/valinet/ExplorerPatcher/wiki/Frequently-asked-questions)
+* 有其他疑问吗？[请在这里讨论](https://github.com/valinet/ExplorerPatcher/discussions)。
+* 如果您遇见了一个问题，请阅读[问题汇报指南](https://github.com/valinet/ExplorerPatcher/wiki/Reporting-problems)，并将其详细汇报。
+* 推荐您阅读[软件源代码](https://github.com/valinet/ExplorerPatcher/tree/master)并尝试提出优化。开发者很愿意接受新功能、功能增强和问题修复。这也为软件的进一步完善做出了贡献。
 
-Items marked with "bug" that are still "Open" represent known issues. Active work is undergone regarding an item if it is additionally marked with "investigating". Help is especially required for items marked with "help wanted". Consult the list in [Issues](https://github.com/valinet/ExplorerPatcher/issues).
+## 已知问题
 
-## Uninstalling
+参阅 [GitHub Issues](https://github.com/valinet/ExplorerPatcher/issues)。
 
-* Use "Programs and Features" in Control Panel, or "Apps and features" in the Settings app or
-* Run `ep_setup.exe /uninstall` or
-* Rename `ep_setup.exe` to `ep_uninstall.exe` and run that.
+## 卸载
 
-## Updating
+* 通过设置和控制面板的 “程序和功能” 卸载。
+* 或者运行安装包命令 `ep_setup.exe /uninstall` 卸载。
+* 或者重命名 `ep_setup.exe` 为 `ep_uninstall.exe` 然后运行之。
 
-* The program features built-in updates: go to "Properties" - "Updates" to configure, check for and install the latest updates. Learn more [here](https://github.com/valinet/ExplorerPatcher/wiki/Configure-updates).
-* Download the latest version's setup file and simply run it.
+## 更新
 
-## More information
+* 程序自带更新器：打开软件设置（属性）的更新页面，即可检查和安装版本更新。[了解更多](https://github.com/valinet/ExplorerPatcher/wiki/Configure-updates)
+* 或者下载最新版安装包，直接安装即可更新。
 
-* [How does this work?](https://github.com/valinet/ExplorerPatcher/wiki/How-does-it-work)
-* [About antivirus false positives](https://github.com/valinet/ExplorerPatcher/wiki/Antivirus-false-positives)
-* [Compiling](https://github.com/valinet/ExplorerPatcher/wiki/Compiling)
+## 更多信息
+
+* [原理](https://github.com/valinet/ExplorerPatcher/wiki/How-does-it-work)
+* [杀毒软件误报](https://github.com/valinet/ExplorerPatcher/wiki/Antivirus-false-positives)
+* [编译](https://github.com/valinet/ExplorerPatcher/wiki/Compiling)
