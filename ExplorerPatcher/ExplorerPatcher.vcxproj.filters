@@ -126,6 +126,12 @@
     <ClInclude Include="def.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="lvt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="osutility.h">
+      <Filter>Header Files\internal</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ExplorerPatcher.rc">
@@ -205,9 +211,15 @@
     <ClCompile Include="..\libs\sws\SimpleWindowSwitcher\sws_tshwnd.c">
       <Filter>Source Files\sws</Filter>
     </ClCompile>
+    <ClCompile Include="lvt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="settings.reg">
+      <Filter>Settings</Filter>
+    </None>
+    <None Include="settings10.reg">
       <Filter>Settings</Filter>
     </None>
   </ItemGroup>

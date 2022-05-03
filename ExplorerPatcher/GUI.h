@@ -25,6 +25,9 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #include "fmemopen.h"
 #include "utility.h"
 #include "../ep_weather_host/ep_weather.h"
+#include "../ep_weather_host/ep_weather_host_h.h"
+#include <ExDisp.h>
+#include <ShlGuid.h>
 
 #define MAX_LINE_LENGTH 2000
 extern HMODULE hModule;
@@ -57,6 +60,8 @@ extern HMODULE hModule;
 #define GUI_TIMER_READ_HELP_TIMEOUT 1000
 #define GUI_TIMER_READ_REPEAT_SELECTION 2
 #define GUI_TIMER_READ_REPEAT_SELECTION_TIMEOUT 1000
+#define GUI_TIMER_REFRESH_FOR_PEOPLEBAND 2
+#define GUI_TIMER_REFRESH_FOR_PEOPLEBAND_TIMEOUT 1000
 typedef struct _GUI
 {
 	POINT location;
@@ -68,7 +73,7 @@ typedef struct _GUI
 	POINT dpi;
 	MARGINS extent;
 	UINT tabOrder;
-	BOOL bCalcExtent;
+	DWORD bCalcExtent;
 	SIZE_T section;
 	DWORD dwStatusbarY;
 	HICON hIcon;
@@ -83,6 +88,7 @@ typedef struct _GUI
 	WCHAR sectionNames[20][20];
 	BOOL bRebuildIfTabOrderIsEmpty;
 	int dwPageLocation;
+	DWORD last_section;
 } GUI;
 
 static HRESULT GUI_AboutProc(

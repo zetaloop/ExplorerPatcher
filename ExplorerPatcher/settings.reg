@@ -47,12 +47,26 @@
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;b 自动隐藏任务栏
 ;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_AutoHideTaskbar"=dword:00000000
-;t 仅支持 Windows 10 任务栏:                          
+;t 仅支持 Windows 10 任务栏:                                
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;c 2 开始按钮样式
 ;x 0 Windows 10 (默认)
 ;x 1 Windows 11
 "OrbStyle"=dword:00000000
+;c 5 主任务栏对齐
+;x 0 屏幕边缘 (默认)
+;x 1 居中
+;x 5 居中，占满时扩展到边缘
+;x 3 居中，带开始按钮
+;x 7 居中，带开始按钮，占满时扩展到边缘
+"OldTaskbarAl"=dword:00000000
+;c 5 副任务栏对齐
+;x 0 屏幕边缘 (默认)
+;x 1 居中
+;x 5 居中，占满时扩展到边缘
+;x 3 居中，带开始按钮
+;x 7 居中，带开始按钮，占满时扩展到边缘
+"MMOldTaskbarAl"=dword:00000000
 ;c 3 主任务栏合并图标
 ;x 0 始终合并
 ;x 1 当任务栏被占满时合并
@@ -140,13 +154,26 @@
 ;e 请将本工具注册为外壳扩展插件。
 ;y 更多信息 🡕
 ;https://github.com/valinet/ExplorerPatcher/wiki/Using-ExplorerPatcher-as-shell-extension
+[HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;q
-[-HKEY_CURRENT_USER\Software\Classes\CLSID\{d93ed569-3b3e-4bff-8355-3c44f6a52bb5}\InprocServer32]
-;d 禁用 Windows 11 工具栏 *
-@=""
+;b 注册为外壳扩展插件
+;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_RegisterAsShellExtension"=dword:00000000
 [-HKEY_CURRENT_USER\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32]
 ;d 禁用 Windows 11 右键菜单 *
 @=""
+[HKEY_CURRENT_USER\Software\ExplorerPatcher]
+;b 强制启用旧版文件传输对话框
+"LegacyFileTransferDialog"=dword:00000000
+[HKEY_CURRENT_USER\Software\ExplorerPatcher]
+;b 在“此电脑”中使用经典版驱动器分组
+"UseClassicDriveGrouping"=dword:00000000
+[HKEY_CURRENT_USER\Software\ExplorerPatcher]
+;c 3 控制界面 *
+;x 0 Win11 命令栏 (默认)
+;x 1 Win10 选项卡
+;x 2 Win7 命令栏
+;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_FileExplorerCommandUI"=dword:00000000
+;t 以下设置对新打开的文件管理器窗口生效:
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;i 显示 Windows 10 右键菜单时使用沉浸式菜单 **
 "DisableImmersiveContextMenu"=dword:00000000
@@ -159,20 +186,33 @@
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;b 完全隐藏搜索栏 **
 "HideExplorerSearchBar"=dword:00000000
-;p 2
-;b 标题栏云母材质
-"MicaEffectOnTitlebar"=dword:00000000
+;c 4 标题栏内容
+;x 0 显示图标和标题 (默认)
+;x 1 显示图标
+;x 2 显示标题
+;x 3 隐藏图标和标题
+"HideIconAndTitleInExplorer"=dword:00000000
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;b 注册为外壳扩展插件
-;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_RegisterAsShellExtension"=dword:00000000
+;c 3 标题栏云母材质
+;x 0 自动选择 (默认)
+;x 1 标题栏、命令栏、导航栏
+;x 2 无
+"MicaEffectOnTitlebar"=dword:00000000
 
 
 ;T 开始菜单
-[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StartPage]
-;b 登录后打开开始菜单
-"OpenAtLogon"=dword:00000000
-;b 默认打开开始菜单的“所有应用”
-"MakeAllAppsDefault"=dword:00000000
+[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
+;z 2 开始菜单风格
+;x 0 Windows 11 (默认)
+;x 1 Windows 10
+"Start_ShowClassicMode"=dword:00000000
+;y 设置中的开始菜单选项 🡕
+;ms-settings:personalization-start
+[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
+;c 2 显示位置
+;x 0 屏幕边缘
+;x 1 居中 (默认)
+"TaskbarAl"=dword:00000001
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;c 22 常用应用程序最大数量
 ;x 0 0
@@ -198,11 +238,6 @@
 ;x 20 20
 ;x 99999 ∞
 ;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_Start_MaximumFrequentApps"=dword:00000006
-[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
-;c 2 显示位置
-;x 0 靠左
-;x 1 居中 (默认)
-"TaskbarAl"=dword:00000001
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StartPage]
 ;a 使用多个显示器时，若使用键盘打开开始菜单，
 ;c 10 打开位置
@@ -217,7 +252,36 @@
 ;x 8 显示器 #8
 ;x 9 显示器 #9
 "MonitorOverride"=dword:00000001
-;a 如果所选显示器不可用，开始菜单将在主显示器打开。
+;t 以下设置仅支持 Win11 开始菜单:
+[HKEY_CURRENT_USER\Software\ExplorerPatcher]
+;b 不显示“推荐的项目”
+;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_StartDocked_DisableRecommendedSection"=dword:00000000
+[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StartPage]
+;b 默认打开“所有应用”
+"MakeAllAppsDefault"=dword:00000000
+;t 以下设置仅支持 Win10 开始菜单:
+[HKEY_CURRENT_USER\Software\ExplorerPatcher]
+;b 显示更多磁贴
+;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_StartUI_ShowMoreTiles"=dword:00000000
+;c 3 边角样式
+;x 1 圆角，悬浮菜单
+;x 2 圆角，停靠菜单
+;x 0 直角边
+;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_StartUI_EnableRoundedCorners"=dword:00000000
+[HKEY_CURRENT_USER\Software\ExplorerPatcher]
+;c 3 显示模式
+;x 0 默认
+;x 1 开始菜单
+;x 2 全屏开始菜单
+;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_ForceStartSize"=dword:00000000
+;c 3 应用列表
+;x 0 显示
+;x 3 隐藏
+;x 1 禁用 
+;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_NoStartMenuMorePrograms"=dword:00000000
+;u 从文件管理器固定磁贴到开始菜单
+;pin_tiles
+
 
 
 ;T 窗口切换器
@@ -329,16 +393,16 @@
 ;c 11 边框厚度
 ;x 50 50 pt
 ;x 45 45 pt
-;x 40 40 pt (默认)
+;x 40 40 pt
 ;x 35 30 pt
 ;x 30 30 pt
 ;x 25 25 pt
-;x 20 20 pt
+;x 20 20 pt (默认)
 ;x 15 15 pt
 ;x 10 10 pt
 ;x 5 5 pt
 ;x 0 无
-"MasterPadding"=dword:00000028
+"MasterPadding"=dword:00000014
 ;c 11 显示延时
 ;x 0 无
 ;x 25 25 ms
@@ -363,6 +427,10 @@
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;b 显示任务栏天气按钮
 ;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_PeopleBand"=dword:00000000
+;w 位置
+;输入城市名称或邮政编码，程序将用谷歌搜索“weather in 这个地方”来查询天气。不填默认为当前位置。
+;当前位置 (默认)
+"WeatherLocation"=""
 ;c 5 布局
 ;x 0 图标和描述 (默认)
 ;x 3 图标和温度
@@ -370,10 +438,15 @@
 ;x 4 仅温度
 ;x 5 温度和描述
 "WeatherViewMode"=dword:00000000
-;c 2 小组件弹窗尺寸
+;c 3 小组件弹窗尺寸
 ;x 0 随内容变化 (默认)
+;x 2 随内容限位变化
 ;x 1 固定
 "WeatherFixedSize"=dword:00000000
+;c 2 小组件弹窗位置
+;x 0 右 / 下 (默认)
+;x 1 左 / 上
+"WeatherToLeft"=dword:00000000
 ;c 7 更新频率
 ;x 60 每分钟
 ;x 300 每五分钟
@@ -387,13 +460,9 @@
 ;x 0 摄氏度℃ (默认)
 ;x 1 华氏度℉
 "WeatherTemperatureUnit"=dword:00000000
-;w 位置
-;输入城市名称或邮政编码，程序将用谷歌查找该位置的天气。不填默认为当前位置。
-;当前位置 (默认)
-"WeatherLocation"=""
 ;;;c 2 定位精度
-;;;x 0 通用 (基于 IP 地址) (默认)
-;;;x 1 精确 (获取定位信息)
+;;;x 0 通用 (IP 地址) (默认)
+;;;x 1 精确 (卫星定位)
 ;;"WeatherLocationType"=dword:00000000
 ;w 语言
 ;在此输入显示语言的语言代码，例如“en”、“ro”、“de”、“fr”等。不填默认为系统语言。
@@ -409,13 +478,41 @@
 ;x 3 小圆角
 ;x 1 直角
 "WeatherWindowCornerPreference"=dword:00000002
+;c 2 图标样式
+;x 0 微软 (默认)
+;x 1 谷歌
+"WeatherIconPack"=dword:00000000
+;c 2 小组件内容显示方式
+;x 0 单行 (默认)
+;x 1 两行
+"WeatherContentsMode"=dword:00000000
+;c 17 Zoom
+;x 25 25 %
+;x 33 33 %
+;x 50 50 %
+;x 67 67 %
+;x 75 75 %
+;x 80 80 %
+;x 90 90 %
+;x 0 100 % (默认)
+;x 110 110 %
+;x 125 125 %
+;x 150 150 %
+;x 175 175 %
+;x 200 200 %
+;x 250 250 %
+;x 300 300 %
+;x 400 400 %
+;x 500 500 %
+"WeatherZoomFactor"=dword:00000000
 ;q
-;t 天气数据由 Google 与 weather.com 提供。
 ;y 关于天气小组件 🡕
 ;https://github.com/valinet/ExplorerPatcher/wiki/Weather
+;t %WEATHERLASTUPDATETEXT%
 ;u 刷新天气数据
 ;update_weather
-
+;u 清除天气数据
+;clear_data_weather
 
 
 
@@ -437,8 +534,18 @@
 "NoMenuAccelerator"=dword:00000000
 ;b 禁用 Office 快捷键 (Ctrl+Alt+Shift+Win) *
 "DisableOfficeHotkeys"=dword:00000000
+;b 禁用 Win+F 反馈中心快捷键 *
+"DisableWinFHotkey"=dword:00000000
 ;b 禁用窗口圆角
 ;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_DisableRoundedCorners"=dword:00000000
+[HKEY_CURRENT_USER\Software\ExplorerPatcher]
+;b 窗口贴靠时，禁用四角贴靠，只保留左右贴靠 *
+"DisableAeroSnapQuadrants"=dword:00000000
+[HKEY_CURRENT_USER\Software\ExplorerPatcher]
+;c 2 窗口分屏贴靠提示样式
+;x 0 Windows 11 (默认)
+;x 3 Windows 10
+"SnapAssistSettings"=dword:00000000
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
 ;c 6 桌面 Alt+F4 对话框默认操作
 ;x 256 切换用户
@@ -448,11 +555,6 @@
 ;x 2 关机 (默认)
 ;x 4 重启
 "Start_PowerButtonAction"=dword:00000002
-[HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;c 2 窗口分屏提示样式
-;x 0 Windows 11 (默认)
-;x 3 Windows 10
-"SnapAssistSettings"=dword:00000000
 ;t 恢复被跳转到设置的控制面板链接:
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;b 系统 / 关于页面
@@ -474,6 +576,8 @@
 "UpdatePolicy"=dword:00000001
 ;b 接收测试版更新 (不推荐)
 "UpdatePreferStaging"=dword:00000000
+;b 接收服务器上最新的版本，忽略本地版本 (不推荐)
+"UpdateAllowDowngrades"=dword:00000000
 ;t 更新服务器:
 ;w 稳定版
 ;输入一个支持 GitHub release API 的网址。如需自建更新服务器，请查阅软件 Wiki。
@@ -521,8 +625,6 @@
 "NoPropertiesInContextMenu"=dword:00000000
 ;b 启用符号文件下载 *
 "EnableSymbolDownload"=dword:00000001
-;i 不从文件管理器主进程挂接开始菜单 (永久禁用) *
-"HookStartMenu"=dword:00000001
 ;c 12 登录时的额外延时 *
 ;x 0 无 (默认)
 ;x 300 300 ms
@@ -540,18 +642,19 @@
 ;t 仅支持 Windows 10 任务栏 :
 ;b 固定项充当快速启动 (不把固定项和活动应用分组) *
 "PinnedItemsActAsQuickLaunch"=dword:00000000
-;b 任务栏显示按钮标签时，移除固定项周围的额外间隙
+;b 任务栏显示按钮标签时，移除固定项周围的额外间隙 *
 "RemoveExtraGapAroundPinnedItems"=dword:00000000
 
 
-;T 关于
+;T 关于gap around p
 ;e ExplorerPatcher
 ;e 版本 %VERSIONINFORMATIONSTRING%
 ;t 版权所有 © 2006-2022 VALINET Solutions SRL
 ;t 保留所有权利。
 ;e 
 ;e 该工具旨在为 Windows 11 恢复高效的工作环境。
-;t Valentin-Gabriel Radu 荣誉出品。
+;e Valentin-Gabriel Radu 荣誉出品。
+;t 运行于 Windows 11, OS Build %OSVERSIONSTRING%
 ;y 查看项目 (https://github.com/valinet) 🡕
 ;https://github.com/valinet
 ;q

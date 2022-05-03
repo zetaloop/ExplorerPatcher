@@ -3,6 +3,7 @@
 #include "ep_weather.h"
 #include "ep_weather_utility.h"
 #include "../ep_weather_host_stub/ep_weather_host_h.h"
+#include "../ExplorerPatcher/def.h"
 #include <windowsx.h>
 #include <ShlObj.h>
 #include <Shobjidl.h>
@@ -18,13 +19,15 @@
 DEFINE_GUID(IID_ITaskbarList,
     0x56FDF342, 0xFD6D, 0x11d0, 0x95, 0x8A, 0x00, 0x60, 0x97, 0xC9, 0xA0, 0x90);
 
-#define EP_WEATHER_NUM_SIGNALS 2
+#define EP_WEATHER_NUM_SIGNALS 4
 
 #define EP_WEATHER_TIMER_REQUEST_REPAINT 1
 #define EP_WEATHER_TIMER_REQUEST_REPAINT_DELAY 1000
 #define EP_WEATHER_TIMER_REQUEST_REFRESH 10
 #define EP_WEATHER_TIMER_REQUEST_REFRESH_DELAY 2000
 #define EP_WEATHER_TIMER_SCHEDULE_REFRESH 11
+#define EP_WEATHER_TIMER_RESIZE_WINDOW 15
+#define EP_WEATHER_TIMER_RESIZE_WINDOW_DELAY 150
 
 typedef interface EPWeather
 {
@@ -48,6 +51,10 @@ typedef interface EPWeather
     LONG64 g_darkModeEnabled; // interlocked
     LONG64 dwGeolocationMode;
     LONG64 dwWindowCornerPreference;
+    LONG64 dwDevMode;
+    LONG64 dwTextDir;
+    LONG64 dwIconPack;
+    LONG64 dwZoomFactor;
 
     HANDLE hMutexData; // protects the following:
     DWORD cbTemperature;
@@ -60,6 +67,12 @@ typedef interface EPWeather
     char* pImage;
     DWORD cbLocation;
     LPCWSTR wszLocation;
+    LONG64 dwTextScaleFactor; // interlocked
+    HMODULE hUxtheme;
+    HMODULE hShlwapi;
+    HKEY hKCUAccessibility;
+    HKEY hKLMAccessibility;
+    DWORD cntResizeWindow;
 
     RECT rcBorderThickness; // local variables:
     ITaskbarList* pTaskList;
@@ -68,9 +81,13 @@ typedef interface EPWeather
     EventRegistrationToken* tkOnNavigationCompleted;
     EventRegistrationToken* tkOnPermissionRequested;
     RECT rc;
+    LONG64 dpiXInitial;
+    LONG64 dpiYInitial;
 
     HANDLE hSignalExitMainThread;
     HANDLE hSignalKillSwitch;
+    HANDLE hSignalOnAccessibilitySettingsChangedFromHKCU;
+    HANDLE hSignalOnAccessibilitySettingsChangedFromHKLM;
 } EPWeather;
 
 ULONG   STDMETHODCALLTYPE epw_Weather_AddRef(EPWeather* _this);
@@ -78,7 +95,7 @@ ULONG   STDMETHODCALLTYPE epw_Weather_Release(EPWeather* _this);
 HRESULT STDMETHODCALLTYPE epw_Weather_QueryInterface(EPWeather* _this, REFIID riid, void** ppv);
 HRESULT STDMETHODCALLTYPE epw_Weather_About(EPWeather* _this, HWND hWnd);
 
-HRESULT STDMETHODCALLTYPE epw_Weather_Initialize(EPWeather* _this, WCHAR wszName[MAX_PATH], BOOL bAllocConsole, LONG64 dwProvider, LONG64 cbx, LONG64 cby, LONG64 dwTemperatureUnit, LONG64 dwUpdateSchedule, RECT rc, LONG64 dwDarkMode, LONG64 dwGeolocationMode, HWND* hWnd);
+HRESULT STDMETHODCALLTYPE epw_Weather_Initialize(EPWeather* _this, WCHAR wszName[MAX_PATH], BOOL bAllocConsole, LONG64 dwProvider, LONG64 cbx, LONG64 cby, LONG64 dwTemperatureUnit, LONG64 dwUpdateSchedule, RECT rc, LONG64 dwDarkMode, LONG64 dwGeolocationMode, HWND* hWnd, LONG64 dwZoomFactor, LONG64 dpiXInitial, LONG64 dpiYInitial);
 
 HRESULT STDMETHODCALLTYPE epw_Weather_Show(EPWeather* _this);
 HRESULT STDMETHODCALLTYPE epw_Weather_Hide(EPWeather* _this);
@@ -102,6 +119,10 @@ HRESULT STDMETHODCALLTYPE epw_Weather_SetDarkMode(EPWeather* _this, LONG64 dwDar
 HRESULT STDMETHODCALLTYPE epw_Weather_IsDarkMode(EPWeather* _this, LONG64 dwDarkMode, LONG64* bEnabled);
 HRESULT STDMETHODCALLTYPE epw_Weather_SetGeolocationMode(EPWeather* _this, LONG64 dwGeolocationMode);
 HRESULT STDMETHODCALLTYPE epw_Weather_SetWindowCornerPreference(EPWeather* _this, LONG64 dwWindowCornerPreference);
+HRESULT STDMETHODCALLTYPE epw_Weather_SetDevMode(EPWeather* _this, LONG64 dwDevMode, LONG64 bRefresh);
+HRESULT STDMETHODCALLTYPE epw_Weather_SetIconPack(EPWeather* _this, LONG64 dwIconPack, LONG64 bRefresh);
+HRESULT STDMETHODCALLTYPE epw_Weather_SetZoomFactor(EPWeather* _this, LONG64 dwZoomFactor);
+HRESULT STDMETHODCALLTYPE epw_Weather_GetLastUpdateTime(EPWeather* _this, LPSYSTEMTIME lpLastUpdateTime);
 
 static const IEPWeatherVtbl IEPWeather_Vtbl = {
     .QueryInterface = epw_Weather_QueryInterface,
@@ -128,7 +149,18 @@ static const IEPWeatherVtbl IEPWeather_Vtbl = {
     .SetDarkMode = epw_Weather_SetDarkMode,
     .SetGeolocationMode = epw_Weather_SetGeolocationMode,
     .SetWindowCornerPreference = epw_Weather_SetWindowCornerPreference,
+    .SetDevMode = epw_Weather_SetDevMode,
+    .SetIconPack = epw_Weather_SetIconPack,
+    .SetZoomFactor = epw_Weather_SetZoomFactor,
+    .GetLastUpdateTime = epw_Weather_GetLastUpdateTime,
 };
+
+static inline DWORD epw_Weather_GetTextScaleFactor(EPWeather* _this) { return InterlockedAdd64(&_this->dwTextScaleFactor, 0); }
+static inline DWORD epw_Weather_GetZoomFactor(EPWeather* _this) { return InterlockedAdd64(&_this->dwZoomFactor, 0); }
+static inline DWORD epw_Weather_GetStyle(EPWeather* _this) { SetLastError(0); return GetWindowLongW(_this->hWnd, GWL_STYLE); }
+static inline DWORD epw_Weather_HasMenuBar(EPWeather* _this) { return 0; }
+static inline DWORD epw_Weather_GetExtendedStyle(EPWeather* _this) { SetLastError(0); return GetWindowLongW(_this->hWnd, GWL_EXSTYLE); }
+static void epw_Weather_SetTextScaleFactorFromRegistry(EPWeather* _this, HKEY hKey, BOOL bRefresh);
 
 HRESULT STDMETHODCALLTYPE epw_Weather_static_Stub(void* _this);
 ULONG   STDMETHODCALLTYPE epw_Weather_static_AddRefRelease(EPWeather* _this);
