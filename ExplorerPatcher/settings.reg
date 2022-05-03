@@ -646,7 +646,7 @@
 "RemoveExtraGapAroundPinnedItems"=dword:00000000
 
 
-;T 关于gap around p
+;T 关于
 ;e ExplorerPatcher
 ;e 版本 %VERSIONINFORMATIONSTRING%
 ;t 版权所有 © 2006-2022 VALINET Solutions SRL
