@@ -44,6 +44,8 @@
 
 参阅 [GitHub Issues](https://github.com/valinet/ExplorerPatcher/issues)。
 
+由于编码问题，暂未汉化通知消息。
+
 ## 卸载
 
 * 通过设置和控制面板的 “程序和功能” 卸载。
@@ -52,8 +54,9 @@
 
 ## 更新
 
-* 程序自带更新器：打开软件设置（属性）的更新页面，即可检查和安装版本更新。[了解更多](https://github.com/valinet/ExplorerPatcher/wiki/Configure-updates)
+* 程序自带更新器：打开软件设置（属性）的更新页面，即可检查和安装版本更新。
 * 或者下载最新版安装包，直接安装即可更新。
+* 汉化版更新网址默认为汉化版。
 
 ## 更多信息
 
