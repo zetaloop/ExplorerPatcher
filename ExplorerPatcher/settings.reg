@@ -548,7 +548,7 @@
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;b 隐藏"了解此图片"按钮
 "SpotlightDisableIcon"=dword:00000000
-;c 8 右键菜单
+;c 8 桌面菜单
 ;x 0 （无）
 ;x 32 下一张
 ;x 48 更多、下一张
@@ -559,7 +559,7 @@
 ;x 1008 （全部）
 "SpotlightDesktopMenuMask"=dword:00000000
 ;c 11 更新频率
-;x 0 Let Windows decide the best schedule (default)
+;x 0 由系统决定 (默认)
 ;x 60 每分钟
 ;x 300 每五分钟
 ;x 900 每十五分钟
@@ -571,10 +571,11 @@
 ;x 43200 每十二小时
 ;x 86400 每天
 "SpotlightUpdateSchedule"=dword:00000000
-;u %SPOTLIGHTCLICK%
-;spotlight_click
+;t 当前壁纸：
 ;t %SPOTLIGHTINFOTIP1%
 ;t %SPOTLIGHTINFOTIP2%
+;u %SPOTLIGHTCLICK%
+;spotlight_click
 ;u %SPOTLIGHTNEXT%
 ;spotlight_next
 ;u %SPOTLIGHTLIKE%
