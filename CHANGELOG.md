@@ -2,6 +2,33 @@
 
 This document includes the same release notes as in the [Releases](https://github.com/valinet/ExplorerPatcher/releases) section on GitHub.
 
+## 22000.708.46
+
+Tested on OS build 22000.708.
+
+Please make sure you are connected to the Internet while installing, the application might need to perform one-time downloads for several resources in order to enable full functionality.
+
+#### Details
+
+##### 1
+
+* Built-in support for OS build 22000.708.
+* Added configuration options for the new Windows Spotlight desktop background feature, including:
+  * Hide the "Learn about this picture" icon
+  * Choose which items from the Windows spotlight icon context menu to have replicated in the desktop context menu (legacy context menu only)
+  * Set a schedule for "Switch to next picture"
+  * Manipulate the feature from the Properties UI, bypassing the desktop icon
+* The Properties UI hides sections that are not applicable to your current settings; for example, the "Weather" tab is not displayed if you've selected the Windows 11 taskbar, as none of the options in there apply when in this mode.
+
+##### 2
+
+* sws: Fixed a bug that created unnecessary paint events when a window was flashing and the switcher is not shown
+
+##### 3
+
+* Added option to hide the "Show desktop" button, but still retain its functionality, when using the Windows 10 taskbar
+* Fixed a bug in Windows 10 where the Start menu was displayed centered by default
+  
 ## 22000.675.45
 
 Tested on OS build 22000.675.
@@ -13,6 +40,15 @@ Please make sure you are connected to the Internet while installing, the applica
 ##### 1
 
 * sws: Fixed a bug that displayed a wrong window to switch to when a background application was denied the request to have the foreground window by the OS (#1084)
+
+##### 2
+
+* libvalinet: Fixed a memory leak in `toast.h`
+* sws: Fixed a bug that caused the switcher to display non-responsive (hung) immersive (UWP) windows twice in the list
+
+##### 3
+
+* sws: Fixed a bug that created unnecessary paint events when a window was flashing and the switcher is not shown
 
 ## 22000.613.44
 

@@ -10,7 +10,7 @@
 ;x 0 Windows 11 (默认)
 ;x 1 Windows 10
 "OldTaskbar"=dword:00000001
-;y 任务栏设置 🡕
+;y 任务栏设置 🡕                                                          
 ;ms-settings:taskbar
 ;y 管理通知栏图标 🡕
 ;shell:::{05d7b0f4-2121-4eff-bf6b-ed3f69b894d9}
@@ -41,13 +41,10 @@
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
 ;b 显示任务视图按钮
 "ShowTaskViewButton"=dword:00000001
-[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
-;b 显示桌面按钮
-"TaskbarSD"=dword:00000001
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;b 自动隐藏任务栏
 ;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_AutoHideTaskbar"=dword:00000000
-;t 仅支持 Windows 10 任务栏:                                
+;s Taskbar_Windows10Section IsOldTaskbar
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;c 2 开始按钮样式
 ;x 0 Windows 10 (默认)
@@ -83,6 +80,8 @@
 ;x 0 大 (默认)
 "TaskbarSmallIcons"=dword:00000000
 ;e 
+;e 
+;g Taskbar_Windows10Section
 
 
 ;T 托盘菜单
@@ -96,17 +95,33 @@
 [HKEY_CURRENT_USER\Software\Microsoft\TabletTip\1.7]
 ;b 显示触摸键盘按钮 *
 "TipbandDesiredVisibility"=dword:00000000
-;t 仅支持 Windows 10 任务栏 :
+;s SystemTray_Section98 IsOldTaskbar
+[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
+;b 时间显示秒数
+"ShowSecondsInSystemClock"=dword:00000000
+;g SystemTray_Section98
+[HKEY_CURRENT_USER\Software\ExplorerPatcher]
+;i 控制中心按钮 *
+"HideControlCenterButton"=dword:00000000
+;s SystemTray_Section109 IsOldTaskbar
+[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
+;c 3 “显示桌面”按钮
+;x 1 启用 (默认)
+;x 0 禁用
+;x 2 隐藏
+"TaskbarSD"=dword:00000001
+;g SystemTray_Section109
+;s SystemTray_Section117 !IsOldTaskbar
+[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
+;b “显示桌面”按钮
+"TaskbarSD"=dword:00000001
+;g SystemTray_Section117
+;s SystemTray_Windows10Section IsOldTaskbar
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;p 2
 ;b 显示 Windows 11 样式的系统图标 *
 "SkinIcons"=dword:00000001
-[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
-;b 时间显示秒数
-"ShowSecondsInSystemClock"=dword:00000000
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;b 隐藏控制中心按钮 *
-"HideControlCenterButton"=dword:00000000
 ;a 右键网络图标打开“网络和 Internet 设置”时，
 ;c 3 打开
 ;x 0 设置“网络和 Internet” (默认)
@@ -147,6 +162,8 @@
 ;x 1 Windows 10 (带有“语言设置”链接)
 ;x 4 Windows 10
 "IMEStyle"=dword:00000000
+;g SystemTray_Windows10Section
+
 
 
 ;T 文件管理器
@@ -198,6 +215,7 @@
 ;x 1 标题栏、命令栏、导航栏
 ;x 2 无
 "MicaEffectOnTitlebar"=dword:00000000
+
 
 
 ;T 开始菜单
@@ -252,14 +270,15 @@
 ;x 8 显示器 #8
 ;x 9 显示器 #9
 "MonitorOverride"=dword:00000001
-;t 以下设置仅支持 Win11 开始菜单:
+;s StartMenu_Windows11 !IsWindows10StartMenu
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;b 不显示“推荐的项目”
 ;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_StartDocked_DisableRecommendedSection"=dword:00000000
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StartPage]
 ;b 默认打开“所有应用”
 "MakeAllAppsDefault"=dword:00000000
-;t 以下设置仅支持 Win10 开始菜单:
+;g StartMenu_Windows11
+;s StartMenu_Windows10 IsWindows10StartMenu
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;b 显示更多磁贴
 ;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_StartUI_ShowMoreTiles"=dword:00000000
@@ -281,6 +300,7 @@
 ;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_NoStartMenuMorePrograms"=dword:00000000
 ;u 从文件管理器固定磁贴到开始菜单
 ;pin_tiles
+;g StartMenu_Windows10
 
 
 
@@ -292,7 +312,7 @@
 ;x 1 Windows NT
 ;x 2 简易窗口切换器
 "AltTabSettings"=dword:00000000
-;t 仅支持简易窗口切换器:
+;s WindowSwitcher_SWS IsSWSEnabled
 [HKEY_CURRENT_USER\Software\ExplorerPatcher\sws]
 ;b 包括桌面
 "IncludeWallpaper"=dword:00000001
@@ -419,14 +439,16 @@
 ;q
 ;y 关于简易窗口切换器 🡕
 ;https://github.com/valinet/ExplorerPatcher/wiki/Simple-Window-Switcher
+;g WindowSwitcher_SWS
 
 
 
+;s Weather_Windows10 IsOldTaskbar
 ;T 天气
-;t 仅支持 Windows 10 任务栏 :
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;b 显示任务栏天气按钮
 ;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_PeopleBand"=dword:00000000
+;s Weather_Section1 IsWeatherEnabled
 ;w 位置
 ;输入城市名称或邮政编码，程序将用谷歌搜索“weather in 这个地方”来查询天气。不填默认为当前位置。
 ;当前位置 (默认)
@@ -506,13 +528,64 @@
 ;x 500 500 %
 "WeatherZoomFactor"=dword:00000000
 ;q
+;g Weather_Section1
 ;y 关于天气小组件 🡕
 ;https://github.com/valinet/ExplorerPatcher/wiki/Weather
+;s Weather_Section2 IsWeatherEnabled
 ;t %WEATHERLASTUPDATETEXT%
 ;u 刷新天气数据
 ;update_weather
 ;u 清除天气数据
 ;clear_data_weather
+;g Weather_Section2
+;g Weather_Windows10
+
+
+
+;s Spotlight_SpotlightOSCheck DoesOSBuildSupportSpotlight
+;s Spotlight_SpotlightEnabledCheck IsSpotlightEnabled
+;T 聚焦
+[HKEY_CURRENT_USER\Software\ExplorerPatcher]
+;b 隐藏"了解此图片"按钮
+"SpotlightDisableIcon"=dword:00000000
+;c 8 右键菜单
+;x 0 （无）
+;x 32 下一张
+;x 48 更多、下一张
+;x 288 提示、下一张
+;x 800 提示、版权、下一张
+;x 304 提示、更多、下一张
+;x 816 提示、版权、更多、下一张
+;x 1008 （全部）
+"SpotlightDesktopMenuMask"=dword:00000000
+;c 11 更新频率
+;x 0 Let Windows decide the best schedule (default)
+;x 60 每分钟
+;x 300 每五分钟
+;x 900 每十五分钟
+;x 1200 每二十分钟
+;x 1800 每半小时
+;x 3600 每小时
+;x 7200 每两小时
+;x 21600 每六小时
+;x 43200 每十二小时
+;x 86400 每天
+"SpotlightUpdateSchedule"=dword:00000000
+;u %SPOTLIGHTCLICK%
+;spotlight_click
+;t %SPOTLIGHTINFOTIP1%
+;t %SPOTLIGHTINFOTIP2%
+;u %SPOTLIGHTNEXT%
+;spotlight_next
+;u %SPOTLIGHTLIKE%
+;spotlight_like
+;u %SPOTLIGHTDISLIKE%
+;spotlight_dislike
+;;;u 更多选项
+;;;spotlight_menu
+;g Spotlight_SpotlightEnabledCheck
+;g Spotlight_SpotlightOSCheck
+
 
 
 
@@ -565,6 +638,7 @@
 "DoNotRedirectDateAndTimeToSettingsApp"=dword:00000000
 ;b 自定义通知区域图标
 "DoNotRedirectNotificationIconsToSettingsApp"=dword:00000000
+
 
 
 ;T 更新
@@ -625,6 +699,12 @@
 "NoPropertiesInContextMenu"=dword:00000000
 ;b 启用符号文件下载 *
 "EnableSymbolDownload"=dword:00000001
+;s Advanced_Windows10 IsOldTaskbar
+;b 固定项充当快速启动 (不把固定项和活动应用分组) *
+"PinnedItemsActAsQuickLaunch"=dword:00000000
+;b 任务栏显示按钮标签时，移除固定项周围的额外间隙 *
+"RemoveExtraGapAroundPinnedItems"=dword:00000000
+;g Advanced_Windows10
 ;c 12 登录时的额外延时 *
 ;x 0 无 (默认)
 ;x 300 300 ms
@@ -639,11 +719,6 @@
 ;x 8000 8 s
 ;x 10000 10 s
 "ExplorerReadyDelay"=dword:00000000
-;t 仅支持 Windows 10 任务栏 :
-;b 固定项充当快速启动 (不把固定项和活动应用分组) *
-"PinnedItemsActAsQuickLaunch"=dword:00000000
-;b 任务栏显示按钮标签时，移除固定项周围的额外间隙 *
-"RemoveExtraGapAroundPinnedItems"=dword:00000000
 
 
 ;T 关于

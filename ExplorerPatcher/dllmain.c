@@ -154,6 +154,9 @@ DWORD dwTaskbarSmallIcons = FALSE;
 DWORD dwShowTaskViewButton = FALSE;
 DWORD dwSearchboxTaskbarMode = FALSE;
 DWORD dwTaskbarDa = FALSE;
+DWORD bDisableSpotlightIcon = FALSE;
+DWORD dwSpotlightDesktopMenuMask = 0;
+DWORD dwSpotlightUpdateSchedule = 0;
 int Code = 0;
 HRESULT InjectStartFromExplorer();
 void InvokeClockFlyout();
@@ -809,7 +812,11 @@ LRESULT CALLBACK EP_Service_Window_WndProc(
         }
         return 0;
     }
-
+    else if (uMsg == WM_TIMER && wParam == 100)
+    {
+        if (IsSpotlightEnabled()) SpotlightHelper(SPOP_CLICKMENU_NEXTPIC, hWnd, NULL, NULL);
+        printf("Refreshed Spotlight\n");
+    }
     return DefWindowProcW(hWnd, uMsg, wParam, lParam);
 }
 DWORD EP_ServiceWindowThread(DWORD unused)
@@ -839,6 +846,7 @@ DWORD EP_ServiceWindowThread(DWORD unused)
     );
     if (hWndServiceWindow)
     {
+        if (IsSpotlightEnabled() && dwSpotlightUpdateSchedule) SetTimer(hWndServiceWindow, 100, dwSpotlightUpdateSchedule * 1000, NULL);
         if (bClockFlyoutOnWinC)
         {
             RegisterHotKey(hWndServiceWindow, 1, MOD_WIN | MOD_NOREPEAT, 'C');
@@ -5272,6 +5280,7 @@ INT64 ShowDesktopSubclassProc(
             {
                 lRes = 0;
             }
+            else if (dwVal) PostMessageW(hWnd, 794, 0, 0);
         }
         return lRes;
     }
@@ -5664,12 +5673,13 @@ DWORD WindowSwitcher(DWORD unused)
 
 
 #pragma region "Load Settings from registry"
-#define REFRESHUI_NONE    0b00000
-#define REFRESHUI_GLOM    0b00001
-#define REFRESHUI_ORB     0b00010
-#define REFRESHUI_PEOPLE  0b00100
-#define REFRESHUI_TASKBAR 0b01000
-#define REFRESHUI_CENTER  0b10000
+#define REFRESHUI_NONE         0b000000
+#define REFRESHUI_GLOM         0b000001
+#define REFRESHUI_ORB          0b000010
+#define REFRESHUI_PEOPLE       0b000100
+#define REFRESHUI_TASKBAR      0b001000
+#define REFRESHUI_CENTER       0b010000
+#define REFRESHUI_SPOTLIGHT    0b100000
 void WINAPI LoadSettings(LPARAM lParam)
 {
     BOOL bIsExplorer = LOWORD(lParam);
@@ -6325,6 +6335,59 @@ void WINAPI LoadSettings(LPARAM lParam)
         dwSize = sizeof(DWORD);
         RegQueryValueExW(
             hKey,
+            TEXT("SpotlightDisableIcon"),
+            0,
+            NULL,
+            &dwTemp,
+            &dwSize
+        );
+        if (dwTemp != bDisableSpotlightIcon)
+        {
+            bDisableSpotlightIcon = dwTemp;
+#ifdef _WIN64
+            if (IsSpotlightEnabled()) dwRefreshUIMask |= REFRESHUI_SPOTLIGHT;
+#endif
+        }
+        dwSize = sizeof(DWORD);
+        RegQueryValueExW(
+            hKey,
+            TEXT("SpotlightDesktopMenuMask"),
+            0,
+            NULL,
+            &dwSpotlightDesktopMenuMask,
+            &dwSize
+        );
+        dwTemp = 0;
+        dwSize = sizeof(DWORD);
+        RegQueryValueExW(
+            hKey,
+            TEXT("SpotlightUpdateSchedule"),
+            0,
+            NULL,
+            &dwTemp,
+            &dwSize
+        );
+        if (dwTemp != dwSpotlightUpdateSchedule)
+        {
+            dwSpotlightUpdateSchedule = dwTemp;
+#ifdef _WIN64
+            if (IsSpotlightEnabled() && hWndServiceWindow)
+            {
+                if (dwSpotlightUpdateSchedule)
+                {
+                    SetTimer(hWndServiceWindow, 100, dwSpotlightUpdateSchedule * 1000, NULL);
+                }
+                else
+                {
+                    KillTimer(hWndServiceWindow, 100);
+                }
+            }
+#endif
+        }
+        dwTemp = FALSE;
+        dwSize = sizeof(DWORD);
+        RegQueryValueExW(
+            hKey,
             TEXT("PinnedItemsActAsQuickLaunch"),
             0,
             NULL,
@@ -6941,6 +7004,16 @@ void WINAPI LoadSettings(LPARAM lParam)
             FixUpCenteredTaskbar();
 #endif
         }
+        if (dwRefreshUIMask & REFRESHUI_SPOTLIGHT)
+        {
+            DWORD dwAttributes = 0; dwTemp = sizeof(DWORD);
+            RegGetValueW(HKEY_CURRENT_USER, L"Software\\Classes\\CLSID\\{2cc5ca98-6485-489a-920e-b3e88a6ccce3}\\ShellFolder", L"Attributes", RRF_RT_DWORD, NULL, &dwAttributes, &dwTemp);
+            if (bDisableSpotlightIcon) dwAttributes |= SFGAO_NONENUMERATED;
+            else dwAttributes &= ~SFGAO_NONENUMERATED;
+            RegSetKeyValueW(HKEY_CURRENT_USER, L"Software\\Classes\\CLSID\\{2cc5ca98-6485-489a-920e-b3e88a6ccce3}\\ShellFolder", L"Attributes", REG_DWORD, &dwAttributes, sizeof(DWORD));
+            SHFlushSFCache();
+            SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
+        }
     }
 }
 
@@ -7503,6 +7576,13 @@ HTHEME explorer_OpenThemeDataForDpi(
             }
         }
         return hTheme;
+    }
+    else if ((*((WORD*)&(pszClassList)+1)) && !wcscmp(pszClassList, L"TaskbarShowDesktop"))
+    {
+        DWORD dwVal = 0, dwSize = sizeof(DWORD);
+        RegGetValueW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", L"TaskbarSD", RRF_RT_REG_DWORD, NULL, &dwVal, &dwSize);
+        if (dwVal == 2) return NULL;
+        return OpenThemeDataForDpi(hwnd, pszClassList, dpi);
     }
 
     // task list - Taskband2 from CTaskListWnd::_HandleThemeChanged
@@ -9106,6 +9186,73 @@ BOOL SHELL32_CanDisplayWin8CopyDialogHook()
 #pragma endregion
 
 
+#pragma region "Windows Spotlight customization"
+#ifdef _WIN64
+
+HKEY hKeySpotlight1 = NULL;
+HKEY hKeySpotlight2 = NULL;
+BOOL bSpotlightIsDesktopContextMenu = FALSE;
+
+LSTATUS shell32_RegCreateKeyExW(HKEY hKey, LPCWSTR lpSubKey, DWORD Reserved, LPWSTR lpClass, DWORD dwOptions, REGSAM samDesired, const LPSECURITY_ATTRIBUTES lpSecurityAttributes, PHKEY phkResult, LPDWORD lpdwDisposition)
+{
+    if (bDisableSpotlightIcon && hKey == HKEY_CURRENT_USER && !_wcsicmp(lpSubKey, L"Software\\Classes\\CLSID\\{2cc5ca98-6485-489a-920e-b3e88a6ccce3}"))
+    {
+        LSTATUS lRes = RegCreateKeyExW(hKey, lpSubKey, Reserved, lpClass, dwOptions, samDesired, lpSecurityAttributes, phkResult, lpdwDisposition);
+        if (lRes == ERROR_SUCCESS) hKeySpotlight1 = *phkResult;
+        return lRes;
+    }
+    else if (hKeySpotlight1 && hKey == hKeySpotlight1 && !_wcsicmp(lpSubKey, L"ShellFolder"))
+    {
+        LSTATUS lRes = RegCreateKeyExW(hKey, lpSubKey, Reserved, lpClass, dwOptions, samDesired, lpSecurityAttributes, phkResult, lpdwDisposition);
+        if (lRes == ERROR_SUCCESS) hKeySpotlight2 = *phkResult;
+        return lRes;
+    }
+    return RegCreateKeyExW(hKey, lpSubKey, Reserved, lpClass, dwOptions, samDesired, lpSecurityAttributes, phkResult, lpdwDisposition);
+}
+
+LSTATUS shell32_RegSetValueExW(HKEY hKey, LPCWSTR lpValueName, DWORD Reserved, DWORD dwType, const BYTE* lpData, DWORD cbData)
+{
+    if (hKeySpotlight1 && hKeySpotlight2 && hKey == hKeySpotlight2 && !_wcsicmp(lpValueName, L"Attributes"))
+    {
+        hKeySpotlight1 = NULL;
+        hKeySpotlight2 = NULL;
+        DWORD dwAttributes = *(DWORD*)lpData | SFGAO_NONENUMERATED;
+        SHFlushSFCache();
+        return RegSetValueExW(hKey, lpValueName, Reserved, dwType, &dwAttributes, cbData);
+    }
+    return RegSetValueExW(hKey, lpValueName, Reserved, dwType, lpData, cbData);
+}
+
+BOOL shell32_DeleteMenu(HMENU hMenu, UINT uPosition, UINT uFlags)
+{
+    if (uPosition == 0x7053 && IsSpotlightEnabled() && dwSpotlightDesktopMenuMask) bSpotlightIsDesktopContextMenu = TRUE;
+    return DeleteMenu(hMenu, uPosition, uFlags);
+}
+
+BOOL shell32_TrackPopupMenu(HMENU hMenu, UINT uFlags, int x, int y, int nReserved, HWND hWnd, const RECT* prcRect)
+{
+    if (IsSpotlightEnabled() && dwSpotlightDesktopMenuMask && RegisterWindowMessageW(L"WorkerW") == GetClassWord(GetParent(hWnd), GCW_ATOM) && bSpotlightIsDesktopContextMenu)
+    {
+        SpotlightHelper(dwSpotlightDesktopMenuMask, hWnd, hMenu, NULL);
+    }
+    bSpotlightIsDesktopContextMenu = FALSE;
+    BOOL bRet = TrackPopupMenuHook(hMenu, uFlags, x, y, nReserved, hWnd, prcRect);
+    if (IsSpotlightEnabled() && dwSpotlightDesktopMenuMask)
+    {
+        MENUITEMINFOW mii;
+        mii.cbSize = sizeof(MENUITEMINFOW);
+        mii.fMask = MIIM_FTYPE | MIIM_DATA;
+        if (GetMenuItemInfoW(hMenu, bRet, FALSE, &mii) && mii.dwItemData >= SPOP_CLICKMENU_FIRST && mii.dwItemData <= SPOP_CLICKMENU_LAST)
+        {
+            SpotlightHelper(mii.dwItemData, hWnd, hMenu, NULL);
+        }
+    }
+    return bRet;
+}
+#endif
+#pragma endregion
+
+
 DWORD InjectBasicFunctions(BOOL bIsExplorer, BOOL bInstall)
 {
     //Sleep(150);
@@ -9129,7 +9276,18 @@ DWORD InjectBasicFunctions(BOOL bIsExplorer, BOOL bInstall)
     {
         if (bInstall)
         {
-            VnPatchIAT(hShell32, "user32.dll", "TrackPopupMenu", TrackPopupMenuHook);
+#ifdef _WIN64
+            if (DoesOSBuildSupportSpotlight())
+            {
+                VnPatchIAT(hShell32, "user32.dll", "TrackPopupMenu", shell32_TrackPopupMenu);
+            }
+            else
+            {
+#endif
+                VnPatchIAT(hShell32, "user32.dll", "TrackPopupMenu", TrackPopupMenuHook);
+#ifdef _WIN64
+            }
+#endif
             VnPatchIAT(hShell32, "user32.dll", "SystemParametersInfoW", DisableImmersiveMenus_SystemParametersInfoW);
             if (!bIsExplorer)
             {
@@ -9975,6 +10133,14 @@ DWORD Inject(BOOL bIsExplorer)
                 pClassFactory->lpVtbl->Release(pClassFactory);
             }
         }
+
+        // Disable Windows Spotlight icon
+        if (DoesOSBuildSupportSpotlight())
+        {
+            VnPatchIAT(hShell32, "API-MS-WIN-CORE-REGISTRY-L1-1-0.DLL", "RegCreateKeyExW", shell32_RegCreateKeyExW);
+            VnPatchIAT(hShell32, "API-MS-WIN-CORE-REGISTRY-L1-1-0.DLL", "RegSetValueExW", shell32_RegSetValueExW);
+            VnPatchIAT(hShell32, "user32.dll", "DeleteMenu", shell32_DeleteMenu);
+        }
     }
     printf("Setup shell32 functions done\n");
 
@@ -10436,7 +10602,8 @@ void StartMenu_LoadSettings(BOOL bRestartIfChanged)
         dwStartShowClassicMode = dwVal;
 
         dwSize = sizeof(DWORD);
-        dwVal = 1;
+        if (IsWindows11()) dwVal = 1;
+        else dwVal = 0;
         RegQueryValueExW(
             hKey,
             TEXT("TaskbarAl"),

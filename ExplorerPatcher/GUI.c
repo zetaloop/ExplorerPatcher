@@ -1058,6 +1058,38 @@ static BOOL GUI_Build(HDC hDC, HWND hwnd, POINT pt)
             {
                 bWasSpecifiedSectionValid = TRUE;
             }
+            if (!strncmp(line, ";g ", 3))
+            {
+                continue;
+            }
+            if (!strncmp(line, ";s ", 3))
+            {
+                if (_this->bCalcExtent) continue;
+                char* funcName = strchr(line + 3, ' ');
+                funcName[0] = 0;
+                char* skipToName = line + 3;
+                funcName++;
+                strchr(funcName, '\r')[0] = 0;
+                BOOL bSkipLines = FALSE;
+                DWORD dwRes = 0, dwSize = sizeof(DWORD);
+                if (!_stricmp(funcName, "DoesOSBuildSupportSpotlight") && !DoesOSBuildSupportSpotlight()) bSkipLines = TRUE;
+                else if (!_stricmp(funcName, "IsSpotlightEnabled") && !IsSpotlightEnabled()) bSkipLines = TRUE;
+                else if (!_stricmp(funcName, "IsSWSEnabled") && (RegGetValueW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer", L"AltTabSettings", RRF_RT_DWORD, NULL, &dwRes, &dwSize), (dwRes != 2))) bSkipLines = TRUE;
+                else if (!_stricmp(funcName, "IsOldTaskbar") && (RegGetValueW(HKEY_CURRENT_USER, _T(REGPATH), L"OldTaskbar", RRF_RT_DWORD, NULL, &dwRes, &dwSize), (dwRes != 1))) bSkipLines = TRUE;
+                else if (!_stricmp(funcName, "!IsOldTaskbar") && (RegGetValueW(HKEY_CURRENT_USER, _T(REGPATH), L"OldTaskbar", RRF_RT_DWORD, NULL, &dwRes, &dwSize), (dwRes == 1))) bSkipLines = TRUE;
+                else if (!_stricmp(funcName, "IsWindows10StartMenu") && (RegGetValueW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", L"Start_ShowClassicMode", RRF_RT_DWORD, NULL, &dwRes, &dwSize), (dwRes != 1))) bSkipLines = TRUE;
+                else if (!_stricmp(funcName, "!IsWindows10StartMenu") && (RegGetValueW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", L"Start_ShowClassicMode", RRF_RT_DWORD, NULL, &dwRes, &dwSize), (dwRes == 1))) bSkipLines = TRUE;
+                else if (!_stricmp(funcName, "IsWeatherEnabled") && (RegGetValueW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\\People", L"PeopleBand", RRF_RT_DWORD, NULL, &dwRes, &dwSize), (dwRes != 1))) bSkipLines = TRUE;
+                if (bSkipLines)
+                {
+                    do
+                    {
+                        getline(&text, &bufsiz, f);
+                        strchr(text, '\r')[0] = 0;
+                    } while (strncmp(text, ";g ", 3) || _stricmp((char*)text + 3, skipToName));
+                }
+                continue;
+            }
             if (!strncmp(line, ";q", 2))
             {
                 bResetLastHeading = TRUE;
@@ -1295,6 +1327,52 @@ static BOOL GUI_Build(HDC hDC, HWND hwnd, POINT pt)
                             }
                         }
                         if (!bOk) continue;
+                    }
+                    else if (!wcsncmp(text, L"%SPOTLIGHTINFOTIP1%", 18))
+                    {
+                        DWORD dwDataSize = MAX_LINE_LENGTH;
+                        RegGetValueW(HKEY_CURRENT_USER, L"Software\\Classes\\CLSID\\{2cc5ca98-6485-489a-920e-b3e88a6ccce3}", L"InfoTip", RRF_RT_REG_SZ, NULL, text, &dwDataSize);
+                        WCHAR* pC = wcschr(text, L'\r');
+                        if (pC) pC[0] = 0;
+                    }
+                    else if (!wcsncmp(text, L"%SPOTLIGHTINFOTIP2%", 18))
+                    {
+                        DWORD dwDataSize = MAX_LINE_LENGTH;
+                        RegGetValueW(HKEY_CURRENT_USER, L"Software\\Classes\\CLSID\\{2cc5ca98-6485-489a-920e-b3e88a6ccce3}", L"InfoTip", RRF_RT_REG_SZ, NULL, text, &dwDataSize);
+                        WCHAR* pC = wcschr(text, L'\r');
+                        if (pC)
+                        {
+                            int d = (pC - text) + 1;
+                            for (int i = d; i < wcslen(text); ++i)
+                            {
+                                text[i - d] = text[i];
+                            }
+                            pC = wcschr(text, L'\r');
+                            if (pC)
+                            {
+                                pC[0] = 0;
+                            }
+                        }
+                    }
+                    else if (!wcsncmp(text, L"%SPOTLIGHTCLICK%", 16))
+                    {
+                        DWORD dwDataSize = MAX_LINE_LENGTH;
+                        RegQueryValueW(HKEY_CURRENT_USER, L"Software\\Classes\\CLSID\\{2cc5ca98-6485-489a-920e-b3e88a6ccce3}", text, &dwDataSize);
+                    }
+                    else if (!wcsncmp(text, L"%SPOTLIGHTDISLIKE%", 18))
+                    {
+                        DWORD dwDataSize = MAX_LINE_LENGTH;
+                        RegQueryValueW(HKEY_CURRENT_USER, L"Software\\Classes\\CLSID\\{2cc5ca98-6485-489a-920e-b3e88a6ccce3}\\shell\\SpotlightDislike", text, &dwDataSize);
+                    }
+                    else if (!wcsncmp(text, L"%SPOTLIGHTLIKE%", 15))
+                    {
+                        DWORD dwDataSize = MAX_LINE_LENGTH;
+                        RegQueryValueW(HKEY_CURRENT_USER, L"Software\\Classes\\CLSID\\{2cc5ca98-6485-489a-920e-b3e88a6ccce3}\\shell\\SpotlightLike", text, &dwDataSize);
+                    }
+                    else if (!wcsncmp(text, L"%SPOTLIGHTNEXT%", 15))
+                    {
+                        DWORD dwDataSize = MAX_LINE_LENGTH;
+                        RegQueryValueW(HKEY_CURRENT_USER, L"Software\\Classes\\CLSID\\{2cc5ca98-6485-489a-920e-b3e88a6ccce3}\\shell\\SpotlightNext", text, &dwDataSize);
                     }
                     if (bResetLastHeading)
                     {
@@ -2256,6 +2334,30 @@ static BOOL GUI_Build(HDC hDC, HWND hwnd, POINT pt)
                                     }
                                     psfDesktop->lpVtbl->Release(psfDesktop);
                                 }
+                            }
+                            else if (!strncmp(line + 1, "spotlight_menu", 14))
+                            {
+                                POINT p;
+                                p.x = rcText.left;
+                                p.y = rcText.bottom;
+                                ClientToScreen(hwnd, &p);
+                                SpotlightHelper(SPOP_OPENMENU, hwnd, NULL, &p);
+                            }
+                            else if (!strncmp(line + 1, "spotlight_click", 15))
+                            {
+                                SpotlightHelper(SPOP_CLICKMENU_OPEN, hwnd, NULL, &p);
+                            }
+                            else if (!strncmp(line + 1, "spotlight_next", 14))
+                            {
+                                SpotlightHelper(SPOP_CLICKMENU_NEXTPIC, hwnd, NULL, &p);
+                            }
+                            else if (!strncmp(line + 1, "spotlight_like", 14))
+                            {
+                                SpotlightHelper(SPOP_CLICKMENU_LIKE, hwnd, NULL, &p);
+                            }
+                            else if (!strncmp(line + 1, "spotlight_dislike", 17))
+                            {
+                                SpotlightHelper(SPOP_CLICKMENU_DISLIKE, hwnd, NULL, &p);
                             }
                         }
                     }
@@ -3563,12 +3665,31 @@ static LRESULT CALLBACK GUI_WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
             return 0;
         }
         // this should be determined from the file, but for now it works
-        else if (wParam >= '1' && wParam <= '9' || wParam == '0')
+        else if (wParam >= '1' && wParam <= '9' || wParam == '0' || wParam == MapVirtualKeyW(0x0C, MAPVK_VSC_TO_VK_EX) || wParam == MapVirtualKeyW(0x0D, MAPVK_VSC_TO_VK_EX))
         {
-            _this->tabOrder = 0;
-            GUI_SetSection(_this, TRUE, wParam == '0' ? 9 : wParam - '1');
-            _this->bShouldAnnounceSelected = TRUE;
-            InvalidateRect(hWnd, NULL, FALSE);
+            int min_section = 0;
+            int max_section = 100;
+            for (unsigned int i = 0; i < 100; ++i)
+            {
+                if (_this->sectionNames[i][0] == 0)
+                {
+                    max_section = i - 1;
+                    break;
+                }
+            }
+            int new_section = 0;
+            if (wParam == MapVirtualKeyW(0x0C, MAPVK_VSC_TO_VK_EX)) new_section = 10;
+            else if (wParam == MapVirtualKeyW(0x0D, MAPVK_VSC_TO_VK_EX)) new_section = 11;
+            else new_section = (wParam == '0' ? 9 : wParam - '1');
+            if (new_section < min_section) return 0;
+            if (new_section > max_section) return 0;
+            if (_this->section != new_section)
+            {
+                _this->tabOrder = 0;
+                GUI_SetSection(_this, TRUE, new_section);
+                _this->bShouldAnnounceSelected = TRUE;
+                InvalidateRect(hWnd, NULL, FALSE);
+            }
             return 0;
         }
         else if (wParam == VK_LEFT || wParam == VK_RIGHT)
@@ -3600,10 +3721,13 @@ static LRESULT CALLBACK GUI_WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
             {
                 new_section = min_section;
             }
-            _this->tabOrder = 0;
-            GUI_SetSection(_this, TRUE, new_section);
-            _this->bShouldAnnounceSelected = TRUE;
-            InvalidateRect(hWnd, NULL, FALSE);
+            if (_this->section != new_section)
+            {
+                _this->tabOrder = 0;
+                GUI_SetSection(_this, TRUE, new_section);
+                _this->bShouldAnnounceSelected = TRUE;
+                InvalidateRect(hWnd, NULL, FALSE);
+            }
             return 0; 
         }
         else if (wParam == 'H' || wParam == VK_F1)
