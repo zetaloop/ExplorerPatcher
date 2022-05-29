@@ -190,7 +190,7 @@ DWORD S_Icon_Dark_TaskView = 0;
 void* P_Icon_Dark_Widgets = NULL;
 DWORD S_Icon_Dark_Widgets = 0;
 
-
+BOOL g_bIsDesktopRaised = FALSE;
 
 #include "utility.h"
 #include "resource.h"
@@ -2423,6 +2423,10 @@ INT64 Shell_TrayWndSubclassProc(
             }
             DestroyMenu(hMenu);
         }
+    }
+    else if (uMsg == 1368)
+    {
+        g_bIsDesktopRaised = (lParam & 1) == 0;
     }
     return DefSubclassProc(hWnd, uMsg, wParam, lParam);
 }
@@ -9231,7 +9235,7 @@ BOOL shell32_DeleteMenu(HMENU hMenu, UINT uPosition, UINT uFlags)
 
 BOOL shell32_TrackPopupMenu(HMENU hMenu, UINT uFlags, int x, int y, int nReserved, HWND hWnd, const RECT* prcRect)
 {
-    if (IsSpotlightEnabled() && dwSpotlightDesktopMenuMask && RegisterWindowMessageW(L"WorkerW") == GetClassWord(GetParent(hWnd), GCW_ATOM) && bSpotlightIsDesktopContextMenu)
+    if (IsSpotlightEnabled() && dwSpotlightDesktopMenuMask && (GetPropW(GetParent(hWnd), L"DesktopWindow") && RegisterWindowMessageW(L"WorkerW") == GetClassWord(GetParent(hWnd), GCW_ATOM)) && bSpotlightIsDesktopContextMenu)
     {
         SpotlightHelper(dwSpotlightDesktopMenuMask, hWnd, hMenu, NULL);
     }
