@@ -75,13 +75,15 @@ HRESULT STDMETHODCALLTYPE INetworkListManagerEvents_ConnectivityChanged(void* _t
         {
             printf("[Network Events] Internet connection status is: Available.\n");
             LONG64 dwUpdateSchedule = InterlockedAdd64(&_this->dwUpdateSchedule, 0);
-            PostMessageW(_this->hWnd, EP_WEATHER_WM_FETCH_DATA, 0, 0);
+            SetTimer(_this->hWnd, EP_WEATHER_TIMER_REQUEST_REFRESH, EP_WEATHER_TIMER_REQUEST_REFRESH_DELAY, NULL);
+            //PostMessageW(_this->hWnd, EP_WEATHER_WM_FETCH_DATA, 0, 0);
             SetTimer(_this->hWnd, EP_WEATHER_TIMER_SCHEDULE_REFRESH, dwUpdateSchedule, NULL);
             printf("[Network Events] Reinstalled refresh timer.\n");
         }
         else
         {
             printf("[Network Events] Internet connection status is: Offline.\n");
+            KillTimer(_this->hWnd, EP_WEATHER_TIMER_REQUEST_REFRESH);
             KillTimer(_this->hWnd, EP_WEATHER_TIMER_SCHEDULE_REFRESH);
             printf("[Network Events] Killed refresh timer.\n");
         }
@@ -250,12 +252,20 @@ HRESULT STDMETHODCALLTYPE _epw_Weather_NavigateToError(EPWeather* _this)
     }
     if (_this->pCoreWebView2)
     {
-        return _this->pCoreWebView2->lpVtbl->NavigateToString(_this->pCoreWebView2, ep_weather_error_html);
+        LPWSTR wszPageTitle = NULL;
+        if (SUCCEEDED(_this->pCoreWebView2->lpVtbl->get_DocumentTitle(_this->pCoreWebView2, &wszPageTitle)))
+        {
+            BOOL bIsOnErrorPage = !_wcsicmp(wszPageTitle, _T(CLSID_EPWeather_TEXT) L"_ErrorPage");
+            CoTaskMemFree(wszPageTitle);
+            if (!bIsOnErrorPage) return _this->pCoreWebView2->lpVtbl->NavigateToString(_this->pCoreWebView2, ep_weather_error_html);
+            else
+            {
+                printf("[Browser] Already on the error page.\n");
+                return S_OK;
+            }
+        }
     }
-    else
-    {
-        return E_FAIL;
-    }
+    return E_FAIL;
 }
 
 HRESULT STDMETHODCALLTYPE _epw_Weather_NavigateToProvider(EPWeather* _this)
@@ -500,6 +510,7 @@ HRESULT STDMETHODCALLTYPE ICoreWebView2_NavigationCompleted(ICoreWebView2Navigat
     }
     else
     {
+        printf("[Browser] Navigation completed with error, showing error page.\n");
         _epw_Weather_NavigateToError(_this);
     }
     _this->pCoreWebView2Controller->lpVtbl->put_IsVisible(_this->pCoreWebView2Controller, FALSE);
