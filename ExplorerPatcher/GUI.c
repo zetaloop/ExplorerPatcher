@@ -469,7 +469,7 @@ LSTATUS GUI_Internal_RegSetValueExW(
     {
         if (!*(DWORD*)lpData)
         {
-            RegDeleteKeyW(HKEY_CURRENT_USER, L"SOFTWARE\\Classes\\CLSID\\{d93ed569-3b3e-4bff-8355-3c44f6a52bb5}\\InProcServer32");
+            RegDeleteTreeW(HKEY_CURRENT_USER, L"SOFTWARE\\Classes\\CLSID\\{d93ed569-3b3e-4bff-8355-3c44f6a52bb5}");
         }
         else
         {
@@ -551,6 +551,16 @@ LSTATUS GUI_Internal_RegSetValueExW(
         }
         return ERROR_SUCCESS;
     }
+    else if (!wcscmp(lpValueName, L"Virtualized_" _T(EP_CLSID) L"_DisableModernSearchBar"))
+    {
+        BOOL rv = FALSE;
+        if (!*(DWORD*)lpData) RegDeleteTreeW(HKEY_CURRENT_USER, L"SOFTWARE\\Classes\\WOW6432Node\\CLSID\\{1d64637d-31e9-4b06-9124-e83fb178ac6e}");
+        else RegSetKeyValueW(HKEY_CURRENT_USER, L"SOFTWARE\\Classes\\WOW6432Node\\CLSID\\{1d64637d-31e9-4b06-9124-e83fb178ac6e}\\TreatAs", L"", REG_SZ, L"{64bc32b5-4eec-4de7-972d-bd8bd0324537}", 39 * sizeof(TCHAR));
+        if (!*(DWORD*)lpData) rv = RegDeleteTreeW(HKEY_CURRENT_USER, L"SOFTWARE\\Classes\\CLSID\\{1d64637d-31e9-4b06-9124-e83fb178ac6e}");
+        else rv = RegSetKeyValueW(HKEY_CURRENT_USER, L"SOFTWARE\\Classes\\CLSID\\{1d64637d-31e9-4b06-9124-e83fb178ac6e}\\TreatAs", L"", REG_SZ, L"{64bc32b5-4eec-4de7-972d-bd8bd0324537}", 39 * sizeof(TCHAR));
+        return rv;
+    }
+
 }
 
 LSTATUS GUI_RegSetValueExW(
@@ -741,6 +751,17 @@ LSTATUS GUI_Internal_RegQueryValueExW(
             *(DWORD*)lpData = 1;
             RegCloseKey(hKey2);
         }
+        return ERROR_SUCCESS;
+    }
+    else if (!wcscmp(lpValueName, L"Virtualized_" _T(EP_CLSID) L"_DisableModernSearchBar"))
+    {
+        *lpcbData = sizeof(DWORD);
+        *(DWORD*)lpData = 0;
+        TCHAR wszGUID[39];
+        DWORD dwSize = 39 * sizeof(TCHAR);
+        BOOL rv = RegGetValueW(HKEY_CURRENT_USER, L"SOFTWARE\\Classes\\CLSID\\{1d64637d-31e9-4b06-9124-e83fb178ac6e}\\TreatAs", L"", RRF_RT_REG_SZ, NULL, wszGUID, &dwSize);
+        if (rv == ERROR_SUCCESS && !wcscmp(wszGUID, L"{64bc32b5-4eec-4de7-972d-bd8bd0324537}")) *(DWORD*)lpData = 1;
+        return ERROR_SUCCESS;
     }
 }
 
@@ -1080,6 +1101,9 @@ static BOOL GUI_Build(HDC hDC, HWND hwnd, POINT pt)
                 else if (!_stricmp(funcName, "IsWindows10StartMenu") && (dwRes = 0, RegGetValueW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", L"Start_ShowClassicMode", RRF_RT_DWORD, NULL, &dwRes, &dwSize), (dwRes != 1))) bSkipLines = TRUE;
                 else if (!_stricmp(funcName, "!IsWindows10StartMenu") && (dwRes = 0, RegGetValueW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", L"Start_ShowClassicMode", RRF_RT_DWORD, NULL, &dwRes, &dwSize), (dwRes == 1))) bSkipLines = TRUE;
                 else if (!_stricmp(funcName, "IsWeatherEnabled") && (dwRes = 0, RegGetValueW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\\People", L"PeopleBand", RRF_RT_DWORD, NULL, &dwRes, &dwSize), (dwRes != 1))) bSkipLines = TRUE;
+                else if (!_stricmp(funcName, "IsWindows11Version22H2OrHigher") && !IsWindows11Version22H2OrHigher()) bSkipLines = TRUE;
+                else if (!_stricmp(funcName, "!IsWindows11Version22H2OrHigher") && IsWindows11Version22H2OrHigher()) bSkipLines = TRUE;
+                else if (!_stricmp(funcName, "!(IsWindows11Version22H2OrHigher&&!IsOldTaskbar)") && (IsWindows11Version22H2OrHigher() && (dwRes = 1, RegGetValueW(HKEY_CURRENT_USER, _T(REGPATH), L"OldTaskbar", RRF_RT_DWORD, NULL, &dwRes, &dwSize), (dwRes != 1)))) bSkipLines = TRUE;
                 if (bSkipLines)
                 {
                     do

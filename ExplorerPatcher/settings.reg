@@ -16,6 +16,7 @@
 ;shell:::{05d7b0f4-2121-4eff-bf6b-ed3f69b894d9}
 ;y 管理系统图标 🡕
 ;shell:::{05d7b0f4-2121-4eff-bf6b-ed3f69b894d9}\SystemIcons
+;s Taskbar_LocationSection !(IsWindows11Version22H2OrHigher&&!IsOldTaskbar)
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;c 4 主任务栏位置 *
 ;x 3 底部 (默认)
@@ -29,24 +30,34 @@
 ;x 0 左侧
 ;x 2 右侧
 ;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_MMTaskbarPosition"=dword:00000003
+;g Taskbar_LocationSection
+;s Taskbar_CortanaButtonSection !IsWindows11Version22H2OrHigher
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
 ;c 3 Cortana 按钮
 ;x 0 隐藏 (默认)
 ;x 2 打开 Cortana
 ;x 1 打开小组件
 "TaskbarDa"=dword:00000000
+;g Taskbar_CortanaButtonSection
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Search]
 ;b 显示搜索按钮
 "SearchboxTaskbarMode"=dword:00000001
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
 ;b 显示任务视图按钮
 "ShowTaskViewButton"=dword:00000001
+;s Taskbar_CortanaButtonSection1 IsWindows11Version22H2OrHigher
+;s Taskbar_CortanaButtonSection2 !IsOldTaskbar
+[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
+;b 显示小组件按钮
+"TaskbarDa"=dword:00000001
+;g Taskbar_CortanaButtonSection2
+;g Taskbar_CortanaButtonSection1
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;b 自动隐藏任务栏
 ;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_AutoHideTaskbar"=dword:00000000
 ;s Taskbar_Windows10Section IsOldTaskbar
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;c 2 开始按钮样式
+;c 2 开始按钮样式 *
 ;x 0 Windows 10 (默认)
 ;x 1 Windows 11
 "OrbStyle"=dword:00000000
@@ -156,12 +167,23 @@
 ;x 0 Windows 10 弹窗 (默认)
 ;x 1 Windows 7
 "UseWin32BatteryFlyout"=dword:00000000
+;s SystemTray_LanguageSwitcherBefore22H2 !IsWindows11Version22H2OrHigher
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;c 3 语言切换 *
 ;x 0 Windows 11 (默认)
 ;x 1 Windows 10 (带有“语言设置”链接)
 ;x 4 Windows 10
 "IMEStyle"=dword:00000000
+;g SystemTray_LanguageSwitcherBefore22H2
+;s SystemTray_LanguageSwitcherAfter22H2 IsWindows11Version22H2OrHigher
+[HKEY_CURRENT_USER\Software\ExplorerPatcher]
+;c 4 语言切换器 *
+;x 0 Windows 11 (默认)
+;x 7 Windows 10
+;x 1 Windows 10 (with link to "Language Preferences") (无动画)
+;x 4 Windows 10 (无动画)
+"IMEStyle"=dword:00000000
+;g SystemTray_LanguageSwitcherAfter22H2
 ;g SystemTray_Windows10Section
 
 
@@ -182,7 +204,7 @@
 ;b 强制启用旧版文件传输对话框
 "LegacyFileTransferDialog"=dword:00000000
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;b 在“此电脑”中使用经典版驱动器分组
+;b 在“此电脑”中使用经典驱动器分组
 "UseClassicDriveGrouping"=dword:00000000
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;c 3 控制界面 *
@@ -197,12 +219,17 @@
 [-HKEY_CURRENT_USER\Software\Classes\CLSID\{056440FD-8568-48e7-A632-72157243B55B}\InprocServer32]
 ;d 禁用导航栏 **
 @=""
-[-HKEY_CURRENT_USER\Software\Classes\CLSID\{1d64637d-31e9-4b06-9124-e83fb178ac6e}\TreatAs]
-;d 禁用新款搜索栏样式
-@="{64bc32b5-4eec-4de7-972d-bd8bd0324537}"
+[HKEY_CURRENT_USER\Software\ExplorerPatcher]
+;b 禁用新款搜索栏样式
+;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_DisableModernSearchBar"=dword:00000000
+[HKEY_CURRENT_USER\Software\ExplorerPatcher]
+;b 缩小地址栏高度 **
+"ShrinkExplorerAddressBar"=dword:00000000
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;b 完全隐藏搜索栏 **
 "HideExplorerSearchBar"=dword:00000000
+;s Explorer_TitlebarSection !IsWindows11Version22H2OrHigher
+[HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;c 4 标题栏内容
 ;x 0 显示图标和标题 (默认)
 ;x 1 显示图标
@@ -215,6 +242,7 @@
 ;x 1 标题栏、命令栏、导航栏
 ;x 2 无
 "MicaEffectOnTitlebar"=dword:00000000
+;g Explorer_TitlebarSection
 
 
 
@@ -460,12 +488,12 @@
 ;x 4 仅温度
 ;x 5 温度和描述
 "WeatherViewMode"=dword:00000000
-;c 3 小组件弹窗尺寸
+;c 3 弹窗尺寸
 ;x 0 随内容变化 (默认)
 ;x 2 随内容限位变化
 ;x 1 固定
 "WeatherFixedSize"=dword:00000000
-;c 2 小组件弹窗位置
+;c 2 弹窗位置
 ;x 0 右 / 下 (默认)
 ;x 1 左 / 上
 "WeatherToLeft"=dword:00000000
@@ -504,11 +532,11 @@
 ;x 0 微软 (默认)
 ;x 1 谷歌
 "WeatherIconPack"=dword:00000000
-;c 2 小组件内容显示方式
+;c 2 内容样式
 ;x 0 单行 (默认)
 ;x 1 两行
 "WeatherContentsMode"=dword:00000000
-;c 17 Zoom
+;c 17 缩放
 ;x 25 25 %
 ;x 33 33 %
 ;x 50 50 %
@@ -529,7 +557,7 @@
 "WeatherZoomFactor"=dword:00000000
 ;q
 ;g Weather_Section1
-;y 关于天气小组件 🡕
+;y 关于天气 🡕
 ;https://github.com/valinet/ExplorerPatcher/wiki/Weather
 ;s Weather_Section2 IsWeatherEnabled
 ;t %WEATHERLASTUPDATETEXT%
@@ -598,13 +626,10 @@
 "ClockFlyoutOnWinC"=dword:00000000
 ;b 任务栏工具栏之间显示分隔符 *
 "ToolbarSeparators"=dword:00000000
-[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
-;b 在 Win+X 菜单中用终端替换 PowerShell *
-"DontUsePowerShellOnWinX"=dword:00000000
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;b 在 Win+X 菜单中加入 EP 设置
+;b 将本设置添加到 Win+X 菜单中
 "PropertiesInWinX"=dword:00000000
-;b 在 Win+X 菜单中 EP 设置项移除快捷键
+;b 本菜单项禁用快捷键
 "NoMenuAccelerator"=dword:00000000
 ;b 禁用 Office 快捷键 (Ctrl+Alt+Shift+Win) *
 "DisableOfficeHotkeys"=dword:00000000
@@ -615,11 +640,13 @@
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;b 窗口贴靠时，禁用四角贴靠，只保留左右贴靠 *
 "DisableAeroSnapQuadrants"=dword:00000000
+;s Other_SnapAssistStyle !IsWindows11Version22H2OrHigher
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;c 2 窗口分屏贴靠提示样式
 ;x 0 Windows 11 (默认)
 ;x 3 Windows 10
 "SnapAssistSettings"=dword:00000000
+;g Other_SnapAssistStyle
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
 ;c 6 桌面 Alt+F4 对话框默认操作
 ;x 256 切换用户
@@ -675,7 +702,7 @@
 
 
 ;T 高级
-;e 请在阅读文档后再更改这些设置。
+;e 请仔细阅读文档后再更改这些设置。
 ;y 更多信息 🡕
 ;https://github.com/valinet/ExplorerPatcher/wiki/About-advanced-settings
 ;q

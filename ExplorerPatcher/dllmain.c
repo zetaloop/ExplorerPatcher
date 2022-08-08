@@ -70,6 +70,7 @@ DWORD bOldTaskbar = TRUE;
 DWORD bWasOldTaskbarSet = FALSE;
 DWORD bAllocConsole = FALSE;
 DWORD bHideExplorerSearchBar = FALSE;
+DWORD bShrinkExplorerAddressBar = FALSE;
 DWORD bMicaEffectOnTitlebar = FALSE;
 DWORD bHideIconAndTitleInExplorer = FALSE;
 DWORD bHideControlCenterButton = FALSE;
@@ -676,7 +677,7 @@ DWORD CheckForegroundThread(DWORD dwMode)
     elapsedCheckForeground = milliseconds_now();
     if (!dwMode)
     {
-        RegDeleteKeyW(HKEY_CURRENT_USER, _T(SEH_REGPATH));
+        RegDeleteTreeW(HKEY_CURRENT_USER, _T(SEH_REGPATH));
         TerminateShellExperienceHost();
         Sleep(100);
     }
@@ -1562,8 +1563,8 @@ finalize:
 #pragma endregion
 
 
-#ifdef _WIN64
 #pragma region "Windows 10 Taskbar Hooks"
+#ifdef _WIN64
 // credits: https://github.com/m417z/7-Taskbar-Tweaker
 
 DEFINE_GUID(IID_ITaskGroup,
@@ -1762,8 +1763,8 @@ void explorer_QISearch(void* that, LPCQITAB pqit, REFIID riid, void** ppv)
     }
     return hr;
 }
-#pragma endregion
 #endif
+#pragma endregion
 
 
 #pragma region "Show Start in correct location according to TaskbarAl"
@@ -1902,6 +1903,144 @@ DWORD FixTaskbarAutohide(DWORD unused)
         }
     }
     SetEvent(hCanStartSws);
+}
+#endif
+#pragma endregion
+
+
+#pragma region "EnsureXAML on OS builds 22621+"
+#ifdef _WIN64
+DEFINE_GUID(uuidof_Windows_Internal_Shell_XamlExplorerHost_IXamlApplicationStatics,
+    0xECC13292, 0x27EF, 0x547A, 0xAC, 0x8B, 0x76, 0xCD, 0x17, 0x32, 0x21, 0x86);
+
+DEFINE_GUID(uuidof_Windows_UI_Core_ICoreWindow5,
+    0x28258A12, 0x7D82, 0x505B, 0xB2, 0x10, 0x71, 0x2B, 0x04, 0xA5, 0x88, 0x82);
+
+BOOL bIsXAMLEnsured = FALSE;
+void EnsureXAML()
+{
+    signed int v0; // eax
+    signed int v2; // eax
+
+    if (!bIsXAMLEnsured)
+    {
+        bIsXAMLEnsured = TRUE;
+        ULONGLONG initTime = GetTickCount64();
+
+        IInspectable* pUIXamlApplicationFactory = NULL;
+        HSTRING_HEADER hstringheaderXamlApplication;
+        HSTRING hstringXamlApplication = NULL;
+        IInspectable* pCoreWindow5 = NULL;
+        HSTRING_HEADER hstringheaderWindowsXamlManager;
+        HSTRING hstringWindowsXamlManager = NULL;
+
+        if (FAILED(WindowsCreateStringReference(L"Windows.Internal.Shell.XamlExplorerHost.XamlApplication", 0x37u, &hstringheaderXamlApplication, &hstringXamlApplication)) || !hstringXamlApplication)
+        {
+            printf("Error in sub_1800135EC on WindowsCreateStringReference.\n");
+            goto cleanup;
+        }
+        if (FAILED(RoGetActivationFactory(hstringXamlApplication, &uuidof_Windows_Internal_Shell_XamlExplorerHost_IXamlApplicationStatics, &pUIXamlApplicationFactory)) || !pUIXamlApplicationFactory)
+        {
+            printf("Error in sub_1800135EC on RoGetActivationFactory.\n");
+            goto cleanup0;
+        }
+
+        IUnknown* pXamlApplication = NULL;
+        (*(void(__fastcall**)(__int64, __int64*))(*(INT64*)pUIXamlApplicationFactory + 48))(pUIXamlApplicationFactory, &pXamlApplication); // get_Current
+        if (!pXamlApplication)
+        {
+            printf("Error in sub_1800135EC on pUIXamlApplicationFactory + 48.\n");
+            goto cleanup1;
+        }
+        else pXamlApplication->lpVtbl->Release(pXamlApplication);
+
+        if (FAILED(WindowsCreateStringReference(L"Windows.UI.Xaml.Hosting.WindowsXamlManager", 0x2Au, &hstringheaderWindowsXamlManager, &hstringWindowsXamlManager)))
+        {
+            printf("Error in sub_1800135EC on WindowsCreateStringReference 2.\n");
+            goto cleanup1;
+        }
+        if (FAILED(RoGetActivationFactory(hstringWindowsXamlManager, &uuidof_Windows_UI_Core_ICoreWindow5, &pCoreWindow5)))
+        {
+            printf("Error in sub_1800135EC on RoGetActivationFactory 2.\n");
+            goto cleanup2;
+        }
+
+        if (pCoreWindow5)
+        {
+            IUnknown* pDispatcherQueue = NULL;
+            (*(void(__fastcall**)(__int64, __int64*))(*(INT64*)pCoreWindow5 + 48))(pCoreWindow5, &pDispatcherQueue); // get_DispatcherQueue
+            if (!pDispatcherQueue)
+            {
+                printf("Error in sub_1800135EC on pCoreWindow5 + 48.\n");
+                goto cleanup3;
+            }
+            // Keep pDispatcherQueue referenced in memory
+        }
+
+        ULONGLONG finalTime = GetTickCount64();
+        printf("EnsureXAML %lld ms.\n", finalTime - initTime);
+
+    cleanup3:
+        if (pCoreWindow5) pCoreWindow5->lpVtbl->Release(pCoreWindow5);
+    cleanup2:
+        if (hstringWindowsXamlManager) WindowsDeleteString(hstringWindowsXamlManager);
+    cleanup1:
+        if (pUIXamlApplicationFactory) pUIXamlApplicationFactory->lpVtbl->Release(pUIXamlApplicationFactory);
+    cleanup0:
+        if (hstringXamlApplication) WindowsDeleteString(hstringXamlApplication);
+    cleanup:
+        ;
+    }
+}
+
+HRESULT(*ICoreWindow5_get_DispatcherQueueFunc)(INT64, INT64);
+HRESULT WINAPI ICoreWindow5_get_DispatcherQueueHook(void* _this, void** ppValue)
+{
+    SendMessageTimeoutW(FindWindowW(L"Shell_TrayWnd", NULL), WM_SETTINGCHANGE, 0, L"EnsureXAML", SMTO_NOTIMEOUTIFNOTHUNG, 5000, NULL);
+    return ICoreWindow5_get_DispatcherQueueFunc(_this, ppValue);
+}
+
+HMODULE __fastcall Windows11v22H2_combase_LoadLibraryExW(LPCWSTR lpLibFileName, HANDLE hFile, DWORD dwFlags)
+{
+    HMODULE hModule = LoadLibraryExW(lpLibFileName, hFile, dwFlags);
+    if (hModule && hModule == GetModuleHandleW(L"Windows.Ui.Xaml.dll"))
+    {
+        DWORD flOldProtect = 0;
+        IActivationFactory* pWindowsXamlManagerFactory = NULL;
+        HSTRING_HEADER hstringHeaderWindowsXamlManager;
+        HSTRING hstringWindowsXamlManager = NULL;
+        FARPROC DllGetActivationFactory = GetProcAddress(hModule, "DllGetActivationFactory");
+        if (!DllGetActivationFactory)
+        {
+            printf("Error in Windows11v22H2_combase_LoadLibraryExW on DllGetActivationFactory\n");
+            return hModule;
+        }
+        if (FAILED(WindowsCreateStringReference(L"Windows.UI.Xaml.Hosting.WindowsXamlManager", 0x2Au, &hstringHeaderWindowsXamlManager, &hstringWindowsXamlManager)))
+        {
+            printf("Error in Windows11v22H2_combase_LoadLibraryExW on WindowsCreateStringReference\n");
+            return hModule;
+        }
+        ((void(__fastcall*)(HSTRING, __int64*))DllGetActivationFactory)(hstringWindowsXamlManager, &pWindowsXamlManagerFactory);
+        if (pWindowsXamlManagerFactory)
+        {
+            IInspectable* pCoreWindow5 = NULL;
+            pWindowsXamlManagerFactory->lpVtbl->QueryInterface(pWindowsXamlManagerFactory, &uuidof_Windows_UI_Core_ICoreWindow5, &pCoreWindow5);
+            if (pCoreWindow5)
+            {
+                INT64* pCoreWindow5Vtbl = pCoreWindow5->lpVtbl;
+                if (VirtualProtect(pCoreWindow5->lpVtbl, sizeof(IInspectableVtbl) + sizeof(INT64), PAGE_EXECUTE_READWRITE, &flOldProtect))
+                {
+                    ICoreWindow5_get_DispatcherQueueFunc = pCoreWindow5Vtbl[6];
+                    pCoreWindow5Vtbl[6] = ICoreWindow5_get_DispatcherQueueHook;
+                    VirtualProtect(pCoreWindow5->lpVtbl, sizeof(IInspectableVtbl) + sizeof(INT64), flOldProtect, &flOldProtect);
+                }
+                pCoreWindow5->lpVtbl->Release(pCoreWindow5);
+            }
+            pWindowsXamlManagerFactory->lpVtbl->Release(pWindowsXamlManagerFactory);
+        }
+        WindowsDeleteString(hstringWindowsXamlManager);
+    }
+    return hModule;
 }
 #endif
 #pragma endregion
@@ -2074,6 +2213,9 @@ BOOL IsPointOnEmptyAreaOfNewTaskbar(POINT pt)
     IUIAutomationElement* pIUIAutomationElement = NULL;
     HWND hWnd = NULL;
     BOOL bRet = FALSE;
+    BSTR elemName = NULL;
+    BSTR elemType = NULL;
+    BOOL bIsWindows11Version22H2OrHigher = IsWindows11Version22H2OrHigher();
     
     if (SUCCEEDED(hr))
     {
@@ -2083,11 +2225,23 @@ BOOL IsPointOnEmptyAreaOfNewTaskbar(POINT pt)
     {
         hr = pIUIAutomation2->lpVtbl->ElementFromPoint(pIUIAutomation2, pt, &pIUIAutomationElement);
     }
-    if (SUCCEEDED(hr))
+    if (SUCCEEDED(hr) && bIsWindows11Version22H2OrHigher)
+    {
+        hr = pIUIAutomationElement->lpVtbl->get_CurrentName(pIUIAutomationElement, &elemName);
+    }
+    if (SUCCEEDED(hr) && bIsWindows11Version22H2OrHigher)
+    {
+        hr = pIUIAutomationElement->lpVtbl->get_CurrentClassName(pIUIAutomationElement, &elemType);
+    }
+    if (SUCCEEDED(hr) && bIsWindows11Version22H2OrHigher)
+    {
+        bRet = (!wcscmp(elemName, L"") && !wcscmp(elemType, L"Taskbar.TaskbarFrameAutomationPeer"));
+    }
+    if (SUCCEEDED(hr) && !bIsWindows11Version22H2OrHigher)
     {
         hr = pIUIAutomationElement->lpVtbl->get_CurrentNativeWindowHandle(pIUIAutomationElement, &hWnd);
     }
-    if (SUCCEEDED(hr))
+    if (SUCCEEDED(hr) && !bIsWindows11Version22H2OrHigher)
     {
         WCHAR wszClassName[200];
         GetClassNameW(hWnd, wszClassName, 200);
@@ -2167,6 +2321,14 @@ BOOL IsPointOnEmptyAreaOfNewTaskbar(POINT pt)
                 }
             }
         }
+    }
+    if (elemName)
+    {
+        SysFreeString(elemName);
+    }
+    if (elemType)
+    {
+        SysFreeString(elemType);
     }
     if (pIUIAutomationElement)
     {
@@ -2446,6 +2608,11 @@ INT64 Shell_TrayWndSubclassProc(
     else if (uMsg == 1368)
     {
         g_bIsDesktopRaised = (lParam & 1) == 0;
+    }
+    else if (uMsg == WM_SETTINGCHANGE && IsWindows11Version22H2OrHigher() && (*((WORD*)&(lParam)+1)) && !wcscmp(lParam, L"EnsureXAML"))
+    {
+        EnsureXAML();
+        return 0;
     }
     return DefSubclassProc(hWnd, uMsg, wParam, lParam);
 }
@@ -5935,6 +6102,15 @@ void WINAPI LoadSettings(LPARAM lParam)
         dwSize = sizeof(DWORD);
         RegQueryValueExW(
             hKey,
+            TEXT("ShrinkExplorerAddressBar"),
+            0,
+            NULL,
+            &bShrinkExplorerAddressBar,
+            &dwSize
+        );
+        dwSize = sizeof(DWORD);
+        RegQueryValueExW(
+            hKey,
             TEXT("UseClassicDriveGrouping"),
             0,
             NULL,
@@ -6222,6 +6398,11 @@ void WINAPI LoadSettings(LPARAM lParam)
             &dwIMEStyle,
             &dwSize
         );
+        if (IsWindows11Version22H2OrHigher())
+        {
+            if (!dwIMEStyle) dwIMEStyle = 7;
+            else if (dwIMEStyle == 7) dwIMEStyle = 0;
+        }
         dwSize = sizeof(DWORD);
         RegQueryValueExW(
             hKey,
@@ -8344,24 +8525,27 @@ HRESULT shell32_DriveTypeCategorizer_CreateInstanceHook(IUnknown* pUnkOuter, REF
 
     return shell32_DriveTypeCategorizer_CreateInstanceFunc(pUnkOuter, riid, ppvObject);
 }
-
+#endif
 #pragma endregion
 
 
-#pragma region "Disable ribbon in File Explorer"
+#pragma region "File Explorer command bar and ribbon support"
 DEFINE_GUID(CLSID_UIRibbonFramework,
     0x926749FA, 0x2615, 0x4987, 0x88, 0x45, 0xC3, 0x3E, 0x65, 0xF2, 0xB9, 0x57);
 DEFINE_GUID(IID_UIRibbonFramework,
     0xF4F0385D, 0x6872, 0x43A8, 0xAD, 0x09, 0x4C, 0x33, 0x9C, 0xB3, 0xF5, 0xC5);
 HRESULT ExplorerFrame_CoCreateInstanceHook(REFCLSID rclsid, LPUNKNOWN pUnkOuter, DWORD dwClsContext, REFIID riid, LPVOID* ppv)
 {
+    if ((dwFileExplorerCommandUI != 0) && *(INT64*)&rclsid->Data1 == 0x4D1E5A836480100B && *(INT64*)rclsid->Data4 == 0x339A8EA8E58A699F)
+    {
+        return REGDB_E_CLASSNOTREG;
+    }
     if (dwFileExplorerCommandUI == 2 && IsEqualCLSID(rclsid, &CLSID_UIRibbonFramework) && IsEqualIID(riid, &IID_UIRibbonFramework))
     {
         return REGDB_E_CLASSNOTREG;
     }
     return CoCreateInstance(rclsid, pUnkOuter, dwClsContext, riid, ppv);
 }
-#endif
 #pragma endregion
 
 
@@ -9257,7 +9441,7 @@ BOOL shell32_DeleteMenu(HMENU hMenu, UINT uPosition, UINT uFlags)
 
 BOOL shell32_TrackPopupMenu(HMENU hMenu, UINT uFlags, int x, int y, int nReserved, HWND hWnd, const RECT* prcRect)
 {
-    if (IsSpotlightEnabled() && dwSpotlightDesktopMenuMask && (GetPropW(GetParent(hWnd), L"DesktopWindow") && RegisterWindowMessageW(L"WorkerW") == GetClassWord(GetParent(hWnd), GCW_ATOM)) && bSpotlightIsDesktopContextMenu)
+    if (IsSpotlightEnabled() && dwSpotlightDesktopMenuMask && (GetPropW(GetParent(hWnd), L"DesktopWindow") && (RegisterWindowMessageW(L"WorkerW") == GetClassWord(GetParent(hWnd), GCW_ATOM) || RegisterWindowMessageW(L"Progman") == GetClassWord(GetParent(hWnd), GCW_ATOM))) && bSpotlightIsDesktopContextMenu)
     {
         SpotlightHelper(dwSpotlightDesktopMenuMask, hWnd, hMenu, NULL);
     }
@@ -9302,6 +9486,24 @@ int patched_GetSystemMetrics(int nIndex)
     return GetSystemMetrics(nIndex);
 }
 #endif
+#pragma endregion
+
+
+#pragma region "Fix Windows 10 taskbar redraw problem on OS builds 22621+"
+HWND Windows11v22H2_explorer_CreateWindowExW(DWORD dwExStyle, LPCWSTR lpClassName, LPCWSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
+{
+    if ((*((WORD*)&(lpClassName)+1)) && !wcscmp(lpClassName, L"Shell_TrayWnd")) dwStyle |= WS_CLIPCHILDREN;
+    return CreateWindowExW(dwExStyle, lpClassName, lpWindowName, dwStyle, X, Y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
+}
+#pragma endregion
+
+
+#pragma region "Shrink File Explorer address bar height"
+int explorerframe_GetSystemMetricsForDpi(int nIndex, UINT dpi)
+{
+    if (bShrinkExplorerAddressBar && nIndex == SM_CYFIXEDFRAME) return 0;
+    return GetSystemMetricsForDpi(nIndex, dpi);
+}
 #pragma endregion
 
 
@@ -9393,6 +9595,7 @@ DWORD InjectBasicFunctions(BOOL bIsExplorer, BOOL bInstall)
                 VnPatchIAT(hExplorerFrame, "user32.dll", "SetWindowLongPtrW", SetWindowLongPtrWHook);
             }
             VnPatchIAT(hExplorerFrame, "API-MS-WIN-CORE-STRING-L1-1-0.DLL", "CompareStringOrdinal", ExplorerFrame_CompareStringOrdinal);
+            VnPatchIAT(hExplorerFrame, "user32.dll", "GetSystemMetricsForDpi", explorerframe_GetSystemMetricsForDpi);
         }
         else
         {
@@ -9405,6 +9608,7 @@ DWORD InjectBasicFunctions(BOOL bIsExplorer, BOOL bInstall)
                 VnPatchIAT(hExplorerFrame, "user32.dll", "SetWindowLongPtrW", SetWindowLongPtrW);
             }
             VnPatchIAT(hExplorerFrame, "API-MS-WIN-CORE-STRING-L1-1-0.DLL", "CompareStringOrdinal", CompareStringOrdinal);
+            VnPatchIAT(hExplorerFrame, "user32.dll", "GetSystemMetricsForDpi", GetSystemMetricsForDpi);
             FreeLibrary(hExplorerFrame);
             FreeLibrary(hExplorerFrame);
         }
@@ -9496,15 +9700,25 @@ INT64 twinui_pcshell_IsUndockedAssetAvailableHook(INT a1, INT64 a2, INT64 a3, co
         return 0;
     }
     // if IsSnapAssist and SnapAssistSettings == Windows 10
-    else if (a1 == 4 && dwSnapAssistSettings == 3)
+    else if (a1 == 4 && dwSnapAssistSettings == 3 && !IsWindows11Version22H2OrHigher())
     {
         return 0;
     }
     // else, show Windows 11 style basically
     else
     {
-        return twinui_pcshell_IsUndockedAssetAvailableFunc(a1, a2, a3, a4);
+        if (twinui_pcshell_IsUndockedAssetAvailableFunc)
+            return twinui_pcshell_IsUndockedAssetAvailableFunc(a1, a2, a3, a4);
+        return 1;
     }
+}
+
+INT64(*twinui_pcshell_CMultitaskingViewManager__CreateDCompMTVHostFunc)(INT64 a1, unsigned int a2, INT64 a3, INT64 a4, INT64* a5);
+INT64(*twinui_pcshell_CMultitaskingViewManager__CreateXamlMTVHostFunc)(INT64 a1, unsigned int a2, INT64 a3, INT64 a4, INT64* a5);
+INT64 twinui_pcshell_CMultitaskingViewManager__CreateXamlMTVHostHook(INT64 a1, unsigned int a2, INT64 a3, INT64 a4, INT64* a5)
+{
+    if (!twinui_pcshell_IsUndockedAssetAvailableHook(a2, 0, 0, 0, NULL)) return twinui_pcshell_CMultitaskingViewManager__CreateDCompMTVHostFunc(a1, a2, a3, a4, a5);
+    return twinui_pcshell_CMultitaskingViewManager__CreateXamlMTVHostFunc(a1, a2, a3, a4, a5);
 }
 
 BOOL IsDebuggerPresentHook()
@@ -9862,6 +10076,7 @@ DWORD Inject(BOOL bIsExplorer)
         VnPatchIAT(hExplorer, "user32.dll", "LoadMenuW", explorer_LoadMenuW);
         VnPatchIAT(hExplorer, "api-ms-win-core-shlwapi-obsolete-l1-1-0.dll", "QISearch", explorer_QISearch);
         if (IsOS(OS_ANYSERVER)) VnPatchIAT(hExplorer, "api-ms-win-shcore-sysinfo-l1-1-0.dll", "IsOS", explorer_IsOS);
+        if (IsWindows11Version22H2OrHigher()) VnPatchDelayIAT(hExplorer, "ext-ms-win-rtcore-ntuser-window-ext-l1-1-0.dll", "CreateWindowExW", Windows11v22H2_explorer_CreateWindowExW);
     }
     VnPatchIAT(hExplorer, "API-MS-WIN-CORE-REGISTRY-L1-1-0.DLL", "RegOpenKeyExW", explorer_RegOpenKeyExW);
     VnPatchIAT(hExplorer, "shell32.dll", (LPCSTR)85, explorer_OpenRegStream);
@@ -10024,17 +10239,37 @@ DWORD Inject(BOOL bIsExplorer)
 
     if (symbols_PTRS.twinui_pcshell_PTRS[7] && symbols_PTRS.twinui_pcshell_PTRS[7] != 0xFFFFFFFF)
     {
-        twinui_pcshell_IsUndockedAssetAvailableFunc = (INT64(*)(void*, POINT*))
-            ((uintptr_t)hTwinuiPcshell + symbols_PTRS.twinui_pcshell_PTRS[7]);
-        rv = funchook_prepare(
-            funchook,
-            (void**)&twinui_pcshell_IsUndockedAssetAvailableFunc,
-            twinui_pcshell_IsUndockedAssetAvailableHook
-        );
-        if (rv != 0)
+        if (IsWindows11Version22H2OrHigher())
         {
-            FreeLibraryAndExitThread(hModule, rv);
-            return rv;
+            twinui_pcshell_CMultitaskingViewManager__CreateDCompMTVHostFunc = (INT64(*)(void*, POINT*))
+                ((uintptr_t)hTwinuiPcshell + symbols_PTRS.twinui_pcshell_PTRS[TWINUI_PCSHELL_SB_CNT - 1]);
+            twinui_pcshell_CMultitaskingViewManager__CreateXamlMTVHostFunc = (INT64(*)(void*, POINT*))
+                ((uintptr_t)hTwinuiPcshell + symbols_PTRS.twinui_pcshell_PTRS[7]);
+            rv = funchook_prepare(
+                funchook,
+                (void**)&twinui_pcshell_CMultitaskingViewManager__CreateXamlMTVHostFunc,
+                twinui_pcshell_CMultitaskingViewManager__CreateXamlMTVHostHook
+            );
+            if (rv != 0)
+            {
+                FreeLibraryAndExitThread(hModule, rv);
+                return rv;
+            }
+        }
+        else
+        {
+            twinui_pcshell_IsUndockedAssetAvailableFunc = (INT64(*)(void*, POINT*))
+                ((uintptr_t)hTwinuiPcshell + symbols_PTRS.twinui_pcshell_PTRS[7]);
+            rv = funchook_prepare(
+                funchook,
+                (void**)&twinui_pcshell_IsUndockedAssetAvailableFunc,
+                twinui_pcshell_IsUndockedAssetAvailableHook
+            );
+            if (rv != 0)
+            {
+                FreeLibraryAndExitThread(hModule, rv);
+                return rv;
+            }
         }
     }
 
@@ -10057,6 +10292,14 @@ DWORD Inject(BOOL bIsExplorer)
     //VnPatchIAT(hTwinuiPcshell, "api-ms-win-core-debug-l1-1-0.dll", "IsDebuggerPresent", IsDebuggerPresentHook);
     printf("Setup twinui.pcshell functions done\n");
 
+
+    if (IsWindows11Version22H2OrHigher())
+    {
+        HANDLE hCombase = LoadLibraryW(L"combase.dll");
+        // Fixed a bug that crashed Explorer when a folder window was opened after a first one was closed on OS builds 22621+
+        VnPatchIAT(hCombase, "api-ms-win-core-libraryloader-l1-2-0.dll", "LoadLibraryExW", Windows11v22H2_combase_LoadLibraryExW);
+        printf("Setup combase functions done\n");
+    }
 
 
     HANDLE hTwinui = LoadLibraryW(L"twinui.dll");
@@ -10323,6 +10566,16 @@ DWORD Inject(BOOL bIsExplorer)
         );
         RegDeleteKeyValueW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", L"TaskbarGlomLevel");
         RegDeleteKeyValueW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", L"MMTaskbarGlomLevel");
+    }
+
+    if (IsWindows11Version22H2OrHigher() && bOldTaskbar)
+    {
+        DWORD dwRes = 1;
+        DWORD dwSize = sizeof(DWORD);
+        if (RegGetValueW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Search", L"SearchboxTaskbarMode", RRF_RT_DWORD, NULL, &dwRes, &dwSize) != ERROR_SUCCESS)
+        {
+            RegSetKeyValueW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Search", L"SearchboxTaskbarMode", REG_DWORD, &dwRes, sizeof(DWORD));
+        }
     }
 
 
@@ -11363,7 +11616,7 @@ HRESULT WINAPI _DllUnregisterServer()
             RegCloseKey(hKey);
             if (!dwLastError)
             {
-                RegDeleteKeyW(
+                RegDeleteTreeW(
                     HKEY_LOCAL_MACHINE,
                     L"SOFTWARE\\Classes\\CLSID\\" TEXT(EP_CLSID)
                 );
@@ -11396,7 +11649,7 @@ HRESULT WINAPI _DllUnregisterServer()
             RegCloseKey(hKey);
             if (!dwLastError)
             {
-                RegDeleteKeyW(
+                RegDeleteTreeW(
                     HKEY_LOCAL_MACHINE,
                     L"SOFTWARE\\WOW6432Node\\Classes\\CLSID\\" TEXT(EP_CLSID)
                 );
@@ -11423,7 +11676,7 @@ HRESULT WINAPI _DllUnregisterServer()
             RegCloseKey(hKey);
             if (!dwLastError)
             {
-                RegDeleteKeyW(
+                RegDeleteTreeW(
                     HKEY_LOCAL_MACHINE,
                     L"SOFTWARE\\Classes\\Drive\\shellex\\FolderExtensions\\" TEXT(EP_CLSID)
                 );
@@ -11450,7 +11703,7 @@ HRESULT WINAPI _DllUnregisterServer()
             RegCloseKey(hKey);
             if (!dwLastError)
             {
-                RegDeleteKeyW(
+                RegDeleteTreeW(
                     HKEY_LOCAL_MACHINE,
                     L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Browser Helper Objects\\" TEXT(EP_CLSID)
                 );
