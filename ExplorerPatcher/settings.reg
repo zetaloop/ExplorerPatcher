@@ -691,7 +691,7 @@
 "UpdateURLStaging"=""
 ;y 检查更新
 ;;;EP_CHECK_FOR_UPDATES
-;y 更新并重启任务管理器
+;y 更新并重启文件管理器
 ;;;EP_INSTALL_UPDATES
 ;y 新版本变化 🡕
 ;https://github.com/valinet/ExplorerPatcher/blob/master/CHANGELOG.md
