@@ -32,6 +32,8 @@
 
 如果找不到“属性”设置界面，新建一个快捷方式，地址为 `rundll32 "C:\WINDOWS\dxgi.dll",ZZGUI`，然后双击快捷方式即可打开界面。快捷方式可以拖到任务栏固定，或者固定到开始菜单。
 
+如果遇到 win10 开始菜单汉化不全的问题，可以安装 [补充汉化.zip](https://github.com/ZetaSp/ExplorerPatcher/files/9639911/ExplorerPatcher.zip)，感谢 [@meiruitesi](https://github.com/meiruitesi)，详见 [Issue 6](https://github.com/ZetaSp/ExplorerPatcher/issues/6#issuecomment-1236125461)。
+
 ## 进阶指南
 
 * 这是[软件百科（英文）](https://github.com/valinet/ExplorerPatcher/wiki)。这里有本软件的高级用法、更多操作方式和特性的相关信息。
