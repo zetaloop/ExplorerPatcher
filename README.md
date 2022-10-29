@@ -70,3 +70,7 @@ _软件 bug 请反馈[原作者](mailto://valentingabrielradu@gmail.com)，翻�
 * [原理](https://github.com/valinet/ExplorerPatcher/wiki/How-does-it-work)
 * [杀毒软件误报](https://github.com/valinet/ExplorerPatcher/wiki/Antivirus-false-positives)
 * [编译](https://github.com/valinet/ExplorerPatcher/wiki/Compiling)
+
+## 项目收藏人数
+
+[![Stargazers over time](https://starchart.cc/ZetaSp/ExplorerPatcher.svg)](https://starchart.cc/ZetaSp/ExplorerPatcher)
