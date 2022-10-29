@@ -188,7 +188,7 @@
 
 
 
-;T 文件管理器
+;T 文件资源管理器
 ;e 要使标 ** 的设置在打开/保存对话框也生效，
 ;e 请将本工具注册为外壳扩展插件。
 ;y 更多信息 🡕
@@ -212,7 +212,7 @@
 ;x 1 Win10 选项卡
 ;x 2 Win7 命令栏
 ;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_FileExplorerCommandUI"=dword:00000000
-;t 以下设置对新打开的文件管理器窗口生效:
+;t 以下设置对新打开的文件资源管理器窗口生效:
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;i 显示 Windows 10 右键菜单时使用沉浸式菜单 **
 "DisableImmersiveContextMenu"=dword:00000000
@@ -326,7 +326,7 @@
 ;x 3 隐藏
 ;x 1 禁用 
 ;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_NoStartMenuMorePrograms"=dword:00000000
-;u 从文件管理器固定磁贴到开始菜单
+;u 从文件资源管理器固定磁贴到开始菜单
 ;pin_tiles
 ;g StartMenu_Windows10
 
@@ -696,7 +696,7 @@
 "UpdateURLStaging"=""
 ;y 检查更新
 ;;;EP_CHECK_FOR_UPDATES
-;y 更新并重启文件管理器
+;y 更新并重启文件资源管理器
 ;;;EP_INSTALL_UPDATES
 ;y 新版本变化 🡕
 ;https://github.com/valinet/ExplorerPatcher/blob/master/CHANGELOG.md
@@ -786,7 +786,7 @@
 
 
 ;f
-;u 重启文件管理器 (*)
+;u 重启文件资源管理器 (*)
 ;restart
 ;;u 恢复默认设置
 ;;reset
