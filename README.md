@@ -41,9 +41,11 @@
   * [百科：配置更新](https://github.com/valinet/ExplorerPatcher/wiki/Configure-updates)
   * [百科：常见问题](https://github.com/valinet/ExplorerPatcher/wiki/Frequently-asked-questions)
 * 有其他疑问吗？询问讨论区：[英文版](https://github.com/valinet/ExplorerPatcher/discussions) | [中文版](https://github.com/ZetaSp/ExplorerPatcher/discussions)
-* 软件遇到问题？阅读指南并详细汇报给作者：[问题汇报指南（英文）](https://github.com/valinet/ExplorerPatcher/wiki/Reporting-problems)
+* 软件遇到问题？阅读指南并详细汇报给作者：[原作者邮箱](mailto://valentingabrielradu@gmail.com) | [问题汇报指南（英文）](https://github.com/valinet/ExplorerPatcher/wiki/Reporting-problems)
 * 翻译需要改进？请告诉我：[创建议题](https://github.com/ZetaSp/ExplorerPatcher/discussions) | [邮箱联系](mailto:zetaspace@outlook.com)
 * 推荐阅读[软件源代码](https://github.com/valinet/ExplorerPatcher/tree/master)并尝试改进它。开发者很愿意接受增强功能与问题修复，这为软件进一步完善做出了很大贡献。
+
+_软件 bug 请反馈[原作者](mailto://valentingabrielradu@gmail.com)，翻译问题欢迎探讨~_
 
 ## 已知问题
 
@@ -61,7 +63,7 @@
 
 * 自带更新：打开软件设置（属性）的更新页面，即可检查和安装版本更新。
 * 下载最新版安装包，直接安装即可更新。
-* 汉化版更新网址默认为汉化版，每周跟进原版更新。
+* 汉化版更新网址默认为汉化版，每两周跟进原版更新。
 
 ## 更多信息（英文）
 
