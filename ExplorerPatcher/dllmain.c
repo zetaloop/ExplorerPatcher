@@ -2349,7 +2349,8 @@ LRESULT CALLBACK Shell_TrayWndMouseProc(
     _In_ LPARAM lParam
 )
 {
-    if (!bOldTaskbar && 
+    if (!bOldTaskbar &&
+        !bNoPropertiesInContextMenu &&
         nCode == HC_ACTION && 
         wParam == WM_RBUTTONUP && 
         IsPointOnEmptyAreaOfNewTaskbar(((MOUSEHOOKSTRUCT*)lParam)->pt)
@@ -10861,6 +10862,15 @@ void StartMenu_LoadSettings(BOOL bRestartIfChanged)
             &StartMenu_ShowAllApps,
             &dwSize
         );
+        dwSize = sizeof(DWORD);
+        RegQueryValueExW(
+            hKey,
+            TEXT("MonitorOverride"),
+            0,
+            NULL,
+            &bMonitorOverride,
+            &dwSize
+        );
         RegCloseKey(hKey);
     }
     RegCreateKeyExW(
@@ -10994,6 +11004,7 @@ void StartMenu_LoadSettings(BOOL bRestartIfChanged)
         if (InterlockedExchange64(&dwTaskbarAl, dwVal) != dwVal)
         {
             StartUI_EnableRoundedCornersApply = TRUE;
+            StartDocked_DisableRecommendedSectionApply = TRUE;
         }
 
         RegCloseKey(hKey);
@@ -11259,7 +11270,7 @@ LSTATUS StartUI_RegCloseKey(HKEY hKey)
     return RegCloseKey(hKey);
 }
 
-int StartUI_SetWindowRgn(HWND hWnd, HRGN hRgn, BOOL bRedraw)
+int Start_SetWindowRgn(HWND hWnd, HRGN hRgn, BOOL bRedraw)
 {
     WCHAR wszDebug[MAX_PATH];
     BOOL bIsWindowVisible = FALSE;
@@ -11268,15 +11279,41 @@ int StartUI_SetWindowRgn(HWND hWnd, HRGN hRgn, BOOL bRedraw)
     {
         if (IsWindows11()) ShowWindow(hWnd, bIsWindowVisible ? SW_SHOW : SW_HIDE);
         DWORD TaskbarAl = InterlockedAdd(&dwTaskbarAl, 0);
-        if (bIsWindowVisible && (!TaskbarAl ? StartUI_EnableRoundedCornersApply : 1))
+        if (bIsWindowVisible && (!TaskbarAl ? (dwStartShowClassicMode ? StartUI_EnableRoundedCornersApply : StartDocked_DisableRecommendedSectionApply) : 1))
         {
             HWND hWndTaskbar = NULL;
             if (TaskbarAl)
             {
+                HMONITOR hMonitorOfStartMenu = NULL;
+                if (bMonitorOverride == 1 || !bMonitorOverride) {
+                    POINT pt;
+                    if (!bMonitorOverride) GetCursorPos(&pt);
+                    else {
+                        pt.x = 0; pt.y = 0;
+                    }
+                    hMonitorOfStartMenu = MonitorFromPoint(pt, MONITOR_DEFAULTTOPRIMARY);
+                }
+                else {
+                    MonitorOverrideData mod;
+                    mod.cbIndex = 2;
+                    mod.dwIndex = bMonitorOverride;
+                    mod.hMonitor = NULL;
+                    EnumDisplayMonitors(NULL, NULL, ExtractMonitorByIndex, &mod);
+                    if (mod.hMonitor == NULL)
+                    {
+                        POINT pt; pt.x = 0; pt.y = 0;
+                        hMonitorOfStartMenu = MonitorFromPoint(pt, MONITOR_DEFAULTTOPRIMARY);
+                    }
+                    else
+                    {
+                        hMonitorOfStartMenu = mod.hMonitor;
+                    }
+                }
+
                 HWND hWndTemp = NULL;
 
                 HWND hShellTray_Wnd = FindWindowExW(NULL, NULL, L"Shell_TrayWnd", NULL);
-                if (hShellTray_Wnd && !hWndTaskbar && MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY) == MonitorFromWindow(hShellTray_Wnd, MONITOR_DEFAULTTOPRIMARY) && dwOldTaskbarAl)
+                if (hShellTray_Wnd && !hWndTaskbar && hMonitorOfStartMenu == MonitorFromWindow(hShellTray_Wnd, MONITOR_DEFAULTTOPRIMARY) && dwOldTaskbarAl)
                 {
                     hWndTaskbar = hShellTray_Wnd;
                 }
@@ -11291,7 +11328,7 @@ int StartUI_SetWindowRgn(HWND hWnd, HRGN hRgn, BOOL bRedraw)
                             L"Shell_SecondaryTrayWnd",
                             NULL
                         );
-                        if (hWndTemp && !hWndTaskbar && MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY) == MonitorFromWindow(hWndTemp, MONITOR_DEFAULTTOPRIMARY) && dwMMOldTaskbarAl)
+                        if (hWndTemp && !hWndTaskbar && hMonitorOfStartMenu == MonitorFromWindow(hWndTemp, MONITOR_DEFAULTTOPRIMARY) && dwMMOldTaskbarAl)
                         {
                             hWndTaskbar = hWndTemp;
                             break;
@@ -11335,16 +11372,32 @@ int StartUI_SetWindowRgn(HWND hWnd, HRGN hRgn, BOOL bRedraw)
                 }
             }
             RECT rc;
-            LVT_StartUI_EnableRoundedCorners(hWnd, StartUI_EnableRoundedCorners, dwPos, hWndTaskbar, &rc);
-            if (!StartUI_EnableRoundedCorners)
+            if (dwStartShowClassicMode)
             {
-                StartUI_EnableRoundedCornersApply = FALSE;
+                LVT_StartUI_EnableRoundedCorners(hWnd, StartUI_EnableRoundedCorners, dwPos, hWndTaskbar, &rc);
+                if (!StartUI_EnableRoundedCorners)
+                {
+                    StartUI_EnableRoundedCornersApply = FALSE;
+                }
+            }
+            else
+            {
+                LVT_StartDocked_DisableRecommendedSection(hWnd, StartDocked_DisableRecommendedSection, &rc);
+                StartDocked_DisableRecommendedSectionApply = FALSE;
             }
             if (hWndTaskbar)
             {
                 if (rcC.left < 5 && rcC.top > 5)
                 {
-                    SetWindowPos(hWnd, NULL, mi.rcMonitor.left + (((mi.rcMonitor.right - mi.rcMonitor.left) - (rc.right - rc.left)) / 2), mi.rcMonitor.top, 0, 0, SWP_NOSIZE | SWP_FRAMECHANGED | SWP_ASYNCWINDOWPOS);
+                    if (dwStartShowClassicMode)
+                    {
+                        SetWindowPos(hWnd, NULL, mi.rcMonitor.left + (((mi.rcMonitor.right - mi.rcMonitor.left) - (rc.right - rc.left)) / 2), mi.rcMonitor.top, 0, 0, SWP_NOSIZE | SWP_FRAMECHANGED | SWP_ASYNCWINDOWPOS);
+                    }
+                    else
+                    {
+                        // Windows 11 Start menu knows how to center itself when the taskbar is at the bottom of the screen
+                        SetWindowPos(hWnd, NULL, mi.rcMonitor.left, mi.rcMonitor.top, 0, 0, SWP_NOSIZE | SWP_FRAMECHANGED | SWP_ASYNCWINDOWPOS);
+                    }
                 }
                 else if (rcC.left < 5 && rcC.top < 5 && rcC.right > rcC.bottom)
                 {
@@ -11363,21 +11416,6 @@ int StartUI_SetWindowRgn(HWND hWnd, HRGN hRgn, BOOL bRedraw)
             {
                 SetWindowPos(hWnd, NULL, mi.rcWork.left, mi.rcWork.top, 0, 0, SWP_NOSIZE | SWP_FRAMECHANGED | SWP_ASYNCWINDOWPOS);
             }
-        }
-    }
-    return SetWindowRgn(hWnd, hRgn, bRedraw);
-}
-
-int StartDocked_SetWindowRgn(HWND hWnd, HRGN hRgn, BOOL bRedraw)
-{
-    BOOL bIsWindowVisible = FALSE;
-    HRESULT hr = IsThreadCoreWindowVisible(&bIsWindowVisible);
-    if (SUCCEEDED(hr))
-    {
-        if (bIsWindowVisible && StartUI_EnableRoundedCornersApply)
-        {
-            LVT_StartDocked_DisableRecommendedSection(hWnd, StartDocked_DisableRecommendedSection);
-            StartDocked_DisableRecommendedSectionApply = FALSE;
         }
     }
     return SetWindowRgn(hWnd, hRgn, bRedraw);
@@ -11810,7 +11848,7 @@ void InjectStartMenu()
         hStartUI = GetModuleHandleW(L"StartUI.dll");
 
         // Fixes hang when Start menu closes
-        VnPatchDelayIAT(hStartUI, "ext-ms-win-ntuser-draw-l1-1-0.dll", "SetWindowRgn", StartUI_SetWindowRgn);
+        VnPatchDelayIAT(hStartUI, "ext-ms-win-ntuser-draw-l1-1-0.dll", "SetWindowRgn", Start_SetWindowRgn);
 
         if (IsWindows11())
         {
@@ -11840,7 +11878,7 @@ void InjectStartMenu()
         LoadLibraryW(L"StartDocked.dll");
         hStartDocked = GetModuleHandleW(L"StartDocked.dll");
 
-        VnPatchDelayIAT(hStartDocked, "ext-ms-win-ntuser-draw-l1-1-0.dll", "SetWindowRgn", StartDocked_SetWindowRgn);
+        VnPatchDelayIAT(hStartDocked, "ext-ms-win-ntuser-draw-l1-1-0.dll", "SetWindowRgn", Start_SetWindowRgn);
     }
 
     Setting* settings = calloc(6, sizeof(Setting));

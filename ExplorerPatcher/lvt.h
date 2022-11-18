@@ -6,6 +6,7 @@
 #include <roapi.h>
 #include <winstring.h>
 #include <stdio.h>
+#include <Shlwapi.h>
 
 #define LVT_LOC_NONE 0
 #define LVT_LOC_BOTTOMLEFT 1
@@ -460,10 +461,12 @@ typedef struct Windows_UI_Xaml_IFrameworkElement_Vtbl
         __RPC__in Windows_UI_Xaml_IFrameworkElement* This);
 
     HRESULT(STDMETHODCALLTYPE* get_MaxHeight)(
-        __RPC__in Windows_UI_Xaml_IFrameworkElement* This);
+        __RPC__in Windows_UI_Xaml_IFrameworkElement* This,
+        /* [out] */ __RPC__out DOUBLE* value);
 
     HRESULT(STDMETHODCALLTYPE* put_MaxHeight)(
-        __RPC__in Windows_UI_Xaml_IFrameworkElement* This);
+        __RPC__in Windows_UI_Xaml_IFrameworkElement* This,
+        /* [in] */ __RPC__in DOUBLE value);
 
     HRESULT(STDMETHODCALLTYPE* get_HorizontalAlignment)(
         __RPC__in Windows_UI_Xaml_IFrameworkElement* This);
@@ -1024,7 +1027,7 @@ Windows_UI_Xaml_IDependencyObject* LVT_FindChildByName(Windows_UI_Xaml_IDependen
 
 void LVT_StartUI_EnableRoundedCorners(HWND, DWORD, DWORD, HWND, RECT*);
 
-void LVT_StartDocked_DisableRecommendedSection(HWND, BOOL);
+void LVT_StartDocked_DisableRecommendedSection(HWND, BOOL, RECT*);
 
 HRESULT IsThreadCoreWindowVisible(BOOL*);
 #endif

@@ -517,13 +517,99 @@ void LVT_StartUI_EnableRoundedCorners(HWND hWnd, DWORD dwReceipe, DWORD dwPos, H
     }
 }
 
+void LVT_StartDocked_120DPIHack(int maxHeight)
+{
+    HRESULT hr = S_OK;
+    Windows_UI_Xaml_IDependencyObject* pRootDependencyObject = NULL;
+    if (SUCCEEDED(hr))
+    {
+        HSTRING_HEADER hshWindowStatics;
+        HSTRING hsWindowStatics = NULL;
+        hr = WindowsCreateStringReference(L"Windows.UI.Xaml.Window", 22, &hshWindowStatics, &hsWindowStatics);
+        if (SUCCEEDED(hr) && hsWindowStatics)
+        {
+            Windows_UI_Xaml_IWindowStatics* pWindowStatics = NULL;
+            hr = RoGetActivationFactory(hsWindowStatics, &IID_Windows_UI_Xaml_IWindowStatics, &pWindowStatics);
+            if (SUCCEEDED(hr))
+            {
+                Windows_UI_Xaml_IWindow* pWindow = NULL;
+                hr = pWindowStatics->lpVtbl->get_Current(pWindowStatics, &pWindow);
+                if (SUCCEEDED(hr))
+                {
+                    IInspectable* pUIElement = NULL;
+                    hr = pWindow->lpVtbl->get_Content(pWindow, &pUIElement);
+                    if (SUCCEEDED(hr))
+                    {
+                        hr = pUIElement->lpVtbl->QueryInterface(pUIElement, &IID_Windows_UI_Xaml_IDependencyObject, &pRootDependencyObject);
+
+                        pUIElement->lpVtbl->Release(pUIElement);
+                    }
+                    pWindow->lpVtbl->Release(pWindow);
+                }
+                pWindowStatics->lpVtbl->Release(pWindowStatics);
+            }
+            WindowsDeleteString(hsWindowStatics);
+        }
+    }
+    if (pRootDependencyObject)
+    {
+        HSTRING_HEADER hshVisualTreeHelperStatics;
+        HSTRING hsVisualTreeHelperStatics = NULL;
+        hr = WindowsCreateStringReference(L"Windows.UI.Xaml.Media.VisualTreeHelper", 38, &hshVisualTreeHelperStatics, &hsVisualTreeHelperStatics);
+        if (SUCCEEDED(hr) && hsVisualTreeHelperStatics)
+        {
+            Windows_UI_Xaml_IVisualTreeHelperStatics* pVisualTreeHelperStatics = NULL;
+            hr = RoGetActivationFactory(hsVisualTreeHelperStatics, &IID_Windows_UI_Xaml_IVisualTreeHelperStatics, &pVisualTreeHelperStatics);
+            if (SUCCEEDED(hr))
+            {
+                Windows_UI_Xaml_IDependencyObject* pStartSizingFrame = LVT_FindChildByClassName(pRootDependencyObject, pVisualTreeHelperStatics, L"StartDocked.StartSizingFrame", NULL);
+                if (pStartSizingFrame)
+                {
+                    Windows_UI_Xaml_IUIElement* pIUIElement = NULL;
+                    pStartSizingFrame->lpVtbl->QueryInterface(pStartSizingFrame, &IID_Windows_UI_Xaml_IUIElement, &pIUIElement);
+                    if (pIUIElement)
+                    {
+                        Windows_UI_Xaml_IFrameworkElement* pFrameworkElement = NULL;
+                        pStartSizingFrame->lpVtbl->QueryInterface(pStartSizingFrame, &IID_Windows_UI_Xaml_IFrameworkElement, &pFrameworkElement);
+                        if (pFrameworkElement)
+                        {
+                            pIUIElement->lpVtbl->put_Visibility(pIUIElement, Windows_UI_Xaml_Visibility_Collapsed);
+                            pFrameworkElement->lpVtbl->put_MaxHeight(pFrameworkElement, maxHeight);
+                            pIUIElement->lpVtbl->put_Visibility(pIUIElement, Windows_UI_Xaml_Visibility_Visible);
+                            pFrameworkElement->lpVtbl->Release(pFrameworkElement);
+                        }
+                        pIUIElement->lpVtbl->Release(pIUIElement);
+                    }
+                    pStartSizingFrame->lpVtbl->Release(pStartSizingFrame);
+                }
+                pVisualTreeHelperStatics->lpVtbl->Release(pVisualTreeHelperStatics);
+            }
+            WindowsDeleteString(hsVisualTreeHelperStatics);
+        }
+        pRootDependencyObject->lpVtbl->Release(pRootDependencyObject);
+    }
+}
+
 // Reference: https://www.reddit.com/r/Windows11/comments/p1ksou/this_is_not_a_concept_microsoft_in_windows_11/
-void LVT_StartDocked_DisableRecommendedSection(HWND hWnd, BOOL bApply)
+void LVT_StartDocked_DisableRecommendedSection(HWND hWnd, BOOL bApply, RECT* rect)
 {
     WCHAR wszDebug[MAX_PATH];
     HRESULT hr = S_OK;
 
     Windows_UI_Xaml_IDependencyObject* pRootDependencyObject = NULL;
+    Windows_UI_Xaml_Controls_ICanvasStatics* pCanvasStatics = NULL;
+
+    if (SUCCEEDED(hr))
+    {
+        HSTRING_HEADER hshControlsCanvasStatics;
+        HSTRING hsControlsCanvasStatics = NULL;
+        hr = WindowsCreateStringReference(L"Windows.UI.Xaml.Controls.Canvas", 31, &hshControlsCanvasStatics, &hsControlsCanvasStatics);
+        if (SUCCEEDED(hr) && hsControlsCanvasStatics)
+        {
+            hr = RoGetActivationFactory(hsControlsCanvasStatics, &IID_Windows_UI_Xaml_Controls_ICanvasStatics, &pCanvasStatics);
+            WindowsDeleteString(hsControlsCanvasStatics);
+        }
+    }
 
     if (SUCCEEDED(hr))
     {
@@ -570,6 +656,49 @@ void LVT_StartDocked_DisableRecommendedSection(HWND hWnd, BOOL bApply)
                 Windows_UI_Xaml_IDependencyObject* pStartSizingFrame = LVT_FindChildByClassName(pRootDependencyObject, pVisualTreeHelperStatics, L"StartDocked.StartSizingFrame", NULL);
                 if (pStartSizingFrame)
                 {
+                    Windows_UI_Xaml_Thickness drc;
+                    drc.Left = 0.0; drc.Right = 0.0; drc.Top = 0.0; drc.Bottom = 0.0;
+                    Windows_UI_Xaml_IUIElement* pIUIElement = NULL;
+                    Windows_UI_Xaml_IFrameworkElement* pFrameworkElement = NULL;
+                    pStartSizingFrame->lpVtbl->QueryInterface(pStartSizingFrame, &IID_Windows_UI_Xaml_IUIElement, &pIUIElement);
+                    if (pIUIElement)
+                    {
+                        pCanvasStatics->lpVtbl->GetLeft(pCanvasStatics, pIUIElement, &(drc.Left));
+                        pCanvasStatics->lpVtbl->GetTop(pCanvasStatics, pIUIElement, &(drc.Top));
+                    }
+                    pStartSizingFrame->lpVtbl->QueryInterface(pStartSizingFrame, &IID_Windows_UI_Xaml_IFrameworkElement, &pFrameworkElement);
+                    if (pFrameworkElement)
+                    {
+                        pFrameworkElement->lpVtbl->get_ActualWidth(pFrameworkElement, &(drc.Right));
+                        pFrameworkElement->lpVtbl->get_ActualHeight(pFrameworkElement, &(drc.Bottom));
+                    }
+                    UINT dpi = GetDpiForWindow(hWnd);
+                    RECT rc;
+                    SetRect(&rc, drc.Left, drc.Top, drc.Right, drc.Bottom);
+                    SetRect(&rc, MulDiv(rc.left, dpi, 96), MulDiv(rc.top, dpi, 96), MulDiv(rc.right, dpi, 96), MulDiv(rc.bottom, dpi, 96));
+                    *rect = rc;
+                    if (bApply && dpi == 120)
+                    {
+                        HANDLE hRealThreadHandle = NULL;
+                        DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &hRealThreadHandle, THREAD_SET_CONTEXT, FALSE, 0);
+                        if (hRealThreadHandle)
+                        {
+                            QueueUserAPC(LVT_StartDocked_120DPIHack, hRealThreadHandle, 826);
+                            CloseHandle(hRealThreadHandle);
+                        }
+                    }
+                    else if (pFrameworkElement)
+                    {
+                        pFrameworkElement->lpVtbl->put_MaxHeight(pFrameworkElement, 726.0);
+                    }
+                    if (pFrameworkElement)
+                    {
+                        pFrameworkElement->lpVtbl->Release(pFrameworkElement);
+                    }
+                    if (pIUIElement)
+                    {
+                        pIUIElement->lpVtbl->Release(pIUIElement);
+                    }
                     Windows_UI_Xaml_IDependencyObject* pStartSizingFramePanel = LVT_FindChildByClassName(pStartSizingFrame, pVisualTreeHelperStatics, L"StartDocked.StartSizingFramePanel", NULL);
                     if (pStartSizingFramePanel)
                     {
@@ -622,13 +751,17 @@ void LVT_StartDocked_DisableRecommendedSection(HWND hWnd, BOOL bApply)
                                                                         pStartMenuPinnedList->lpVtbl->QueryInterface(pStartMenuPinnedList, &IID_Windows_UI_Xaml_IFrameworkElement, &pFrameworkElement);
                                                                         if (pFrameworkElement)
                                                                         {
+                                                                            static double StartMenuPinnedList_Height = 252.0;
+                                                                            double tempStartMenuPinnedList_Height = 0.0;
+                                                                            if (SUCCEEDED(pFrameworkElement->lpVtbl->get_Height(pFrameworkElement, &tempStartMenuPinnedList_Height)) && tempStartMenuPinnedList_Height != 510.0) StartMenuPinnedList_Height = tempStartMenuPinnedList_Height;
+
                                                                             if (bApply)
                                                                             {
                                                                                 pFrameworkElement->lpVtbl->put_Height(pFrameworkElement, 510.0);
                                                                             }
                                                                             else
                                                                             {
-                                                                                pFrameworkElement->lpVtbl->put_Height(pFrameworkElement, 252.0);
+                                                                                pFrameworkElement->lpVtbl->put_Height(pFrameworkElement, StartMenuPinnedList_Height);
                                                                             }
                                                                             pFrameworkElement->lpVtbl->Release(pFrameworkElement);
                                                                         }
@@ -693,6 +826,11 @@ void LVT_StartDocked_DisableRecommendedSection(HWND hWnd, BOOL bApply)
             WindowsDeleteString(hsVisualTreeHelperStatics);
         }
         pRootDependencyObject->lpVtbl->Release(pRootDependencyObject);
+    }
+
+    if (pCanvasStatics)
+    {
+        pCanvasStatics->lpVtbl->Release(pCanvasStatics);
     }
 }
 

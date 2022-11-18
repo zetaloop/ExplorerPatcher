@@ -728,7 +728,7 @@
 ;d 启用旧版视图控件 SysListView32 *
 @=""
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;b 在任务栏右键菜单中不显示本设置 (“属性”)
+;b 不修改任务栏右键菜单，隐藏本设置入口 (“属性”)
 "NoPropertiesInContextMenu"=dword:00000000
 ;b 启用符号文件下载 *
 "EnableSymbolDownload"=dword:00000001
