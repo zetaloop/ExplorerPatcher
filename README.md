@@ -51,13 +51,16 @@ _软件 bug 请反馈[原作者](mailto://valentingabrielradu@gmail.com)，翻�
 
 功能限制：参阅 [英文版议题](https://github.com/valinet/ExplorerPatcher/issues)。
 
+某些版本有可能导致文件管理器崩溃，表现为开机黑屏不打开桌面，此时通过任务管理器打开命令提示符 CMD，删除 C:\WINDOWS\dxgi.dll 即可恢复。（这问题之前困扰我好久）目前新版本无此问题，我备用机那是好久忘记更新了。
+
 汉化：由于编码问题，暂未汉化通知消息。
 
 ## 卸载
 
-* 系统设置或控制面板里卸载。
+几种方法可供选择：* 系统设置或控制面板里卸载。
 * 运行安装包命令 `ep_setup.exe /uninstall` 卸载。
 * 安装包 `ep_setup.exe` 重命名为 `ep_uninstall.exe` 然后运行即可卸载。
+* 删除 `C:\WINDOWS\dxgi.dll` 文件即可卸载。
 
 ## 更新
 
