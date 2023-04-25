@@ -1,4 +1,4 @@
-# ExplorerPatcher 汉化版
+# ExplorerPatcher Chinese Localization 中文汉化版
 该项目旨在为 Windows 11 恢复高效的工作环境。
 
 这是简体中文的修改版。由 [Zetaspace](https://github.com/ZetaSp) 制作并分享，遵循原作 GPL-2.0 协议。
