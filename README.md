@@ -3,7 +3,7 @@
 
 这是简体中文的修改版。由 [Zetaspace](https://github.com/ZetaSp) 制作并分享，遵循原作 GPL-2.0 协议。
 
-[英文原版链接](https://github.com/valinet/ExplorerPatcher) | 原作者 PayPal 捐赠：[PayPal](https://www.paypal.com/donate?business=valentingabrielradu%40gmail.com&no_recurring=0&item_name=ExplorerPatcher&currency_code=EUR) 或通过邮箱地址 valentingabrielradu@gmail.com
+[Original English version 英文原版链接](https://github.com/valinet/ExplorerPatcher) | 原作者 PayPal 捐赠：[PayPal](https://www.paypal.com/donate?business=valentingabrielradu%40gmail.com&no_recurring=0&item_name=ExplorerPatcher&currency_code=EUR) 或通过邮箱地址 valentingabrielradu@gmail.com
 
 ![编译状况](https://github.com/ZetaSp/ExplorerPatcher/actions/workflows/build.yml/badge.svg)
 
