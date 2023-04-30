@@ -1,11 +1,11 @@
 # ExplorerPatcher Chinese Localization 中文汉化版
 该项目旨在为 Windows 11 恢复高效的工作环境。
 
-这是简体中文的修改版。由 [Zetaspace](https://github.com/ZetaSp) 制作并分享，遵循原作 GPL-2.0 协议。
+这是简体中文的修改版。由 [zetaloop](https://github.com/zetaloop) 制作并分享，遵循原作 GPL-2.0 协议。
 
 [Original English version 英文原版链接](https://github.com/valinet/ExplorerPatcher) | 原作者 PayPal 捐赠：[PayPal](https://www.paypal.com/donate?business=valentingabrielradu%40gmail.com&no_recurring=0&item_name=ExplorerPatcher&currency_code=EUR) 或通过邮箱地址 valentingabrielradu@gmail.com
 
-![编译状况](https://github.com/ZetaSp/ExplorerPatcher/actions/workflows/build.yml/badge.svg)
+![编译状况](https://github.com/zetaloop/ExplorerPatcher/actions/workflows/build.yml/badge.svg)
 
 ## 功能介绍
 
@@ -20,7 +20,7 @@
 
 ## 开始使用
 
-1. 下载最新安装包：[GitHub](https://github.com/ZetaSp/ExplorerPatcher/releases/latest/download/ep_setup.exe) | [GHProxy](https://ghproxy.com/https://github.com/ZetaSp/ExplorerPatcher/releases/latest/download/ep_setup.exe)
+1. 下载最新安装包：[GitHub](https://github.com/zetaloop/ExplorerPatcher/releases/latest/download/ep_setup.exe) | [GHProxy](https://ghproxy.com/https://github.com/zetaloop/ExplorerPatcher/releases/latest/download/ep_setup.exe)
 2. 运行安装包，允许管理员权限，自动开始安装。（暂时退出文件管理器、桌面，请等待2分钟左右）
 3. 安装完成后，迎接你的将是熟悉的 Win10 任务栏。如需进行个性化配置，右键任务栏打开“属性”即可设置。
 
@@ -32,7 +32,7 @@
 
 如果找不到“属性”设置界面，新建一个快捷方式，地址为 `rundll32 "C:\WINDOWS\dxgi.dll",ZZGUI`，然后双击快捷方式即可打开界面。快捷方式可以拖到任务栏固定，或者固定到开始菜单。
 
-如果遇到 win10 开始菜单汉化不全的问题，可以安装 [补充汉化.zip](https://github.com/ZetaSp/ExplorerPatcher/files/9639911/ExplorerPatcher.zip)，感谢 [@meiruitesi](https://github.com/meiruitesi)，详见 [Issue 6](https://github.com/ZetaSp/ExplorerPatcher/issues/6#issuecomment-1236125461)。
+如果遇到 win10 开始菜单汉化不全的问题，可以安装 [补充汉化.zip](https://github.com/zetaloop/ExplorerPatcher/files/9639911/ExplorerPatcher.zip)，感谢 [@meiruitesi](https://github.com/meiruitesi)，详见 [Issue 6](https://github.com/zetaloop/ExplorerPatcher/issues/6#issuecomment-1236125461)。
 
 ## 进阶指南
 
@@ -40,9 +40,9 @@
   * [百科：更多特性](https://github.com/valinet/ExplorerPatcher/wiki/All-features)
   * [百科：配置更新](https://github.com/valinet/ExplorerPatcher/wiki/Configure-updates)
   * [百科：常见问题](https://github.com/valinet/ExplorerPatcher/wiki/Frequently-asked-questions)
-* 有其他疑问吗？询问讨论区：[英文版](https://github.com/valinet/ExplorerPatcher/discussions) | [中文版](https://github.com/ZetaSp/ExplorerPatcher/discussions)
+* 有其他疑问吗？询问讨论区：[英文版](https://github.com/valinet/ExplorerPatcher/discussions) | [中文版](https://github.com/zetaloop/ExplorerPatcher/discussions)
 * 软件遇到问题？阅读指南并详细汇报给作者：[原作者邮箱](mailto://valentingabrielradu@gmail.com) | [问题汇报指南（英文）](https://github.com/valinet/ExplorerPatcher/wiki/Reporting-problems)
-* 翻译需要改进？请告诉我：[创建议题](https://github.com/ZetaSp/ExplorerPatcher/discussions) | [邮箱联系](mailto:zetaspace@outlook.com)
+* 翻译需要改进？请告诉我：[创建议题](https://github.com/zetaloop/ExplorerPatcher/discussions) | [邮箱联系](mailto:zetaloop@outlook.com)
 * 推荐阅读[软件源代码](https://github.com/valinet/ExplorerPatcher/tree/master)并尝试改进它。开发者很愿意接受增强功能与问题修复，这为软件进一步完善做出了很大贡献。
 
 _软件 bug 请反馈[原作者](mailto://valentingabrielradu@gmail.com)，翻译问题欢迎探讨~_
@@ -76,4 +76,4 @@ _软件 bug 请反馈[原作者](mailto://valentingabrielradu@gmail.com)，翻�
 
 ## 项目收藏人数
 
-[![Stargazers over time](https://starchart.cc/ZetaSp/ExplorerPatcher.svg)](https://starchart.cc/ZetaSp/ExplorerPatcher)
+[![Stargazers over time](https://starchart.cc/zetaloop/ExplorerPatcher.svg)](https://starchart.cc/zetaloop/ExplorerPatcher)
