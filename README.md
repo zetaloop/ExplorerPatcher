@@ -1,7 +1,7 @@
 # ExplorerPatcher Chinese Localization 中文汉化版
 该项目旨在为 Windows 11 恢复高效的工作环境。
 
-这是简体中文的修改版。由 [zetaloop](https://github.com/zetaloop) 制作并分享，遵循原作 GPL-2.0 协议。
+这是简体中文的修改版。由 zetaloop 制作分享，遵循原作 GPL-2.0 协议。
 
 [Original English version 英文原版链接](https://github.com/valinet/ExplorerPatcher) | 原作者 PayPal 捐赠：[PayPal](https://www.paypal.com/donate?business=valentingabrielradu%40gmail.com&no_recurring=0&item_name=ExplorerPatcher&currency_code=EUR) 或通过邮箱地址 valentingabrielradu@gmail.com
 
@@ -21,18 +21,19 @@
 ## 开始使用
 
 1. 下载最新安装包：[GitHub](https://github.com/zetaloop/ExplorerPatcher/releases/latest/download/ep_setup.exe) | [GHProxy](https://ghproxy.com/https://github.com/zetaloop/ExplorerPatcher/releases/latest/download/ep_setup.exe)
-2. 运行安装包，允许管理员权限，自动开始安装。（暂时退出文件管理器、桌面，请等待2分钟左右）
-3. 安装完成后，迎接你的将是熟悉的 Win10 任务栏。如需进行个性化配置，右键任务栏打开“属性”即可设置。
+2. 运行安装包，允许管理员权限，自动开始安装。（暂时退出文件管理器、桌面，请等待 1~2 分钟）
+3. 安装完成后，迎接你的将是熟悉的 Win10 任务栏。如需进行个性化配置，右键任务栏打开“属性”就是本软件的设置界面。
+4. 下载安装 [补充汉化v2.0.zip](https://github.com/zetaloop/ExplorerPatcher/files/12028650/v2.0.zip) 补丁，修复 Win10 开始菜单中文翻译缺失的问题。
 
-完成了，仅此而已。
+完成了！干得漂亮。
 
 #### 安装遇到问题
 
-安装过程中，如果桌面一直没有恢复，按快捷键 Ctrl + Shift + Esc 打开任务管理器，运行新任务 `explorer` 即可恢复桌面。
+安装不应该持续很长时间。如果桌面一直没有恢复，按快捷键 Ctrl + Shift + Esc 打开任务管理器，运行新任务 `explorer` 即可恢复桌面。
 
-如果找不到“属性”设置界面，新建一个快捷方式，地址为 `rundll32 "C:\WINDOWS\dxgi.dll",ZZGUI`，然后双击快捷方式即可打开界面。快捷方式可以拖到任务栏固定，或者固定到开始菜单。
+如果找不到“属性”（本软件的设置界面），新建一个快捷方式，填写地址为 `rundll32 "C:\WINDOWS\dxgi.dll",ZZGUI`，然后双击快捷方式即可打开界面。可以把该快捷方式拖到任务栏固定，或者固定到开始菜单。
 
-如果遇到 win10 开始菜单汉化不全的问题，可以安装 [补充汉化.zip](https://github.com/zetaloop/ExplorerPatcher/files/9639911/ExplorerPatcher.zip)，感谢 [@meiruitesi](https://github.com/meiruitesi)，详见 [Issue 6](https://github.com/zetaloop/ExplorerPatcher/issues/6#issuecomment-1236125461)。
+Win10 开始菜单汉化不全问题及补丁，详见 [这个议题](https://github.com/zetaloop/ExplorerPatcher/issues/6#issuecomment-1236125461)，感谢 [@meiruitesi](https://github.com/meiruitesi) 和 [10SM 项目](https://github.com/bbmaster123/10SM) 的帮助。
 
 ## 进阶指南
 
