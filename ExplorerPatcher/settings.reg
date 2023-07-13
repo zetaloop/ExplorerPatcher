@@ -761,7 +761,7 @@
 ;e 
 ;e 该软件让 Windows 的工作环境更加高效。
 ;e Valentin-Gabriel Radu 荣誉出品。
-;t 系统版本 Windows 11
+;e 系统版本 Windows 11
 ;t 构建版本 %OSVERSIONSTRING%
 ;y 查看项目 (https://github.com/valinet) 🡕
 ;https://github.com/valinet
