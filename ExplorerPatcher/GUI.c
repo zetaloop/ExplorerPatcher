@@ -1,4 +1,5 @@
 #include <initguid.h>
+#include <locale.h>
 DEFINE_GUID(LiveSetting_Property_GUID, 0xc12bcd8e, 0x2a8e, 0x4950, 0x8a, 0xe7, 0x36, 0x25, 0x11, 0x1d, 0x58, 0xeb);
 #include <oleacc.h>
 #include "GUI.h"
@@ -125,13 +126,15 @@ void PlayHelpMessage(GUI* _this)
     swprintf_s(
         wszAccText,
         1000,
-        L"Welcome to ExplorerPatcher. "
-        L"Selected page is: %s: %d of %d. "
-        L"To switch pages, press the Left or Right arrow keys or press a number (%d to %d). "
-        L"To select an item, press the Up or Down arrow keys or Shift+Tab and Tab. "
-        L"To interact with the selected item, press Space or Return. "
-        L"To close this window, press Escape. "
-        L"Press a number to switch to the corresponding page: ",
+        Utf8Text(
+            "欢迎使用 ExplorerPatcher。"
+            "当前页面是：%s (%d/%d)。"
+            "按左右方向键、数字键 %d 到 %d 可以切换页面。"
+            "按上下方向键、Tab 和 Shift+Tab 可以切换条目。"
+            "按空格或回车修改选项。"
+            "按 Esc 关闭设置窗口。"
+            "数字键对应的页面："
+        ),
         _this->sectionNames[_this->section],
         _this->section + 1,
         max_section + 1,
@@ -148,7 +151,7 @@ void PlayHelpMessage(GUI* _this)
         swprintf_s(wszAdd, 100, L"%d: %s, ", i + 1, _this->sectionNames[i]);
         wcscat_s(wszAccText, 1000, wszAdd);
     }
-    wcscat_s(wszAccText, 1000, L"\nTo listen to this message again, press the F1 key at any time.\n");
+    wcscat_s(wszAccText, 1000, Utf8Text("\n如需再次阅读此消息，请按 F1。\n"));
     SetWindowTextW(_this->hAccLabel, wszAccText);
     NotifyWinEvent(
         EVENT_OBJECT_LIVEREGIONCHANGED,
@@ -951,6 +954,7 @@ static void GUI_SetSection(GUI* _this, BOOL bCheckEnablement, int dwSection)
 
 static BOOL GUI_Build(HDC hDC, HWND hwnd, POINT pt)
 {
+    setlocale(LC_ALL, "chs");
     GUI* _this;
     LONG_PTR ptr = GetWindowLongPtr(hwnd, GWLP_USERDATA);
     _this = (int*)(ptr);
@@ -1343,7 +1347,7 @@ static BOOL GUI_Build(HDC hDC, HWND hwnd, POINT pt)
                                         if (GetTimeFormatEx(wszWeatherLanguage[0] ? wszWeatherLanguage : wszLanguage, TIME_NOSECONDS, &stLastUpdate, NULL, wszTime, MAX_PATH))
                                         {
                                             bOk = TRUE;
-                                            swprintf_s(text, MAX_LINE_LENGTH, L"Last updated on: %s, %s.", wszDate, wszTime);
+                                            swprintf_s(text, MAX_LINE_LENGTH, Utf8Text(L"上次更新时间: %s, %s."), wszDate, wszTime);
                                         }
                                     }
                                 }
@@ -1501,11 +1505,11 @@ static BOOL GUI_Build(HDC hDC, HWND hwnd, POINT pt)
                                 swprintf_s(
                                     accText, 
                                     1000, 
-                                    L"%s %s - Button.",
+                                    Utf8Text("%s %s - 按键。"),
                                     (_this->dwPageLocation < 0 ?
-                                    L"Reached end of the page." :
+                                    Utf8Text("已经是最后一个页面") :
                                     (_this->dwPageLocation > 0 ?
-                                    L"Reached beginning of the page." : L"")),
+                                    Utf8Text("已经是第一个页面") : L"")),
                                     text
                                 );
                                 _this->dwPageLocation = 0;
@@ -1995,7 +1999,7 @@ static BOOL GUI_Build(HDC hDC, HWND hwnd, POINT pt)
                                         GUI_Build(0, hwnd, pt);
                                         fclose(AuditFile);
                                         AuditFile = NULL;
-                                        MessageBoxW(hwnd, L"Settings have been exported successfully.", GUI_title, MB_ICONINFORMATION);
+                                        MessageBoxW(hwnd, Utf8Text("导出成功。"), GUI_title, MB_ICONINFORMATION);
                                     }
                                 }
                             }
@@ -2029,8 +2033,8 @@ static BOOL GUI_Build(HDC hDC, HWND hwnd, POINT pt)
                                 }
                                 else
                                 {
-                                    wcscpy_s(title, MAX_PATH, L"Import settings");
-                                    wcscpy_s(filter, MAX_PATH, L"Registration Files (*.reg)\0*.reg\0\0");
+                                    wcscpy_s(title, MAX_PATH, Utf8Text("导入设置"));
+                                    wcscpy_s(filter, MAX_PATH, Utf8Text("注册表文件 (*.reg)\0*.reg\0\0"));
                                 }
                                 WCHAR wszPath[MAX_PATH];
                                 ZeroMemory(wszPath, MAX_PATH * sizeof(WCHAR));
@@ -2198,10 +2202,11 @@ static BOOL GUI_Build(HDC hDC, HWND hwnd, POINT pt)
                             {
                                 if (MessageBoxW(
                                     hwnd,
-                                    L"Are you sure you want to permanently clear the weather widget's local data?\n\n"
-                                    L"This will reset the internal components to their default state, but will preserve "
-                                    L"your preferences. This may fix the widget not loading the data properly, or "
-                                    L"having layout issues etc.",
+                                    Utf8Text(
+                                        "确定清空天气小组件的本地数据吗？\n\n"
+                                        "这将会重置其内部组件，但是保留自定义设置。\n"
+                                        "可能可以解决数据和渲染错误。"
+                                    ),
                                     _T(PRODUCT_NAME),
                                     MB_ICONQUESTION | MB_YESNO) == IDYES)
                                 {
@@ -2215,7 +2220,7 @@ static BOOL GUI_Build(HDC hDC, HWND hwnd, POINT pt)
                                         PleaseWaitCallbackData = &res;
                                         PleaseWaitCallbackFunc = GUI_Internal_DeleteWeatherFolder;
                                         PleaseWaitHook = SetWindowsHookExW(WH_CALLWNDPROC, PleaseWait_HookProc, NULL, GetCurrentThreadId());
-                                        MessageBoxW(hwnd, L"Please wait...", _T(PRODUCT_NAME), 0);
+                                        MessageBoxW(hwnd, Utf8Text("请稍候..."), _T(PRODUCT_NAME), 0);
                                     }
                                     else
                                     {
@@ -2223,13 +2228,13 @@ static BOOL GUI_Build(HDC hDC, HWND hwnd, POINT pt)
                                     }
                                     if (res == IDOK)
                                     {
-                                        MessageBoxW(hwnd, L"Weather widget data cleared successfully.", _T(PRODUCT_NAME), MB_ICONINFORMATION);
+                                        MessageBoxW(hwnd, Utf8Text("天气小组件数据已清空"), _T(PRODUCT_NAME), MB_ICONINFORMATION);
                                     }
                                     else
                                     {
                                         if (res == IDABORT)
                                         {
-                                            MessageBoxW(hwnd, L"An error has occured while clearing the data.", _T(PRODUCT_NAME), MB_ICONERROR);
+                                            MessageBoxW(hwnd, Utf8Text("清空数据时发生错误"), _T(PRODUCT_NAME), MB_ICONERROR);
                                         }
                                     }
                                     if (dwData)
@@ -3169,9 +3174,9 @@ static BOOL GUI_Build(HDC hDC, HWND hwnd, POINT pt)
                                     1000,
                                     L"%s %s %s: %s",
                                     (_this->dwPageLocation < 0 ?
-                                        L"Reached end of the page." :
+                                        Utf8Text("已经是最后一个页面") :
                                         (_this->dwPageLocation > 0 ?
-                                            L"Reached beginning of the page." : L"")),
+                                            Utf8Text("已经是第一个页面") : L"")),
                                     (lastHeading[0] == 0) ? L"" : lastHeading,
                                     (dwType == 1 || dwType == 2) ? text + 1 : text,
                                     dwType == 1 ? L"Enabled" :
@@ -3218,11 +3223,11 @@ static BOOL GUI_Build(HDC hDC, HWND hwnd, POINT pt)
                                 }
                                 if (dwTypeRepl == 1)
                                 {
-                                    swprintf_s(accText, 1000, accText2, L" - Requires registration as shell extension to work in Open or Save file dialogs - ");
+                                    swprintf_s(accText, 1000, accText2, Utf8Text(" - 需要注册为外壳扩展插件才能在打开、保存对话框中生效 - "));
                                 }
                                 else
                                 {
-                                    swprintf_s(accText, 1000, accText2, L" - Requires File Explorer restart to apply - ");
+                                    swprintf_s(accText, 1000, accText2, Utf8Text(" - 需要重启文件管理器生效 - "));
                                 }
                                 //wprintf(L">>> %s\n", accText);
                                 SetWindowTextW(_this->hAccLabel, accText);
@@ -3320,7 +3325,7 @@ static BOOL GUI_Build(HDC hDC, HWND hwnd, POINT pt)
             swprintf_s(
                 wszAccText,
                 100,
-                L"Selected page: %s: %d of %d.",
+                Utf8Text("当前页面：%s (%d/%d)"),
                 _this->sectionNames[_this->section],
                 _this->section + 1,
                 max_section + 1

@@ -6,9 +6,9 @@
 
 ;T 任务栏
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;z 2 任务栏样式 *
-;x 0 Windows 11 (默认)
-;x 1 Windows 10
+;z 2 任务栏 *
+;x 0 Win11 (默认)
+;x 1 Win10
 "OldTaskbar"=dword:00000001
 ;y 任务栏设置 🡕                                                          
 ;ms-settings:taskbar
@@ -18,13 +18,13 @@
 ;shell:::{05d7b0f4-2121-4eff-bf6b-ed3f69b894d9}\SystemIcons
 ;s Taskbar_LocationSection !(IsWindows11Version22H2OrHigher&&!IsOldTaskbar)
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;c 4 主任务栏位置 *
+;c 4 主屏任务栏位置 *
 ;x 3 底部 (默认)
 ;x 1 顶部
 ;x 0 左侧
 ;x 2 右侧
 ;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_TaskbarPosition"=dword:00000003
-;c 4 副任务栏位置
+;c 4 副屏任务栏位置
 ;x 3 底部 (默认)
 ;x 1 顶部
 ;x 0 左侧
@@ -40,15 +40,15 @@
 "TaskbarDa"=dword:00000000
 ;g Taskbar_CortanaButtonSection
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Search]
-;b 显示搜索按钮
+;b 搜索按钮
 "SearchboxTaskbarMode"=dword:00000001
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
-;b 显示任务视图按钮
+;b 任务视图按钮
 "ShowTaskViewButton"=dword:00000001
 ;s Taskbar_CortanaButtonSection1 IsWindows11Version22H2OrHigher
 ;s Taskbar_CortanaButtonSection2 !IsOldTaskbar
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
-;b 显示小组件按钮
+;b 小组件按钮
 "TaskbarDa"=dword:00000001
 ;g Taskbar_CortanaButtonSection2
 ;g Taskbar_CortanaButtonSection1
@@ -57,30 +57,30 @@
 ;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_AutoHideTaskbar"=dword:00000000
 ;s Taskbar_Windows10Section IsOldTaskbar
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;c 2 开始按钮样式 *
-;x 0 Windows 10 (默认)
-;x 1 Windows 11
+;c 2 开始按钮 *
+;x 0 Win10 (默认)
+;x 1 Win11
 "OrbStyle"=dword:00000000
-;c 5 主任务栏对齐
+;c 5 主屏任务栏对齐
 ;x 0 屏幕边缘 (默认)
 ;x 1 居中
 ;x 5 居中，占满时扩展到边缘
 ;x 3 居中，带开始按钮
 ;x 7 居中，带开始按钮，占满时扩展到边缘
 "OldTaskbarAl"=dword:00000000
-;c 5 副任务栏对齐
+;c 5 副屏任务栏对齐
 ;x 0 屏幕边缘 (默认)
 ;x 1 居中
 ;x 5 居中，占满时扩展到边缘
 ;x 3 居中，带开始按钮
 ;x 7 居中，带开始按钮，占满时扩展到边缘
 "MMOldTaskbarAl"=dword:00000000
-;c 3 主任务栏合并图标
+;c 3 主屏任务栏合并图标
 ;x 0 始终合并
 ;x 1 当任务栏被占满时合并
 ;x 2 从不合并 (默认)
 "TaskbarGlomLevel"=dword:00000002
-;c 3 副任务栏合并图标
+;c 3 副屏任务栏合并图标
 ;x 0 始终合并
 ;x 1 当任务栏被占满时合并
 ;x 2 从不合并 (默认)
@@ -97,14 +97,14 @@
 
 ;T 托盘菜单
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;b 任务栏和托盘图标弹窗启用皮肤
+;b 任务栏和托盘启用皮肤
 "SkinMenus"=dword:00000001
-;b 托盘图标弹窗居中对齐
+;b 托盘图标居中对齐
 "CenterMenus"=dword:00000001
-;b 托盘图标弹窗弹出动画
+;b 托盘弹出动画
 "FlyoutMenus"=dword:00000001
 [HKEY_CURRENT_USER\Software\Microsoft\TabletTip\1.7]
-;b 显示触摸键盘按钮 *
+;b 触摸键盘按钮 *
 "TipbandDesiredVisibility"=dword:00000000
 ;s SystemTray_Section98 IsOldTaskbar
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
@@ -119,7 +119,7 @@
 ;c 3 “显示桌面”按钮
 ;x 1 启用 (默认)
 ;x 0 禁用
-;x 2 隐藏
+;x 2 启用但看不见
 "TaskbarSD"=dword:00000001
 ;g SystemTray_Section109
 ;s SystemTray_Section117 !IsOldTaskbar
@@ -130,10 +130,10 @@
 ;s SystemTray_Windows10Section IsOldTaskbar
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;p 2
-;b 显示 Windows 11 样式的系统图标 *
+;b 系统图标换成 Windows 11 风格 *
 "SkinIcons"=dword:00000001
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;a 右键网络图标打开“网络和 Internet 设置”时，
+;a 右键网络图标打开网络和 Internet 设置时，
 ;c 3 打开
 ;x 0 设置“网络和 Internet” (默认)
 ;x 1 控制面板“网络和共享中心”
@@ -143,45 +143,45 @@
 ;t 系统托盘按钮控件 :
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Control Panel\Settings\Network]
 ;c 7 网络
-;x 6 控制中心
-;x 5 Windows 11 WiFi 弹窗
-;x 0 Windows 10 弹窗 (默认)
-;x 2 Windows 8 弹窗
+;x 6 Win11 控制中心
+;x 5 Win11 WiFi
+;x 0 Win10 网络 (默认)
+;x 2 Win8 网络
 ;x 1 设置“网络和 Internet”
 ;x 3 控制面板“网络和共享中心”
 ;x 4 控制面板“网络连接”
 "ReplaceVan"=dword:00000000
 [HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\MTCUVC]
 ;c 2 声音
-;x 1 Windows 10 弹窗 (默认)
-;x 0 Windows 7 弹窗
+;x 1 Win10 音量滑块 (默认)
+;x 0 Win7 音量滑块
 "EnableMtcUvc"=dword:00000001
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\ImmersiveShell]
 ;c 3 时间
-;x 2 Windows 11 弹窗
-;x 0 Windows 10 弹窗 (默认)
-;x 1 Windows 7
+;x 2 Win11 时间
+;x 0 Win10 时间 (默认)
+;x 1 Win7 时间
 "UseWin32TrayClockExperience"=dword:00000000
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\ImmersiveShell]
 ;c 2 电池
-;x 0 Windows 10 弹窗 (默认)
-;x 1 Windows 7
+;x 0 Win10 电池 (默认)
+;x 1 Win7 电池
 "UseWin32BatteryFlyout"=dword:00000000
 ;s SystemTray_LanguageSwitcherBefore22H2 !IsWindows11Version22H2OrHigher
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;c 3 语言切换 *
-;x 0 Windows 11 (默认)
-;x 1 Windows 10 (带有“语言设置”链接)
-;x 4 Windows 10
+;x 0 Win11 (默认)
+;x 1 Win10 (带有“语言设置”链接)
+;x 4 Win10
 "IMEStyle"=dword:00000000
 ;g SystemTray_LanguageSwitcherBefore22H2
 ;s SystemTray_LanguageSwitcherAfter22H2 IsWindows11Version22H2OrHigher
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;c 4 语言切换器 *
-;x 0 Windows 11 (默认)
-;x 7 Windows 10
-;x 1 Windows 10 (with link to "Language Preferences") (无动画)
-;x 4 Windows 10 (无动画)
+;c 4 语言切换 *
+;x 0 Win11 (默认)
+;x 7 Win10
+;x 1 Win10 (带有“语言设置”链接) (无动画)
+;x 4 Win10 (无动画)
 "IMEStyle"=dword:00000000
 ;g SystemTray_LanguageSwitcherAfter22H2
 ;g SystemTray_Windows10Section
@@ -189,7 +189,7 @@
 
 
 ;T 文件管理器
-;e 要使标 ** 的设置在打开/保存对话框也生效，
+;e 要使标 ** 的设置在打开、保存对话框也生效，
 ;e 请将本工具注册为外壳扩展插件。
 ;y 更多信息 🡕
 ;https://github.com/valinet/ExplorerPatcher/wiki/Using-ExplorerPatcher-as-shell-extension
@@ -198,29 +198,29 @@
 ;b 注册为外壳扩展插件
 ;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_RegisterAsShellExtension"=dword:00000000
 [-HKEY_CURRENT_USER\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32]
-;d 禁用 Windows 11 右键菜单 *
+;d 禁用 Win11 右键菜单 *
 @=""
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;b 强制启用旧版文件传输对话框
+;b 使用旧版文件传输对话框
 "LegacyFileTransferDialog"=dword:00000000
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;b 在“此电脑”中使用经典驱动器分组
+;b 在“此电脑”中使用旧版硬盘分组
 "UseClassicDriveGrouping"=dword:00000000
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;c 3 控制界面 *
-;x 0 Win11 命令栏 (默认)
-;x 1 Win10 选项卡
-;x 2 Win7 命令栏
+;c 3 顶部命令栏 *
+;x 0 Win11 (默认)
+;x 1 Win10
+;x 2 Win7
 ;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_FileExplorerCommandUI"=dword:00000000
 ;t 以下设置对新打开的文件管理器窗口生效:
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;i 显示 Windows 10 右键菜单时使用沉浸式菜单 **
+;i 显示 Win10 右键菜单时使用沉浸式菜单 **
 "DisableImmersiveContextMenu"=dword:00000000
 [-HKEY_CURRENT_USER\Software\Classes\CLSID\{056440FD-8568-48e7-A632-72157243B55B}\InprocServer32]
 ;d 禁用导航栏 **
 @=""
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;b 禁用新款搜索栏样式
+;b 禁用新版搜索栏样式
 ;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_DisableModernSearchBar"=dword:00000000
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;b 缩小地址栏高度 **
@@ -248,11 +248,11 @@
 
 ;T 开始菜单
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
-;z 2 开始菜单风格
-;x 0 Windows 11 (默认)
-;x 1 Windows 10
+;z 2 开始菜单
+;x 0 Win11 (默认)
+;x 1 Win10
 "Start_ShowClassicMode"=dword:00000000
-;y 设置中的开始菜单选项 🡕
+;y 开始菜单设置 🡕
 ;ms-settings:personalization-start
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
 ;c 2 显示位置
@@ -285,7 +285,7 @@
 ;x 99999 ∞
 ;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_Start_MaximumFrequentApps"=dword:00000006
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StartPage]
-;a 使用多个显示器时，若使用键盘打开开始菜单，
+;a 使用多个屏幕，按 Win 键打开开始菜单时，
 ;c 10 打开位置
 ;x 1 主显示器 (默认)
 ;x 0 鼠标光标所在显示器
@@ -303,17 +303,17 @@
 ;b 不显示“推荐的项目”
 ;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_StartDocked_DisableRecommendedSection"=dword:00000000
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StartPage]
-;b 默认打开“所有应用”
+;b 自动打开“所有应用”
 "MakeAllAppsDefault"=dword:00000000
 ;g StartMenu_Windows11
 ;s StartMenu_Windows10 IsWindows10StartMenu
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;b 显示更多磁贴
 ;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_StartUI_ShowMoreTiles"=dword:00000000
-;c 3 边角样式
+;c 3 边角
 ;x 1 圆角，悬浮菜单
 ;x 2 圆角，停靠菜单
-;x 0 直角边
+;x 0 直角
 ;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_StartUI_EnableRoundedCorners"=dword:00000000
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;c 3 显示模式
@@ -324,7 +324,7 @@
 ;c 3 应用列表
 ;x 0 显示
 ;x 3 隐藏
-;x 1 禁用 
+;x 1 禁用
 ;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_NoStartMenuMorePrograms"=dword:00000000
 ;u 从文件管理器固定磁贴到开始菜单
 ;pin_tiles
@@ -334,17 +334,17 @@
 
 ;T 窗口切换器
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer]
-;z 4 窗口切换器 (Alt+Tab) 样式 *
-;x 0 Windows 11 (默认)
-;x 3 Windows 10
-;x 1 Windows NT
+;z 4 窗口切换器 (Alt+Tab) *
+;x 0 Win11(默认)
+;x 3 Win10
+;x 1 WinNT
 ;x 2 简易窗口切换器
 "AltTabSettings"=dword:00000000
 ;s WindowSwitcher_SWS IsSWSEnabled
 [HKEY_CURRENT_USER\Software\ExplorerPatcher\sws]
 ;b 将“桌面”窗口添加为列表最后一个
 "IncludeWallpaper"=dword:00000001
-;b 始终显示在主显示器
+;b 始终显示在主屏
 "PrimaryOnly"=dword:00000000
 ;b 仅显示当前显示器的窗口
 "PerMonitor"=dword:00000000
@@ -386,7 +386,7 @@
 ;x 2 暗
 "ColorScheme"=dword:00000000
 [HKEY_CURRENT_USER\Software\ExplorerPatcher\sws]
-;c 3 边角样式
+;c 3 边角
 ;x 2 圆角 (默认)
 ;x 3 小圆角
 ;x 1 直角
@@ -414,7 +414,7 @@
 ;x 150 150 pt
 ;x 140 140 pt
 "RowHeight"=dword:000000e6
-;c 10 最大宽度 (屏幕比例)
+;c 10 最大宽度 (屏宽百分比)
 ;x 100 100 % (不推荐)
 ;x 95 95 %
 ;x 90 90 %
@@ -426,7 +426,7 @@
 ;x 60 60 %
 ;x 55 55 %
 "MaxWidth"=dword:00000050
-;c 10 最大高度 (屏幕比例)
+;c 10 最大高度 (屏高百分比)
 ;x 100 100 % (不推荐)
 ;x 95 95 %
 ;x 90 90 %
@@ -451,7 +451,7 @@
 ;x 5 5 pt
 ;x 0 无
 "MasterPadding"=dword:00000014
-;c 11 显示延时
+;c 11 显示延迟
 ;x 0 无
 ;x 25 25 ms
 ;x 50 50 ms
@@ -464,9 +464,9 @@
 ;x 400 400 ms
 ;x 500 500 ms
 "ShowDelay"=dword:00000064
-;c 3 通过鼠标滚轮改变选项
+;c 3 通过鼠标滚轮切换选中窗口
 ;x 0 从不 (默认)
-;x 1 当光标悬停在选项上时
+;x 1 当光标悬停在切换器上时
 ;x 2 总是
 "ScrollWheelBehavior"=dword:00000000
 ;q
@@ -479,7 +479,7 @@
 ;s Weather_Windows10 IsOldTaskbar
 ;T 天气
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;b 显示任务栏天气按钮
+;b 任务栏天气按钮
 ;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_PeopleBand"=dword:00000000
 ;s Weather_Section1 IsWeatherEnabled
 ;w 位置
@@ -489,13 +489,13 @@
 ;c 5 布局
 ;x 0 图标和描述 (默认)
 ;x 3 图标和温度
-;x 1 仅图标
-;x 4 仅温度
+;x 1 图标
+;x 4 温度
 ;x 5 温度和描述
 "WeatherViewMode"=dword:00000000
 ;c 3 弹窗尺寸
 ;x 0 随内容变化 (默认)
-;x 2 随内容限位变化
+;x 2 随内容有限变化
 ;x 1 固定
 "WeatherFixedSize"=dword:00000000
 ;c 2 弹窗位置
@@ -528,16 +528,16 @@
 ;x 1 亮
 ;x 2 暗
 "WeatherTheme"=dword:00000000
-;c 3 边角样式
+;c 3 边角
 ;x 2 圆角 (默认)
 ;x 3 小圆角
 ;x 1 直角
 "WeatherWindowCornerPreference"=dword:00000002
-;c 2 图标样式
+;c 2 图标
 ;x 0 微软 (默认)
 ;x 1 谷歌
 "WeatherIconPack"=dword:00000000
-;c 2 内容样式
+;c 2 内容
 ;x 0 单行 (默认)
 ;x 1 两行
 "WeatherContentsMode"=dword:00000000
@@ -566,7 +566,7 @@
 ;https://github.com/valinet/ExplorerPatcher/wiki/Weather
 ;s Weather_Section2 IsWeatherEnabled
 ;t %WEATHERLASTUPDATETEXT%
-;u 刷新天气数据
+;u 刷新天气
 ;update_weather
 ;u 清除天气数据
 ;clear_data_weather
@@ -581,7 +581,7 @@
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;b 隐藏"了解此图片"按钮
 "SpotlightDisableIcon"=dword:00000000
-;c 8 桌面菜单
+;c 8 桌面右键菜单
 ;x 0 （无）
 ;x 32 下一张
 ;x 48 更多、下一张
@@ -625,18 +625,18 @@
 
 ;T 其他
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;b 记住此窗口中上次使用的选项
+;b 记忆关闭时设置所处的页面
 "LastSectionInProperties"=dword:00000000
-;b 按 Win+C 时打开时间，而非打开 Teams *
+;b 按 Win+C 打开时间，而非打开 Teams *
 "ClockFlyoutOnWinC"=dword:00000000
 ;b 任务栏工具栏之间显示分隔符 *
 "ToolbarSeparators"=dword:00000000
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;b 将本设置添加到 Win+X 菜单中
+;b 将本设置（属性）添加到 Win+X 菜单中
 "PropertiesInWinX"=dword:00000000
-;b 本菜单项禁用快捷键
+;b Win+X 菜单中属性这一项不显示快捷键
 "NoMenuAccelerator"=dword:00000000
-;b 禁用 Office 快捷键 (Ctrl+Alt+Shift+Win) *
+;b 禁用 Ctrl+Alt+Shift+Win Office 快捷键 *
 "DisableOfficeHotkeys"=dword:00000000
 ;b 禁用 Win+F 反馈中心快捷键 *
 "DisableWinFHotkey"=dword:00000000
@@ -647,13 +647,13 @@
 "DisableAeroSnapQuadrants"=dword:00000000
 ;s Other_SnapAssistStyle !IsWindows11Version22H2OrHigher
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;c 2 窗口分屏贴靠提示样式
-;x 0 Windows 11 (默认)
-;x 3 Windows 10
+;c 2 窗口分屏贴靠器
+;x 0 Win11 (默认)
+;x 3 Win10
 "SnapAssistSettings"=dword:00000000
 ;g Other_SnapAssistStyle
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced]
-;c 6 桌面 Alt+F4 对话框默认操作
+;c 6 桌面 Alt+F4 对话框默认选中
 ;x 256 切换用户
 ;x 1 注销
 ;x 16 睡眠
@@ -698,7 +698,7 @@
 ;;;EP_CHECK_FOR_UPDATES
 ;y 更新并重启文件管理器
 ;;;EP_INSTALL_UPDATES
-;y 新版本变化 🡕
+;y 更新日志 🡕
 ;https://github.com/valinet/ExplorerPatcher/blob/master/CHANGELOG.md
 ;y 更多信息 🡕
 ;https://github.com/valinet/ExplorerPatcher/wiki/Configure-updates
@@ -707,8 +707,8 @@
 
 
 ;T 高级
-;e 请仔细阅读文档后再更改这些设置。
-;y 更多信息 🡕
+;e 请仔细阅读文档后再修改这些设置。
+;y 文档 🡕
 ;https://github.com/valinet/ExplorerPatcher/wiki/About-advanced-settings
 ;q
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
@@ -728,7 +728,7 @@
 ;d 启用旧版视图控件 SysListView32 *
 @=""
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;b 不修改任务栏右键菜单，隐藏本设置入口 (“属性”)
+;b 不修改任务栏右键菜单，隐藏本设置入口（属性）
 "NoPropertiesInContextMenu"=dword:00000000
 ;b 启用符号文件下载 *
 "EnableSymbolDownload"=dword:00000001
@@ -738,7 +738,7 @@
 ;b 任务栏显示按钮标签时，移除固定项周围的额外间隙 *
 "RemoveExtraGapAroundPinnedItems"=dword:00000000
 ;g Advanced_Windows10
-;c 12 登录时的额外延时 *
+;c 12 登录后的延迟 *
 ;x 0 无 (默认)
 ;x 300 300 ms
 ;x 600 600 ms
@@ -757,11 +757,12 @@
 ;T 关于
 ;e ExplorerPatcher
 ;e 版本 %VERSIONINFORMATIONSTRING%
-;t © 2006-2023 VALINET Solutions SRL. 保留所有权利。
+;t © 2006-2023 VALINET Solutions SRL. 版权所有.
 ;e 
-;e 该工具旨在为 Windows 11 恢复高效的工作环境。
+;e 该软件让 Windows 的工作环境更加高效。
 ;e Valentin-Gabriel Radu 荣誉出品。
-;t 运行于 Windows 11, OS Build %OSVERSIONSTRING%
+;t 系统版本 Windows 11
+;t 构建版本 %OSVERSIONSTRING%
 ;y 查看项目 (https://github.com/valinet) 🡕
 ;https://github.com/valinet
 ;q

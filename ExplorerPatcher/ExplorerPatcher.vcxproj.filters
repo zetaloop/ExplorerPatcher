@@ -132,6 +132,9 @@
     <ClInclude Include="osutility.h">
       <Filter>Header Files\internal</Filter>
     </ClInclude>
+    <ClInclude Include="helper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ExplorerPatcher.rc">
@@ -212,6 +215,9 @@
       <Filter>Source Files\sws</Filter>
     </ClCompile>
     <ClCompile Include="lvt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="helper.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

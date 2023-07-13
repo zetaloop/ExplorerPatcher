@@ -28,6 +28,7 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #include "../ep_weather_host/ep_weather_host_h.h"
 #include <ExDisp.h>
 #include <ShlGuid.h>
+#include "helper.h"
 
 #define MAX_LINE_LENGTH 2000
 extern HMODULE hModule;
