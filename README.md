@@ -3,11 +3,11 @@
 
 这是简体中文的修改版。由 zetaloop 制作分享，遵循原作 GPL-2.0 协议。
 
-[Original English version 英文原版链接](https://github.com/valinet/ExplorerPatcher) | 原作者 PayPal 捐赠：[PayPal](https://www.paypal.com/donate?business=valentingabrielradu%40gmail.com&no_recurring=0&item_name=ExplorerPatcher&currency_code=EUR) 或通过邮箱地址 valentingabrielradu@gmail.com
+[Original English version 英文原版链接](https://github.com/valinet/ExplorerPatcher) | 原作者捐赠：[PayPal](https://www.paypal.com/donate?business=valentingabrielradu%40gmail.com&no_recurring=0&item_name=ExplorerPatcher&currency_code=EUR)
 
 ![编译状况](https://github.com/zetaloop/ExplorerPatcher/actions/workflows/build.yml/badge.svg)
 
-## 功能介绍
+## 介绍
 
 * 自由切换 Win10 和 Win11 任务栏，支持设置标签合并、功能显示等。
 * 恢复 Win10 右键菜单和文件管理器命令栏。
@@ -15,7 +15,7 @@
 * 自定义应用切换器，可选 Win11、Win10、Win NT 等风格。
 * 以及更多自定义设置。
 
-## 开始使用
+## 安装
 
 1. 下载最新安装包：[GitHub](https://github.com/zetaloop/ExplorerPatcher/releases/latest/download/ep_setup.exe) | [GHProxy](https://ghproxy.com/https://github.com/zetaloop/ExplorerPatcher/releases/latest/download/ep_setup.exe)
 2. 运行安装包，允许管理员权限，自动开始安装。（暂时退出文件管理器、桌面，请等待 1~2 分钟）
@@ -24,7 +24,7 @@
 
 完成了！干得漂亮。
 
-#### 安装遇到问题
+#### 遇到问题
 
 安装不应该持续很长时间。如果桌面一直没有恢复，按快捷键 Ctrl + Shift + Esc 打开任务管理器，运行新任务 `explorer` 即可恢复桌面。
 
@@ -41,8 +41,8 @@ Win10 开始菜单汉化不全问题及补丁，详见 [这个议题](https://gi
 * 有其他疑问吗？询问讨论区：[英文版](https://github.com/valinet/ExplorerPatcher/discussions) | [中文版](https://github.com/zetaloop/ExplorerPatcher/discussions)
 * 软件遇到问题？向作者汇报：[问题汇报指南（英文）](https://github.com/valinet/ExplorerPatcher/wiki/Reporting-problems)
 * 翻译需要改进？直接告诉我：[创建议题](https://github.com/zetaloop/ExplorerPatcher/issues) | [邮箱联系](mailto:zetaloop@outlook.com)
-* 有能力者请阅读[软件源代码](https://github.com/valinet/ExplorerPatcher/tree/master)并尝试做出改进。开发者愿意合并问题修复和功能增强，这可以为软件进一步完善做出贡献。
-- 另一个 ExplorerPatcher 汉化版，值得一看：[Yukari316/ExplorerPatcher_zh-CN](https://github.com/Yukari316/ExplorerPatcher_zh-CN)（我们从它学来了通知消息等的修改！谢谢！）
+* 为[软件代码](https://github.com/valinet/ExplorerPatcher/tree/master)做出改进。开发者愿意合并问题修复和功能增强，使软件更加完善。
+- 另一个 EP 汉化版，值得一看：[Yukari316/ExplorerPatcher_zh-CN](https://github.com/Yukari316/ExplorerPatcher_zh-CN)，从它学来了通知消息的汉化！谢谢！
 
 ## 卸载
 
@@ -64,6 +64,6 @@ Win10 开始菜单汉化不全问题及补丁，详见 [这个议题](https://gi
 * [杀毒软件误报](https://github.com/valinet/ExplorerPatcher/wiki/Antivirus-false-positives)
 * [编译](https://github.com/valinet/ExplorerPatcher/wiki/Compiling)
 
-## 项目收藏人数
+## 项目收藏记录
 
 [![Stargazers over time](https://starchart.cc/zetaloop/ExplorerPatcher.svg)](https://starchart.cc/zetaloop/ExplorerPatcher)
