@@ -548,7 +548,7 @@ int WINAPI wWinMain(
     {
         if (MessageBoxW(
             NULL,
-            L"Are you sure you want to remove " _T(PRODUCT_NAME) L" from your computer?",
+            L"您确定要从电脑中卸载 " _T(PRODUCT_NAME) L" 吗？",
             _T(PRODUCT_NAME),
             MB_YESNO | MB_DEFBUTTON2 | MB_ICONQUESTION
         ) == IDNO)
@@ -583,8 +583,8 @@ int WINAPI wWinMain(
     {
         if (MessageBoxW(
             NULL,
-            bInstall ? L"In order to install, you will be automatically signed out of Windows. The software will be ready for use when you sign back in.\n\nDo you want to continue?"
-                     : L"To complete the uninstallation, you will be automatically signed out of Windows.\n\nDo you want to continue?",
+            bInstall ? L"要完成安装，当前登录的系统账号需要被自动注销（退出登录），您重新登录后即可立即使用软件。\n\n确定要继续吗？"
+                     : L"要完成卸载，当前登录的系统账号需要被自动注销（退出登录）。\n\n确定要继续吗？",
             _T(PRODUCT_NAME),
             MB_YESNO | MB_DEFBUTTON1 | MB_ICONQUESTION
         ) == IDYES)
@@ -1160,7 +1160,7 @@ int WINAPI wWinMain(
                 {
                     if (MessageBoxW(
                         NULL,
-                        L"Please reboot the computer to complete the uninstall.\n\nDo you want to reboot now?",
+                        L"请重启电脑来完成卸载。\n\n现在立刻重启吗？",
                         _T(PRODUCT_NAME),
                         MB_YESNO | MB_DEFBUTTON1 | MB_ICONQUESTION
                     ) == IDYES)
@@ -1172,7 +1172,7 @@ int WINAPI wWinMain(
                 {
                     MessageBoxW(
                         NULL,
-                        L"Uninstall completed. Thank you for using " _T(PRODUCT_NAME) L".",
+                        L"卸载完成。感谢使用 " _T(PRODUCT_NAME) L"。",
                         _T(PRODUCT_NAME),
                         MB_ICONASTERISK | MB_OK | MB_DEFBUTTON1
                     );
@@ -1221,14 +1221,14 @@ int WINAPI wWinMain(
         {
             MessageBoxW(
                 NULL,
-                L"An error has occurred while servicing this product.\n"
-                L"This is most likely caused by one or more of the backup files from a previous update still being in use. "
-                L"Unlocking the files should fix this issue.\n\n"
-                L"Troubleshooting steps:\n"
-                L"* Close and reopen the \"Properties\" dialog if it is currently open.\n"
-                L"* Kill and restart all \"explorer.exe\" processes.\n"
-                L"* If you have registered this application as a shell extension, then restarting the computer will probably fix this.\n"
-                L"* Lastly, reboot the computer and try again.",
+                L"升级软件时出现错误。\n"
+                L"这很可能是因为一些旧版本的备份文件被占用，"
+                L"解锁这些文件应该可以修复该问题。\n\n"
+                L"如何解锁：\n"
+                L"* 关闭并重新打开设置界面（属性）。\n"
+                L"* 结束并重启所有 explorer.exe 进程。\n"
+                L"* 如果开启了注册为外壳扩展插件，那么需要重启电脑。\n"
+                L"* 实在不行的话，重启电脑再试一次。",
                 _T(PRODUCT_NAME),
                 MB_ICONERROR | MB_OK | MB_DEFBUTTON1
             );

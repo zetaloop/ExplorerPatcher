@@ -328,7 +328,7 @@
 ;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_NoStartMenuMorePrograms"=dword:00000000
 ;u 从文件管理器固定磁贴到开始菜单
 ;pin_tiles
-;y IMPORTANT, MUST READ: Notice regarding this feature (online)
+;y 注意，请点击阅读磁贴功能注意事项
 ;https://github.com/valinet/ExplorerPatcher/discussions/1679
 ;g StartMenu_Windows10
 
