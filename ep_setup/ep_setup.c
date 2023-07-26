@@ -548,7 +548,7 @@ int WINAPI wWinMain(
     {
         if (MessageBoxW(
             NULL,
-            L"您确定要从电脑中卸载 " _T(PRODUCT_NAME) L" 吗？",
+            "您确定要从电脑中卸载 " _T(PRODUCT_NAME) " 吗？",
             _T(PRODUCT_NAME),
             MB_YESNO | MB_DEFBUTTON2 | MB_ICONQUESTION
         ) == IDNO)
@@ -583,8 +583,8 @@ int WINAPI wWinMain(
     {
         if (MessageBoxW(
             NULL,
-            bInstall ? L"要完成安装，当前登录的系统账号需要被自动注销（退出登录），您重新登录后即可立即使用软件。\n\n确定要继续吗？"
-                     : L"要完成卸载，当前登录的系统账号需要被自动注销（退出登录）。\n\n确定要继续吗？",
+            bInstall ? "要完成安装，当前登录的系统账号需要被自动注销（退出登录），您重新登录后即可立即使用软件。\n\n确定要继续吗？"
+                     : "要完成卸载，当前登录的系统账号需要被自动注销（退出登录）。\n\n确定要继续吗？",
             _T(PRODUCT_NAME),
             MB_YESNO | MB_DEFBUTTON1 | MB_ICONQUESTION
         ) == IDYES)
@@ -1160,7 +1160,7 @@ int WINAPI wWinMain(
                 {
                     if (MessageBoxW(
                         NULL,
-                        L"请重启电脑来完成卸载。\n\n现在立刻重启吗？",
+                        "请重启电脑来完成卸载。\n\n现在立刻重启吗？",
                         _T(PRODUCT_NAME),
                         MB_YESNO | MB_DEFBUTTON1 | MB_ICONQUESTION
                     ) == IDYES)
@@ -1172,7 +1172,7 @@ int WINAPI wWinMain(
                 {
                     MessageBoxW(
                         NULL,
-                        L"卸载完成。感谢使用 " _T(PRODUCT_NAME) L"。",
+                        "卸载完成。感谢使用 " _T(PRODUCT_NAME) "。",
                         _T(PRODUCT_NAME),
                         MB_ICONASTERISK | MB_OK | MB_DEFBUTTON1
                     );
@@ -1221,14 +1221,14 @@ int WINAPI wWinMain(
         {
             MessageBoxW(
                 NULL,
-                L"升级软件时出现错误。\n"
-                L"这很可能是因为一些旧版本的备份文件被占用，"
-                L"解锁这些文件应该可以修复该问题。\n\n"
-                L"如何解锁：\n"
-                L"* 关闭并重新打开设置界面（属性）。\n"
-                L"* 结束并重启所有 explorer.exe 进程。\n"
-                L"* 如果开启了注册为外壳扩展插件，那么需要重启电脑。\n"
-                L"* 实在不行的话，重启电脑再试一次。",
+                "升级软件时出现错误。\n"
+                "这很可能是因为一些旧版本的备份文件被占用，"
+                "解锁这些文件应该可以修复该问题。\n\n"
+                "如何解锁：\n"
+                "* 关闭并重新打开设置界面（属性）。\n"
+                "* 结束并重启所有 explorer.exe 进程。\n"
+                "* 如果开启了注册为外壳扩展插件，那么需要重启电脑。\n"
+                "* 实在不行的话，重启电脑再试一次。",
                 _T(PRODUCT_NAME),
                 MB_ICONERROR | MB_OK | MB_DEFBUTTON1
             );

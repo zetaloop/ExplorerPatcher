@@ -6,6 +6,7 @@
 #include <valinet/utility/osversion.h>
 #include <roapi.h>
 #include "utility.h"
+#include "helper.h"
 
 #define EXIT_CODE_EXPLORER 1
 

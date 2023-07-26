@@ -27,8 +27,8 @@ L"<toast scenario=\"reminder\" "
 L"activationType=\"protocol\" launch=\"https://github.com/valinet/ExplorerPatcher\" duration=\"short\">\r\n"
 L"	<visual>\r\n"
 L"		<binding template=\"ToastGeneric\">\r\n"
-L"			<text><![CDATA[Unable to find symbols for OS build %s]]></text>\r\n"
-L"			<text><![CDATA[Downloading and applying symbol information, please wait...]]></text>\r\n"
+L"			<text><![CDATA[%s %s %s]]></text>\r\n"
+L"			<text><![CDATA[%s]]></text>\r\n"
 L"			<text placement=\"attribution\"><![CDATA[ExplorerPatcher]]></text>\r\n"
 L"		</binding>\r\n"
 L"	</visual>\r\n"
@@ -40,8 +40,8 @@ L"<toast scenario=\"reminder\" "
 L"activationType=\"protocol\" launch=\"https://github.com/valinet/ExplorerPatcher\" duration=\"long\">\r\n"
 L"	<visual>\r\n"
 L"		<binding template=\"ToastGeneric\">\r\n"
-L"			<text><![CDATA[Successfully downloaded symbols for OS build %s]]></text>\r\n"
-L"			<text><![CDATA[Please restart File Explorer to apply the changes and enable additional functionality.]]></text>\r\n"
+L"			<text><![CDATA[%s %s %s]]></text>\r\n"
+L"			<text><![CDATA[%s]]></text>\r\n"
 L"			<text placement=\"attribution\"><![CDATA[ExplorerPatcher]]></text>\r\n"
 L"		</binding>\r\n"
 L"	</visual>\r\n"
@@ -53,8 +53,8 @@ L"<toast scenario=\"reminder\" "
 L"activationType=\"protocol\" launch=\"https://github.com/valinet/ExplorerPatcher\" duration=\"long\">\r\n"
 L"	<visual>\r\n"
 L"		<binding template=\"ToastGeneric\">\r\n"
-L"			<text><![CDATA[Installation succeeded!]]></text>\r\n"
-L"			<text><![CDATA[This notification will not show again until the next OS build update.]]></text>\r\n"
+L"			<text><![CDATA[%s]]></text>\r\n"
+L"			<text><![CDATA[%s]]></text>\r\n"
 L"			<text placement=\"attribution\"><![CDATA[ExplorerPatcher]]></text>\r\n"
 L"		</binding>\r\n"
 L"	</visual>\r\n"
@@ -98,7 +98,10 @@ DWORD DownloadSymbols(DownloadSymbolsParams* params)
     wsprintf(
         buffer,
         DownloadSymbolsXML,
-        szReportedVersion
+        Utf8Text("未发现当前系统版本"),
+        szReportedVersion,
+        Utf8Text("的符号文件"),
+        Utf8Text("正在下载并应用符号调试文件，请稍候...")
     );
     if (params->bVerbose)
     {
@@ -684,10 +687,16 @@ DWORD DownloadSymbols(DownloadSymbolsParams* params)
 
     if (params->bVerbose)
     {
+        wsprintf(
+            buffer,
+            InstallOK,
+            Utf8Text("安装成功！"),
+            Utf8Text("该消息会在下个版本系统更新后再次显示。")
+        );
         __x_ABI_CWindows_CData_CXml_CDom_CIXmlDocument* inputXml = NULL;
         HRESULT hr = String2IXMLDocument(
-            InstallOK,
-            wcslen(InstallOK),
+            buffer,
+            wcslen(buffer),
             &inputXml,
 #ifdef DEBUG
             stdout
@@ -713,7 +722,10 @@ DWORD DownloadSymbols(DownloadSymbolsParams* params)
         wsprintf(
             buffer,
             DownloadOKXML,
-            szReportedVersion
+            Utf8Text("当前系统版本"),
+            szReportedVersion,
+            Utf8Text("的符号文件下载完成"),
+            Utf8Text("重启文件管理器来生效并启用增强功能。")
         );
         __x_ABI_CWindows_CData_CXml_CDom_CIXmlDocument* inputXml2 = NULL;
         HRESULT hr = String2IXMLDocument(
