@@ -416,7 +416,7 @@ int WINAPI wWinMain(
     RTL_OSVERSIONINFOW rovi;
     DWORD32 ubr = VnGetOSVersionAndUBR(&rovi);
 
-    BOOL bOk = TRUE, bInstall = TRUE, bWasShellExt = FALSE, bIsUpdate = FALSE, bForcePromptForUninstall = FALSE;
+    BOOL bOk = TRUE, bInstall = TRUE, bWasShellExt = FALSE, bIsUpdate = FALSE, bForcePromptForUninstall = FALSE, bExplorerStartedFix = False;
 
     SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
     
@@ -1159,6 +1159,11 @@ int WINAPI wWinMain(
         {
             if (!bInstall)
             {
+                // The messagebox may not be visible in certain situations, causing the screen to remain black as it blocks the launch of Explorer. 
+                // Therefore, to mitigate this issue, we ensure that Explorer is started beforehand.
+                StartExplorerWithDelay(1000, userToken);
+                if (userToken != INVALID_HANDLE_VALUE) CloseHandle(userToken);
+                bExplorerStartedFix = True
                 if (bWasShellExt)
                 {
                     if (MessageBoxW(
@@ -1242,8 +1247,11 @@ int WINAPI wWinMain(
             exit(0);
         }
 
-        StartExplorerWithDelay(1000, userToken);
-        if (userToken != INVALID_HANDLE_VALUE) CloseHandle(userToken);
+        if (!bExplorerStartedFix)
+        {
+            StartExplorerWithDelay(1000, userToken);
+            if (userToken != INVALID_HANDLE_VALUE) CloseHandle(userToken);
+        }
     }
 
 	return GetLastError();
