@@ -546,7 +546,7 @@ int WINAPI wWinMain(
     bIsUpdate = (argc >= 1 && !_wcsicmp(wargv[0], L"/update_silent"));
     if (!bInstall && (!_wcsicmp(wargv[0], L"/uninstall") || bForcePromptForUninstall))
     {
-        if (MessageBoxW(
+        if (MessageBoxA(
             NULL,
             "您确定要从电脑中卸载 " _T(PRODUCT_NAME) " 吗？",
             _T(PRODUCT_NAME),
@@ -581,7 +581,7 @@ int WINAPI wWinMain(
     RegGetValueW(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Shell\\Update\\Packages", L"UndockingDisabled", RRF_RT_DWORD, NULL, &bIsUndockingDisabled, &dwSize);
     if (bIsUndockingDisabled)
     {
-        if (MessageBoxW(
+        if (MessageBoxA(
             NULL,
             bInstall ? "要完成安装，当前登录的系统账号需要被自动注销（退出登录），您重新登录后即可立即使用软件。\n\n确定要继续吗？"
                      : "要完成卸载，当前登录的系统账号需要被自动注销（退出登录）。\n\n确定要继续吗？",
@@ -1158,7 +1158,7 @@ int WINAPI wWinMain(
             {
                 if (bWasShellExt)
                 {
-                    if (MessageBoxW(
+                    if (MessageBoxA(
                         NULL,
                         "请重启电脑来完成卸载。\n\n现在立刻重启吗？",
                         _T(PRODUCT_NAME),
@@ -1170,7 +1170,7 @@ int WINAPI wWinMain(
                 }
                 else
                 {
-                    MessageBoxW(
+                    MessageBoxA(
                         NULL,
                         "卸载完成。感谢使用 " _T(PRODUCT_NAME) "。",
                         _T(PRODUCT_NAME),
@@ -1219,7 +1219,7 @@ int WINAPI wWinMain(
         }
         if (!bOk) //  && !(argc >= 1 && !_wcsicmp(wargv[0], L"/update_silent"))
         {
-            MessageBoxW(
+            MessageBoxA(
                 NULL,
                 "升级软件时出现错误。\n"
                 "这很可能是因为一些旧版本的备份文件被占用，"
