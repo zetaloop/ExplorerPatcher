@@ -21,18 +21,12 @@
     <ClCompile Include="..\ExplorerPatcher\utility.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="helper.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\ExplorerPatcher\utility.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="helper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
