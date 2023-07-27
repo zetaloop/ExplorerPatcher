@@ -7,6 +7,7 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #pragma comment(lib, "Shlwapi.lib")
 #include "resource.h"
 #include "../ExplorerPatcher/utility.h"
+#include "helper.h"
 
 BOOL ShouldDownloadOrDelete(BOOL bInstall, HINSTANCE hInstance, LPCWSTR wszPath, LPCSTR chash)
 {
@@ -583,8 +584,8 @@ int WINAPI wWinMain(
     {
         if (MessageBoxW(
             NULL,
-            bInstall ? "要完成安装，当前登录的系统账号需要被自动注销（退出登录），您重新登录后即可立即使用软件。\n\n确定要继续吗？"
-                     : "要完成卸载，当前登录的系统账号需要被自动注销（退出登录）。\n\n确定要继续吗？",
+            bInstall ? Utf8Text("要完成安装，当前登录的系统账号需要被自动注销（退出登录），您重新登录后即可立即使用软件。\n\n确定要继续吗？")
+                     : Utf8Text("要完成卸载，当前登录的系统账号需要被自动注销（退出登录）。\n\n确定要继续吗？"),
             _T(PRODUCT_NAME),
             MB_YESNO | MB_DEFBUTTON1 | MB_ICONQUESTION
         ) == IDYES)
@@ -1160,7 +1161,7 @@ int WINAPI wWinMain(
                 {
                     if (MessageBoxW(
                         NULL,
-                        "请重启电脑来完成卸载。\n\n现在立刻重启吗？",
+                        Utf8Text("请重启电脑来完成卸载。\n\n现在立刻重启吗？"),
                         _T(PRODUCT_NAME),
                         MB_YESNO | MB_DEFBUTTON1 | MB_ICONQUESTION
                     ) == IDYES)
@@ -1172,7 +1173,7 @@ int WINAPI wWinMain(
                 {
                     MessageBoxW(
                         NULL,
-                        "卸载完成。感谢使用 " _T(PRODUCT_NAME) "。",
+                        Utf8Text("卸载完成。感谢使用 " _T(PRODUCT_NAME) "。"),
                         _T(PRODUCT_NAME),
                         MB_ICONASTERISK | MB_OK | MB_DEFBUTTON1
                     );
@@ -1221,6 +1222,7 @@ int WINAPI wWinMain(
         {
             MessageBoxW(
                 NULL,
+                Utf8Text(
                 "升级软件时出现错误。\n"
                 "这很可能是因为一些旧版本的备份文件被占用，"
                 "解锁这些文件应该可以修复该问题。\n\n"
@@ -1228,7 +1230,7 @@ int WINAPI wWinMain(
                 "* 关闭并重新打开设置界面（属性）。\n"
                 "* 结束并重启所有 explorer.exe 进程。\n"
                 "* 如果开启了注册为外壳扩展插件，那么需要重启电脑。\n"
-                "* 实在不行的话，重启电脑再试一次。",
+                "* 实在不行的话，重启电脑再试一次。"),
                 _T(PRODUCT_NAME),
                 MB_ICONERROR | MB_OK | MB_DEFBUTTON1
             );

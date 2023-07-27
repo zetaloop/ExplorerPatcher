@@ -153,10 +153,12 @@
   <ItemGroup>
     <ClCompile Include="..\ExplorerPatcher\utility.c" />
     <ClCompile Include="ep_setup.c" />
+    <ClCompile Include="helper.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\ExplorerPatcher\utility.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="helper.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ep_setup.rc">
