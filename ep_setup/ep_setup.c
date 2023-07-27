@@ -549,10 +549,9 @@ int WINAPI wWinMain(
     bIsUpdate = (argc >= 1 && !_wcsicmp(wargv[0], L"/update_silent"));
     if (!bInstall && (!_wcsicmp(wargv[0], L"/uninstall") || bForcePromptForUninstall))
     {
-        WCHAR content1[100] = _T(L"您确定要从电脑中卸载 ") _T(PRODUCT_NAME) _T(" 吗？");
         if (MessageBoxW(
             NULL,
-            content1,
+            _T(L"您确定要从电脑中卸载 ") _T(PRODUCT_NAME) _T(" 吗？"),
             _T(PRODUCT_NAME),
             MB_YESNO | MB_DEFBUTTON2 | MB_ICONQUESTION
         ) == IDNO)
