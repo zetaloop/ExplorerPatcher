@@ -1,4 +1,4 @@
-﻿#include <Windows.h>
+#include <Windows.h>
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
 processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
@@ -551,7 +551,7 @@ int WINAPI wWinMain(
     {
         if (MessageBox(
             NULL,
-            _T((LPCWSTR)(L"您确定要从电脑中卸载 ") _T(PRODUCT_NAME) (LPCWSTR)(L" 吗？")),
+            _T(L"您确定要从电脑中卸载 " _T(PRODUCT_NAME) " 吗？"),
             _T(PRODUCT_NAME),
             MB_YESNO | MB_DEFBUTTON2 | MB_ICONQUESTION
         ) == IDNO)
@@ -1175,7 +1175,7 @@ int WINAPI wWinMain(
                 {
                     MessageBoxW(
                         NULL,
-                        L"卸载完成。感谢使用 " _T(PRODUCT_NAME) "。",
+                        L"卸载完成。感谢使用 " _T(PRODUCT_NAME) L"。",
                         _T(PRODUCT_NAME),
                         MB_ICONASTERISK | MB_OK | MB_DEFBUTTON1
                     );
