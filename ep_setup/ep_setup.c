@@ -1163,8 +1163,8 @@ int WINAPI wWinMain(
                 // Therefore, to mitigate this issue, we ensure that Explorer is started beforehand.
                 StartExplorerWithDelay(1000, userToken);
                 if (userToken != INVALID_HANDLE_VALUE) CloseHandle(userToken);
-                bExplorerStartedFix = True
-                if (bWasShellExt)
+                bExplorerStartedFix = TRUE
+                if (bWasShellExt);
                 {
                     if (MessageBoxW(
                         NULL,
