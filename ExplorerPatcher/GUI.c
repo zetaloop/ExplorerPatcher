@@ -1,4 +1,4 @@
-#include <initguid.h>
+﻿#include <initguid.h>
 #include <locale.h>
 DEFINE_GUID(LiveSetting_Property_GUID, 0xc12bcd8e, 0x2a8e, 0x4950, 0x8a, 0xe7, 0x36, 0x25, 0x11, 0x1d, 0x58, 0xeb);
 #include <oleacc.h>

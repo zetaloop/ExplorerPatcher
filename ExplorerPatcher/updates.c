@@ -1,4 +1,4 @@
-#include "updates.h"
+﻿#include "updates.h"
 
 BOOL IsUpdatePolicy(LPCWSTR wszDataStore, DWORD dwUpdatePolicy)
 {

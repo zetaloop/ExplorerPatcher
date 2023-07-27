@@ -1,4 +1,4 @@
-#include <Windows.h>
+﻿#include <Windows.h>
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
 processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
@@ -420,7 +420,7 @@ int WINAPI wWinMain(
 
     SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
     
-    setlocale(LC_ALL, "chs");
+    setlocale(LC_ALL, "");
 
     int argc = 0;
     LPWSTR* wargv = CommandLineToArgvW(

@@ -42,7 +42,7 @@ DEFINE_GUID(IID_IEPWeather,
     0xcdbf3734, 0xf847, 0x4f1b, 0xb9, 0x53, 0xa6, 0x5, 0x43, 0x4d, 0xc1, 0xe7);
 #endif
 
-#define EPW_WEATHER_CLASSNAME "ExplorerPatcher_Weather_" CLSID_EPWeather_TEXT
+#define EPW_WEATHER_CLASSNAME "ExplorerPatcher_Weather_" _T(CLSID_EPWeather_TEXT)
 
 #define EP_WEATHER_KEEP_VALUE -1
 
