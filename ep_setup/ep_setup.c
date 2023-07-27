@@ -551,7 +551,7 @@ int WINAPI wWinMain(
     {
         if (MessageBox(
             NULL,
-            _T(L"您确定要从电脑中卸载 " _T(PRODUCT_NAME) L" 吗？"),
+            _T((LPCWSTR)(L"您确定要从电脑中卸载 ") _T(PRODUCT_NAME) (LPCWSTR)(L" 吗？")),
             _T(PRODUCT_NAME),
             MB_YESNO | MB_DEFBUTTON2 | MB_ICONQUESTION
         ) == IDNO)
