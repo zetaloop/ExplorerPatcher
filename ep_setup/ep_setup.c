@@ -416,7 +416,7 @@ int WINAPI wWinMain(
     RTL_OSVERSIONINFOW rovi;
     DWORD32 ubr = VnGetOSVersionAndUBR(&rovi);
 
-    BOOL bOk = TRUE, bInstall = TRUE, bWasShellExt = FALSE, bIsUpdate = FALSE, bForcePromptForUninstall = FALSE, bExplorerStartedFix = False;
+    BOOL bOk = TRUE, bInstall = TRUE, bWasShellExt = FALSE, bIsUpdate = FALSE, bForcePromptForUninstall = FALSE, bExplorerStartedFix = FALSE;
 
     SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
     
@@ -551,7 +551,7 @@ int WINAPI wWinMain(
     {
         if (MessageBox(
             NULL,
-            _T(L"您确定要从电脑中卸载 " _T(PRODUCT_NAME) " 吗？"),
+            L"您确定要从电脑中卸载 " _T(PRODUCT_NAME) L" 吗？",
             _T(PRODUCT_NAME),
             MB_YESNO | MB_DEFBUTTON2 | MB_ICONQUESTION
         ) == IDNO)
