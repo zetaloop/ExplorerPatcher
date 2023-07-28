@@ -1,4 +1,4 @@
-﻿#include "updates.h"
+#include "updates.h"
 
 BOOL IsUpdatePolicy(LPCWSTR wszDataStore, DWORD dwUpdatePolicy)
 {
@@ -995,7 +995,7 @@ BOOL InstallUpdatesIfAvailable(
             L"	</visual>\r\n"
             L"	<audio src=\"ms-winsoundevent:Notification.Default\" loop=\"false\" silent=\"false\"/>\r\n"
             L"</toast>\r\n";
-        swprintf_s(buf, TOAST_BUFSIZ, text, Utf8Text("正在检查更新"), Utf8Text("当前版本"), dwLeftMost, dwSecondLeft, dwSecondRight, dwRightMost);
+        swprintf_s(buf, TOAST_BUFSIZ, text, "正在检查更新", L"当前版本", dwLeftMost, dwSecondLeft, dwSecondRight, dwRightMost);
         String2IXMLDocument(
             buf,
             wcslen(buf),
