@@ -995,7 +995,7 @@ BOOL InstallUpdatesIfAvailable(
             L"	</visual>\r\n"
             L"	<audio src=\"ms-winsoundevent:Notification.Default\" loop=\"false\" silent=\"false\"/>\r\n"
             L"</toast>\r\n";
-        swprintf_s(buf, TOAST_BUFSIZ, text, "正在检查更新", L"当前版本", dwLeftMost, dwSecondLeft, dwSecondRight, dwRightMost);
+        swprintf_s(buf, TOAST_BUFSIZ, text, Utf8Text("正在检查更新"), Utf8Text("当前版本"), dwLeftMost, dwSecondLeft, dwSecondRight, dwRightMost);
         String2IXMLDocument(
             buf,
             wcslen(buf),
@@ -1184,7 +1184,7 @@ BOOL InstallUpdatesIfAvailable(
             }
             else
             {
-                swprintf_s(buf, TOAST_BUFSIZ, text, Utf8Text("没有发现新版本"), Utf8Text("暂时没有更新哦。"));
+                swprintf_s(buf, TOAST_BUFSIZ, text, Utf8Text("没有新版本"), Utf8Text("没有发现新版本更新。"));
             }
 
             __x_ABI_CWindows_CData_CXml_CDom_CIXmlDocument* inputXml = NULL;
