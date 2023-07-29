@@ -7,6 +7,8 @@
 
 ![编译状况](https://github.com/zetaloop/ExplorerPatcher/actions/workflows/build.yml/badge.svg)
 
+<img alt="ep" src="https://github.com/zetaloop/ExplorerPatcher/assets/36418285/71462abc-4405-473b-950f-6d9d24c03c4e">
+
 ## 介绍
 
 * 自由切换 Win10 和 Win11 任务栏，支持设置标签合并、功能显示等。
