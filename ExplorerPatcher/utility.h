@@ -536,7 +536,19 @@ inline BOOL WINAPI PatchContextMenuOfNewMicrosoftIME(BOOL* bFound)
 {
     // huge thanks to @Simplestas: https://github.com/valinet/ExplorerPatcher/issues/598
     if (bFound) *bFound = FALSE;
-    const DWORD patch_from = 0x50653844, patch_to = 0x54653844; // cmp byte ptr [rbp+50h], r12b
+    DWORD patch_from, patch_to;
+    if (IsWindows11Version22H2OrHigher())
+    {
+        // cmp byte ptr [rbp+40h+arg_0], r13b
+        patch_from = 0x506D3844;
+        patch_to = 0x546D3844;
+    }
+    else
+    {
+        // cmp byte ptr [rbp+50h], r12b
+        patch_from = 0x50653844;
+        patch_to = 0x54653844;
+    }
     HMODULE hInputSwitch = NULL;
     if (!GetModuleHandleExW(0, L"InputSwitch.dll", &hInputSwitch))
     {
@@ -571,11 +583,12 @@ inline BOOL WINAPI PatchContextMenuOfNewMicrosoftIME(BOOL* bFound)
             {
                 *ptr = patch_to;
                 VirtualProtect(ptr, sizeof(DWORD), prot, &prot);
+                return TRUE;
             }
             break;
         }
     }
-    return TRUE;
+    return FALSE;
 }
 
 extern UINT PleaseWaitTimeout;
@@ -625,4 +638,30 @@ typedef struct _MonitorOverrideData
 } MonitorOverrideData;
 
 BOOL ExtractMonitorByIndex(HMONITOR hMonitor, HDC hDC, LPRECT lpRect, MonitorOverrideData* mod);
+
+inline BOOL MaskCompare(PVOID pBuffer, LPCSTR lpPattern, LPCSTR lpMask)
+{
+    for (PBYTE value = pBuffer; *lpMask; ++lpPattern, ++lpMask, ++value)
+    {
+        if (*lpMask == 'x' && *(LPCBYTE)lpPattern != *value)
+            return FALSE;
+    }
+
+    return TRUE;
+}
+
+inline PVOID FindPattern(PVOID pBase, SIZE_T dwSize, LPCSTR lpPattern, LPCSTR lpMask)
+{
+    dwSize -= strlen(lpMask);
+
+    for (SIZE_T index = 0; index < dwSize; ++index)
+    {
+        PBYTE pAddress = (PBYTE)pBase + index;
+
+        if (MaskCompare(pAddress, lpPattern, lpMask))
+            return pAddress;
+    }
+
+    return NULL;
+}
 #endif

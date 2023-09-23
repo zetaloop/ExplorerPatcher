@@ -64,6 +64,9 @@ DWORD32 global_ubr;
 #define POPUPMENU_WINX_TIMEOUT 700
 #define POPUPMENU_EX_ELAPSED 300
 
+// Only use this for developing fixes for 22621.2134+ using 22621.1413-1992.
+#define USE_MOMENT_3_FIXES_ON_MOMENT_2 0
+
 BOOL bIsExplorerProcess = FALSE;
 BOOL bInstanced = FALSE;
 HWND archivehWnd;
@@ -2497,6 +2500,7 @@ INT64 Shell_TrayWndSubclassProc(
                 {
                     int offset = 656;
                     if (IsWindows11Version22H2OrHigher()) offset = 640;
+                    if (IsWindows11Version22H2Build2134OrHigher()) offset = 648;
                     if ((*(unsigned __int8(__fastcall**)(INT64))(**(INT64**)(TrayUIInstance + offset) + 104i64))(*(INT64*)(TrayUIInstance + offset)))
                     {
                         DeleteMenu(hSubMenu, 0x1A0u, 0);
@@ -9209,7 +9213,7 @@ BOOL explorer_SetRect(LPRECT lprc, int xLeft, int yTop, int xRight, int yBottom)
 const UINT office_hotkeys[10] = { 0x57, 0x54, 0x59, 0x4F, 0x50, 0x44, 0x4C, 0x58, 0x4E, 0x20 };
 BOOL explorer_RegisterHotkeyHook(HWND hWnd, int id, UINT fsModifiers, UINT vk)
 {
-    if (fsModifiers == (MOD_ALT | MOD_CONTROL | MOD_SHIFT | MOD_WIN | MOD_NOREPEAT) && (
+    if (bDisableOfficeHotkeys && fsModifiers == (MOD_ALT | MOD_CONTROL | MOD_SHIFT | MOD_WIN | MOD_NOREPEAT) && (
         vk == office_hotkeys[0] ||
         vk == office_hotkeys[1] ||
         vk == office_hotkeys[2] ||
@@ -9225,7 +9229,29 @@ BOOL explorer_RegisterHotkeyHook(HWND hWnd, int id, UINT fsModifiers, UINT vk)
         SetLastError(ERROR_HOTKEY_ALREADY_REGISTERED);
         return FALSE;
     }
-    return RegisterHotKey(hWnd, id, fsModifiers, vk);
+
+    BOOL result = RegisterHotKey(hWnd, id, fsModifiers, vk);
+
+    static BOOL bWinBHotkeyRegistered = FALSE;
+    if (!bWinBHotkeyRegistered && fsModifiers == (MOD_WIN | MOD_NOREPEAT) && vk == 'D') // right after Win+D
+    {
+#if USE_MOMENT_3_FIXES_ON_MOMENT_2
+        BOOL bPerformMoment2Patches = IsWindows11Version22H2Build1413OrHigher();
+#else
+        BOOL bPerformMoment2Patches = IsWindows11Version22H2Build2134OrHigher();
+#endif
+        if (bPerformMoment2Patches && bOldTaskbar)
+        {
+            // Might be better if we scan the GlobalKeylist array to prevent hardcoded numbers?
+            RegisterHotKey(hWnd, 500, MOD_WIN | MOD_NOREPEAT, 'A');
+            RegisterHotKey(hWnd, 514, MOD_WIN | MOD_NOREPEAT, 'B');
+            RegisterHotKey(hWnd, 591, MOD_WIN | MOD_NOREPEAT, 'N');
+            printf("Registered Win+A, Win+B, and Win+N\n");
+        }
+        bWinBHotkeyRegistered = TRUE;
+    }
+
+    return result;
 }
 
 BOOL twinui_RegisterHotkeyHook(HWND hWnd, int id, UINT fsModifiers, UINT vk)
@@ -9603,6 +9629,7 @@ struct RTL_FEATURE_CONFIGURATION {
 int (*RtlQueryFeatureConfigurationFunc)(UINT32 featureId, int sectionType, INT64* changeStamp, struct RTL_FEATURE_CONFIGURATION* buffer);
 int RtlQueryFeatureConfigurationHook(UINT32 featureId, int sectionType, INT64* changeStamp, struct RTL_FEATURE_CONFIGURATION* buffer) {
     int rv = RtlQueryFeatureConfigurationFunc(featureId, sectionType, changeStamp, buffer);
+#if !USE_MOMENT_3_FIXES_ON_MOMENT_2
     if (IsWindows11Version22H2Build1413OrHigher() && bOldTaskbar && featureId == 26008830) {
         // Disable tablet optimized taskbar feature when using the Windows 10 taskbar
         // 
@@ -9612,6 +9639,7 @@ int RtlQueryFeatureConfigurationHook(UINT32 featureId, int sectionType, INT64* c
         //
         buffer->enabledState = FEATURE_ENABLED_STATE_DISABLED;
     }
+#endif
     return rv;
 }
 #pragma endregion
@@ -9830,6 +9858,482 @@ INT64 twinui_pcshell_CMultitaskingViewManager__CreateXamlMTVHostHook(INT64 a1, u
     if (!twinui_pcshell_IsUndockedAssetAvailableHook(a2, 0, 0, 0, NULL)) return twinui_pcshell_CMultitaskingViewManager__CreateDCompMTVHostFunc(a1, a2, a3, a4, a5);
     return twinui_pcshell_CMultitaskingViewManager__CreateXamlMTVHostFunc(a1, a2, a3, a4, a5);
 }
+
+#ifdef _WIN64
+static struct
+{
+    int coroInstance_rcOut; // 22621.1992: 0x10
+    int coroInstance_pHardwareConfirmatorHost; // 22621.1992: 0xFD
+    int hardwareConfirmatorHost_bIsInLockScreen; // 22621.1992: 0xEC
+} g_Moment2PatchOffsets;
+
+inline PBYTE GetTargetOfJzBeforeMe(PBYTE anchor)
+{
+    // Check big jz
+    if (*(anchor - 6) == 0x0F && *(anchor - 5) == 0x84)
+        return anchor + *(int*)(anchor - 4);
+    // Check small jz
+    if (*(anchor - 2) == 0x74)
+        return anchor + *(char*)(anchor - 1);
+    return NULL;
+}
+
+// CActionCenterExperienceManager::GetViewPosition() patcher
+BOOL Moment2PatchActionCenter(LPMODULEINFO mi)
+{
+    // Step 1:
+    // Scan within the DLL for `*a2 = mi.rcMonitor`.
+    // ```0F 10 45 ?? F3 0F 7F ?? 80 ?? C8 // movups - movdqu - cmp```
+    // 22621.1992: 7E2F0
+    // 22621.2283: 140D5
+    PBYTE rcMonitorAssignment = FindPattern(mi->lpBaseOfDll, mi->SizeOfImage, "\x0F\x10\x45\x00\xF3\x0F\x7F\x00\x80\x00\xC8", "xxx?xxx?x?x");
+    if (!rcMonitorAssignment) return FALSE;
+    printf("[AC] rcMonitorAssignment = %llX\n", rcMonitorAssignment - (PBYTE)mi->lpBaseOfDll);
+
+    // 22621.1992 has a different compiled code structure than 22621.2283 therefore we have to use a different approach:
+    // Short circuiting the `if (26008830 is enabled)`.
+    // 22621.1992: 7E313
+    if (!IsWindows11Version22H2Build2134OrHigher()) // We're on 1413-1992
+    {
+#if USE_MOMENT_3_FIXES_ON_MOMENT_2
+        PBYTE featureCheckJz = rcMonitorAssignment + 35;
+        if (*featureCheckJz != 0x0F && *(featureCheckJz + 1) != 0x84) return FALSE;
+
+        DWORD dwOldProtect = 0;
+        PBYTE jzAddr = featureCheckJz + 6 + *(DWORD*)(featureCheckJz + 2);
+        if (!VirtualProtect(featureCheckJz, 5, PAGE_EXECUTE_READWRITE, &dwOldProtect)) return FALSE;
+        featureCheckJz[0] = 0xE9;
+        *(DWORD*)(featureCheckJz + 1) = (DWORD)(jzAddr - featureCheckJz - 5);
+        VirtualProtect(featureCheckJz, 5, dwOldProtect, &dwOldProtect);
+        goto done;
+#else
+        return FALSE;
+#endif
+    }
+
+    // Step 2:
+    // Scan within the function for the 8 bytes long `*a2 = mi.rcWork`.
+    // ```0F 10 45 ?? F3 0F 7F ?? 48 // movups - movdqu - test```
+    // 22621.2283: 1414B
+    PBYTE rcWorkAssignment = FindPattern(rcMonitorAssignment + 1, 200, "\x0F\x10\x45\x00\xF3\x0F\x7F\x00\x48", "xxx?xxx?x");
+    if (!rcWorkAssignment) return FALSE;
+    printf("[AC] rcWorkAssignment = %llX\n", rcWorkAssignment - (PBYTE)mi->lpBaseOfDll);
+
+    // Step 3:
+    // Copy `*a2 = mi.rcWork` into right after the first jz starting from step 1.
+    // Find within couple bytes from step 1:
+    // ```48 8D // lea```
+    // 22621.2283: 140E6
+    PBYTE blockBegin = FindPattern(rcMonitorAssignment + 1, 32, "\x48\x8D", "xx");
+    if (!blockBegin) return FALSE;
+    printf("[AC] blockBegin = %llX\n", blockBegin - (PBYTE)mi->lpBaseOfDll);
+
+    // Step 4:
+    // Exit the block by writing a long jmp into the address referenced by the jz right before step 3, into right after
+    // the 8 bytes `rcMonitor = mi.rcWork` we've written.
+    PBYTE blockEnd = GetTargetOfJzBeforeMe(blockBegin);
+    if (!blockEnd) return FALSE;
+    printf("[AC] blockEnd = %llX\n", blockEnd - (PBYTE)mi->lpBaseOfDll);
+
+    // Execution
+    DWORD dwOldProtect = 0;
+    if (!VirtualProtect(blockBegin, 8 /**a2 = mi.rcWork*/ + 5 /*jmp*/, PAGE_EXECUTE_READWRITE, &dwOldProtect)) return FALSE;
+
+    // Step 2
+    memcpy(blockBegin, rcWorkAssignment, 8);
+
+    // Step 3
+    PBYTE jmpToEnd = blockBegin + 8;
+    jmpToEnd[0] = 0xE9;
+    *(DWORD*)(jmpToEnd + 1) = (DWORD)(blockEnd - jmpToEnd - 5);
+
+    VirtualProtect(blockBegin, 8 + 5, dwOldProtect, &dwOldProtect);
+
+done:
+    printf("[AC] Patched!\n");
+    return TRUE;
+}
+
+// CControlCenterExperienceManager::PositionView() patcher
+BOOL Moment2PatchControlCenter(LPMODULEINFO mi)
+{
+    // Step 1:
+    // Scan within the DLL for `rcMonitor = mi.rcMonitor`.
+    // ```0F 10 44 24 ?? F3 0F 7F 44 24 ?? 80 BF // movups - movdqu - cmp```
+    // 22621.1992: 4B35B
+    // 22621.2283: 65C5C
+    PBYTE rcMonitorAssignment = FindPattern(mi->lpBaseOfDll, mi->SizeOfImage, "\x0F\x10\x44\x24\x00\xF3\x0F\x7F\x44\x24\x00\x80\xBF", "xxxx?xxxxx?xx");
+    if (!rcMonitorAssignment) return FALSE;
+    printf("[CC] rcMonitorAssignment = %llX\n", rcMonitorAssignment - (PBYTE)mi->lpBaseOfDll);
+
+    // Step 2:
+    // Scan within the function for the 10 bytes long `rcMonitor = mi.rcWork`.
+    // This pattern applies to both ControlCenter and ToastCenter.
+    // ```0F 10 45 ?? F3 0F 7F 44 24 ?? 48 // movups - movdqu - test```
+    // 22621.1992: 4B3FD and 4B418 (The second one is compiled out in later builds)
+    // 22621.2283: 65CE6
+    PBYTE rcWorkAssignment = FindPattern(rcMonitorAssignment + 1, 256, "\x0F\x10\x45\x00\xF3\x0F\x7F\x44\x24\x00\x48", "xxx?xxxxx?x");
+    if (!rcWorkAssignment) return FALSE;
+    printf("[CC] rcWorkAssignment = %llX\n", rcWorkAssignment - (PBYTE)mi->lpBaseOfDll);
+
+    // Step 3:
+    // Copy the `rcMonitor = mi.rcWork` into right after the first jz starting from step 1.
+    // Find within couple bytes from step 1:
+    // ```48 8D // lea```
+    // 22621.1992: 4B373
+    // 22621.2283: 65C74
+    PBYTE blockBegin = FindPattern(rcMonitorAssignment + 1, 32, "\x48\x8D", "xx");
+    if (!blockBegin) return FALSE;
+    printf("[CC] blockBegin = %llX\n", blockBegin - (PBYTE)mi->lpBaseOfDll);
+
+    // Step 4:
+    // Exit the block by writing a long jmp into the address referenced by the jz right before step 3, into right after
+    // the 10 bytes `rcMonitor = mi.rcWork` we've written.
+    PBYTE blockEnd = GetTargetOfJzBeforeMe(blockBegin);
+    if (!blockEnd) return FALSE;
+    printf("[CC] blockEnd = %llX\n", blockEnd - (PBYTE)mi->lpBaseOfDll);
+
+    // Execution
+    DWORD dwOldProtect = 0;
+    if (!VirtualProtect(blockBegin, 10 /*rcMonitor = mi.rcWork*/ + 5 /*jmp*/, PAGE_EXECUTE_READWRITE, &dwOldProtect)) return FALSE;
+
+    // Step 2
+    memcpy(blockBegin, rcWorkAssignment, 10);
+
+    // Step 3
+    PBYTE jmpToEnd = blockBegin + 10;
+    jmpToEnd[0] = 0xE9;
+    *(DWORD*)(jmpToEnd + 1) = (DWORD)(blockEnd - jmpToEnd - 5);
+
+    VirtualProtect(blockBegin, 10 + 5, dwOldProtect, &dwOldProtect);
+
+    printf("[CC] Patched!\n");
+    return TRUE;
+}
+
+// CToastCenterExperienceManager::PositionView() patcher
+BOOL Moment2PatchToastCenter(LPMODULEINFO mi)
+{
+    // Step 1:
+    // Scan within the DLL for `rcMonitor = mi.rcMonitor`.
+    // ```0F 10 45 84 ?? 0F 7F 44 24 ?? 48 8B CF // movups - movdqu - mov```
+    // 22621.1992: 40CE8
+    // 22621.2283: 501DB
+    PBYTE rcMonitorAssignment = FindPattern(mi->lpBaseOfDll, mi->SizeOfImage, "\x0F\x10\x45\x84\x00\x0F\x7F\x44\x24\x00\x48\x8B\xCF", "xxxx?xxxx?xxx");
+    if (!rcMonitorAssignment) return FALSE;
+    printf("[TC] rcMonitorAssignment = %llX\n", rcMonitorAssignment - (PBYTE)mi->lpBaseOfDll);
+
+    // Step 2:
+    // Scan within the function for the 10 bytes long `rcMonitor = mi.rcWork`.
+    // This pattern applies to both ControlCenter and ToastCenter.
+    // ```0F 10 45 ?? F3 0F 7F 44 24 ?? 48 // movups - movdqu - test```
+    // 22621.1992: 40D8B
+    // 22621.2283: 5025D
+    PBYTE rcWorkAssignment = FindPattern(rcMonitorAssignment + 1, 200, "\x0F\x10\x45\x00\xF3\x0F\x7F\x44\x24\x00\x48", "xxx?xxxxx?x");
+    if (!rcWorkAssignment) return FALSE;
+    printf("[TC] rcWorkAssignment = %llX\n", rcWorkAssignment - (PBYTE)mi->lpBaseOfDll);
+
+    // Step 3:
+    // Copy the `rcMonitor = mi.rcWork` into right after the first jz starting from step 1.
+    // Find within couple bytes from step 1:
+    // ```48 8D // lea```
+    // 22621.1992: 40D02
+    // 22621.2283: 501F5
+    PBYTE blockBegin = FindPattern(rcMonitorAssignment + 1, 32, "\x48\x8D", "xx");
+    if (!blockBegin) return FALSE;
+    printf("[TC] blockBegin = %llX\n", blockBegin - (PBYTE)mi->lpBaseOfDll);
+
+    // Step 4:
+    // Exit the block by writing a long jmp into the address referenced by the jz right before step 3, into right after
+    // the 10 bytes `rcMonitor = mi.rcWork` we've written.
+    //
+    // Note: We are skipping EdgeUI calls here.
+    PBYTE blockEnd = GetTargetOfJzBeforeMe(blockBegin);
+    if (!blockEnd) return FALSE;
+    printf("[TC] blockEnd = %llX\n", blockEnd - (PBYTE)mi->lpBaseOfDll);
+
+    // Execution
+    DWORD dwOldProtect = 0;
+    if (!VirtualProtect(blockBegin, 10 /*rcMonitor = mi.rcWork*/ + 5 /*jmp*/, PAGE_EXECUTE_READWRITE, &dwOldProtect)) return FALSE;
+
+    // Step 2
+    memcpy(blockBegin, rcWorkAssignment, 10);
+
+    // Step 3
+    PBYTE jmpToEnd = blockBegin + 10;
+    jmpToEnd[0] = 0xE9;
+    *(DWORD*)(jmpToEnd + 1) = (DWORD)(blockEnd - jmpToEnd - 5);
+
+    VirtualProtect(blockBegin, 10 + 5, dwOldProtect, &dwOldProtect);
+
+    printf("[TC] Patched!\n");
+    return TRUE;
+}
+
+// TaskViewFrame::RuntimeClassInitialize() patcher
+BOOL Moment2PatchTaskView(LPMODULEINFO mi)
+{
+    /***
+    If we're using the old taskbar, it'll be stuck in an infinite loading since it's waiting for the new one to respond.
+    Let's safely skip those by NOPing the `TaskViewFrame::UpdateWorkAreaAsync()` and `WaitForCompletion()` calls, and
+    turning off the COM object cleanup.
+
+    Step 1:
+    Scan within the DLL to find the beginning, which is the preparation of the 1st call.
+    It should be 4C 8B or 4D 8B (mov r8, ...).
+    For the patterns, they're +1 from the result since it can be either of those.
+
+    Pattern 1:
+    ```8B ?? 48 8D 55 ??    48 8B ?? E8 ?? ?? ?? ?? 48 8B 08 E8```
+    22621.1992: 7463C
+    22621.2134: 3B29C
+
+    Pattern 2:
+    ```8B ?? 48 8D 54 24 ?? 48 8B ?? E8 ?? ?? ?? ?? 48 8B 08 E8```
+    22621.2283: 24A1D2
+
+    Step 2:
+    In place of the 1st call's call op (E8), overwrite it with a code to set the value of the com_ptr passed into the
+    2nd argument (rdx) to 0. This is to skip the cleanup that happens right after the 2nd call.
+    ```48 C7 02 00 00 00 00 mov qword ptr [rdx], 0```
+    Start from -13 of the byte after 2nd call's end.
+    22621.1992: 74646
+    22621.2134: 3B2A6
+    22621.2283: 24A1DD
+
+    Step 3:
+    NOP the rest of the 2nd call.
+
+    Summary:
+    ```
+       48 8B ?? 48 8D 55 ??    48 8B ?? E8 ?? ?? ?? ?? 48 8B 08 E8 ?? ?? ?? ?? // Pattern 1
+       48 8B ?? 48 8D 54 24 ?? 48 8B ?? E8 ?? ?? ?? ?? 48 8B 08 E8 ?? ?? ?? ?? // Pattern 2
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ^^^^^^^^^^^^^^^^^^^^^^^
+       1st: TaskViewFrame::UpdateWorkAreaAsync()       2nd: WaitForCompletion()
+       48 8B ?? 48 8D 54 24 ?? 48 8B ?? 48 C7 02 00 00 00 00 90 90 90 90 90 90 // Result according to Pattern 2
+       -------------------------------- xxxxxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxx
+       We need rdx                      Step 2               Step 3
+    ```
+
+    Notes:
+    - In 22621.1992 and 22621.2134, `~AsyncOperationCompletedHandler()` is inlined, while it is not in 22621.2283. We
+      can see `unconditional_release_ref()` calls right in `RuntimeClassInitialize()` of 1992 and 2134.
+    - In 22621.2134, there is `33 FF xor edi, edi` before the jz for the inlined cleanup. The value of edi is used in
+      two more cleanup calls after our area of interest (those covered by twoCallsLength), therefore we can't just NOP
+      everything. And I think detecting such things is too much work.
+    ***/
+
+    int twoCallsLength = 1 + 18 + 4; // 4C/4D + pattern length + 4 bytes for the 2nd call's call address
+    PBYTE firstCallPrep = FindPattern(mi->lpBaseOfDll, mi->SizeOfImage, "\x8B\x00\x48\x8D\x55\x00\x48\x8B\x00\xE8\x00\x00\x00\x00\x48\x8B\x08\xE8", "x?xxx?xx?x????xxxx");
+    if (!firstCallPrep)
+    {
+        twoCallsLength += 1; // Add 1 to the pattern length
+        firstCallPrep = FindPattern(mi->lpBaseOfDll, mi->SizeOfImage, "\x8B\x00\x48\x8D\x54\x24\x00\x48\x8B\x00\xE8\x00\x00\x00\x00\x48\x8B\x08\xE8", "x?xxxx?xx?x????xxxx");
+        if (!firstCallPrep) return FALSE;
+    }
+    firstCallPrep -= 1; // Point to the 4C/4D
+    printf("[TV] firstCallPrep = %llX\n", firstCallPrep - (PBYTE)mi->lpBaseOfDll);
+
+    PBYTE firstCallCall = firstCallPrep + twoCallsLength - 13;
+    printf("[TV] firstCallCall = %llX\n", firstCallCall - (PBYTE)mi->lpBaseOfDll);
+
+    PBYTE nopBegin = firstCallCall + 7;
+
+    // Execution
+    DWORD dwOldProtect = 0;
+    if (!VirtualProtect(firstCallPrep, twoCallsLength, PAGE_EXECUTE_READWRITE, &dwOldProtect)) return FALSE;
+    const BYTE step2Payload[] = { 0x48, 0xC7, 0x02, 0x00, 0x00, 0x00, 0x00 };
+    memcpy(firstCallCall, step2Payload, sizeof(step2Payload));
+    memset(nopBegin, 0x90, twoCallsLength - (nopBegin - firstCallPrep));
+    VirtualProtect(firstCallPrep, twoCallsLength, dwOldProtect, &dwOldProtect);
+
+    printf("[TV] Patched!\n");
+    return TRUE;
+}
+
+DEFINE_GUID(SID_EdgeUi,
+    0x0d189b30,
+    0x0f12b, 0x4b13, 0x94, 0xcf,
+    0x53, 0xcb, 0x0e, 0x0e, 0x24, 0x0d
+);
+
+DEFINE_GUID(IID_IEdgeUiManager,
+    0x6e6c3c52,
+    0x5a5e, 0x4b4b, 0xa0, 0xf8,
+    0x7f, 0xe1, 0x26, 0x21, 0xa9, 0x3e
+);
+
+// Reimplementation of HardwareConfirmatorHost::GetDisplayRect()
+void WINAPI HardwareConfirmatorShellcode(PBYTE pCoroInstance)
+{
+    PBYTE pHardwareConfirmatorHost = *(PBYTE*)(pCoroInstance + g_Moment2PatchOffsets.coroInstance_pHardwareConfirmatorHost);
+
+    RECT rc;
+    HMONITOR hMonitor = MonitorFromRect(&rc, MONITOR_DEFAULTTOPRIMARY);
+
+    HRESULT hr = S_OK;
+    IUnknown* pImmersiveShell = NULL;
+    hr = CoCreateInstance(
+        &CLSID_ImmersiveShell,
+        NULL,
+        CLSCTX_LOCAL_SERVER,
+        &IID_IServiceProvider,
+        &pImmersiveShell
+    );
+    if (SUCCEEDED(hr))
+    {
+        IImmersiveMonitorService* pMonitorService = NULL;
+        IUnknown_QueryService(
+            pImmersiveShell,
+            &SID_IImmersiveMonitorService,
+            &IID_IImmersiveMonitorService,
+            &pMonitorService
+        );
+        if (pMonitorService)
+        {
+            IUnknown* pEdgeUiManager = NULL;
+            pMonitorService->lpVtbl->QueryService(
+                pMonitorService,
+                hMonitor,
+                &SID_EdgeUi,
+                &IID_IEdgeUiManager,
+                &pEdgeUiManager
+            );
+            if (pEdgeUiManager)
+            {
+                if (*(pHardwareConfirmatorHost + g_Moment2PatchOffsets.hardwareConfirmatorHost_bIsInLockScreen))
+                {
+                    // Lock screen
+                    MONITORINFO mi;
+                    mi.cbSize = sizeof(MONITORINFO);
+                    if (GetMonitorInfoW(hMonitor, &mi))
+                        rc = mi.rcMonitor;
+                }
+                else
+                {
+                    // Desktop
+                    HRESULT(*pTheFunc)(IUnknown*, PRECT) = ((void**)pEdgeUiManager->lpVtbl)[19];
+                    hr = pTheFunc(pEdgeUiManager, &rc);
+                }
+
+                typedef struct { float x, y, width, height; } Windows_Foundation_Rect;
+                Windows_Foundation_Rect* out = pCoroInstance + g_Moment2PatchOffsets.coroInstance_rcOut;
+                out->x = (float)rc.left;
+                out->y = (float)rc.top;
+                out->width = (float)(rc.right - rc.left);
+                out->height = (float)(rc.bottom - rc.top);
+
+                pEdgeUiManager->lpVtbl->Release(pEdgeUiManager);
+            }
+            pMonitorService->lpVtbl->Release(pMonitorService);
+        }
+        pImmersiveShell->lpVtbl->Release(pImmersiveShell);
+    }
+
+    if (FAILED(hr))
+        printf("[HardwareConfirmatorShellcode] Failed. 0x%lX\n", hr);
+}
+
+// [HardwareConfirmatorHost::GetDisplayRectAsync$_ResumeCoro$1() patcher
+BOOL Moment2PatchHardwareConfirmator(LPMODULEINFO mi)
+{
+    // Find required offsets
+
+    // pHardwareConfirmatorHost and bIsInLockScreen:
+    // Find in GetDisplayRectAsync$_ResumeCoro$1, inside `case 4:`
+    //
+    // 48 8B 83 ED 00 00 00     mov     rax, [rbx+0EDh]
+    //          ^^^^^^^^^^^ pHardwareConfirmatorHost
+    // 8A 80 EC 00 00 00        mov     al, [rax+0ECh]
+    //       ^^^^^^^^^^^ bIsInLockScreen
+    //
+    // if ( ADJ(this)->pHardwareConfirmatorHost->bIsInLockScreen )
+    // if ( *(_BYTE *)(*(_QWORD *)(this + 237) + 236i64) ) // 22621.2283
+    //                                    ^ HCH  ^ bIsInLockScreen
+    //
+    // 22621.2134: 1D55D
+    PBYTE match1 = FindPattern(mi->lpBaseOfDll, mi->SizeOfImage, "\x48\x8B\x83\x00\x00\x00\x00\x8A\x80\x00\x00\x00\x00", "xxx????xx????");
+    printf("[HC] match1 = %llX\n", match1 - (PBYTE)mi->lpBaseOfDll);
+    if (!match1) return FALSE;
+    g_Moment2PatchOffsets.coroInstance_pHardwareConfirmatorHost = *(int*)(match1 + 3);
+    g_Moment2PatchOffsets.hardwareConfirmatorHost_bIsInLockScreen = *(int*)(match1 + 9);
+
+    // coroInstance_rcOut:
+    // Also in GetDisplayRectAsync$_ResumeCoro$1, through `case 4:`
+    // We also use this as the point to jump to, which is the code to set the rect and finish the coroutine.
+    //
+    // v27 = *(_OWORD *)(this + 16);
+    // *(_OWORD *)(this - 16) = v27;
+    // if ( winrt_suspend_handler ) ...
+    //
+    // 0F 10 43 10              movups  xmm0, xmmword ptr [rbx+10h]
+    //          ^^ coroInstance_rcOut
+    // 0F 11 84 24 D0 00 00 00  movups  [rsp+158h+var_88], xmm0
+    //
+    // 22621.2134: 1D624
+    PBYTE match2 = FindPattern(mi->lpBaseOfDll, mi->SizeOfImage, "\x0F\x10\x43\x00\x0F\x11\x84\x24", "xxx?xxxx");
+    printf("[HC] match2 = %llX\n", match2 - (PBYTE)mi->lpBaseOfDll);
+    if (!match2) return FALSE;
+    g_Moment2PatchOffsets.coroInstance_rcOut = *(match2 + 3);
+
+    // Find where to put the shellcode
+    // We'll overwrite from this position:
+    //
+    // *(_OWORD *)(this + 32) = 0i64;
+    // *(_QWORD *)(this + 48) = MonitorFromRect((LPCRECT)(this + 32), 1u);
+    //
+    // 22621.2134: 1D21E
+    PBYTE writeAt = FindPattern(mi->lpBaseOfDll, mi->SizeOfImage, "\x48\x8D\x4B\x00\x0F", "xxx?x");
+    if (!writeAt) return FALSE;
+    printf("[HC] writeAt = %llX\n", writeAt - (PBYTE)mi->lpBaseOfDll);
+
+    // In 22621.2134+, after our jump location there is a cleanup for something we skipped. NOP them.
+    // From match2, bytes +17 until +37, which is 21 bytes to be NOP'd.
+    // 22621.2134: 1D635-1D64A
+    PBYTE cleanupBegin = NULL, cleanupEnd = NULL;
+    if (IsWindows11Version22H2Build2134OrHigher())
+    {
+        cleanupBegin = match2 + 17;
+        cleanupEnd = match2 + 38; // Exclusive
+        printf("[HC] cleanup = %llX-%llX\n", cleanupBegin - (PBYTE)mi->lpBaseOfDll, cleanupEnd - (PBYTE)mi->lpBaseOfDll);
+        if (*cleanupBegin != 0x49 || *cleanupEnd != 0x90 /*Already NOP here*/) return FALSE;
+    }
+
+    // Craft the shellcode
+    BYTE shellcode[] = {
+        // lea rcx, [rbx+0] ; rbx is the `this` which is the instance of the coro, we pass it to our function
+        0x48, 0x8D, 0x0B,
+        // mov rax, 1111111111111111h ; placeholder for the address of HardwareConfirmatorShellcode
+        0x48, 0xB8, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
+        // call rax
+        0xFF, 0xD0
+    };
+
+    uintptr_t pattern = 0x1111111111111111;
+    *(PBYTE*)(memmem(shellcode, sizeof(shellcode), &pattern, sizeof(uintptr_t))) = HardwareConfirmatorShellcode;
+
+    // Execution
+    DWORD dwOldProtect = 0;
+    SIZE_T totalSize = sizeof(shellcode) + 5;
+    if (!VirtualProtect(writeAt, totalSize, PAGE_EXECUTE_READWRITE, &dwOldProtect)) return FALSE;
+    memcpy(writeAt, shellcode, sizeof(shellcode));
+    PBYTE jmpLoc = writeAt + sizeof(shellcode);
+    jmpLoc[0] = 0xE9;
+    *(DWORD*)(jmpLoc + 1) = (DWORD)(match2 - jmpLoc - 5);
+    VirtualProtect(writeAt, totalSize, dwOldProtect, &dwOldProtect);
+
+    if (cleanupBegin)
+    {
+        dwOldProtect = 0;
+        if (!VirtualProtect(cleanupBegin, cleanupEnd - cleanupBegin, PAGE_EXECUTE_READWRITE, &dwOldProtect)) return FALSE;
+        memset(cleanupBegin, 0x90, cleanupEnd - cleanupBegin);
+        VirtualProtect(cleanupBegin, cleanupEnd - cleanupBegin, dwOldProtect, &dwOldProtect);
+    }
+
+    printf("[HC] Patched!\n");
+    return TRUE;
+}
+#endif
 
 BOOL IsDebuggerPresentHook()
 {
@@ -10314,6 +10818,167 @@ DWORD Inject(BOOL bIsExplorer)
 
 
     HANDLE hTwinuiPcshell = LoadLibraryW(L"twinui.pcshell.dll");
+    MODULEINFO miTwinuiPcshell;
+    GetModuleInformation(GetCurrentProcess(), hTwinuiPcshell, &miTwinuiPcshell, sizeof(MODULEINFO));
+
+    if (IsWindows11Version22H2OrHigher())
+    {
+        // All patterns here have been tested to work on:
+        // - 22621.1, 22621.1992, 22621.2134, 22621.2283, 22621.2359 (RP)
+        // - 23545.1000
+
+        // ZeroMemory(symbols_PTRS.twinui_pcshell_PTRS, sizeof(symbols_PTRS.twinui_pcshell_PTRS));
+        if (!symbols_PTRS.twinui_pcshell_PTRS[0] || symbols_PTRS.twinui_pcshell_PTRS[0] == 0xFFFFFFFF)
+        {
+            // Ref: CMultitaskingViewFrame::v_WndProc()
+            // 4D 8B CF 4D 8B C4 8B D6 48 8B 49 08 E8 ? ? ? ? E9
+            //                                        ^^^^^^^
+            PBYTE match = FindPattern(
+                hTwinuiPcshell,
+                miTwinuiPcshell.lpBaseOfDll,
+                "\x4D\x8B\xCF\x4D\x8B\xC4\x8B\xD6\x48\x8B\x49\x08\xE8\x00\x00\x00\x00\xE9",
+                "xxxxxxxxxxxxx????x"
+            );
+            if (match)
+            {
+                match += 12;
+                symbols_PTRS.twinui_pcshell_PTRS[0] = match + 5 + *(int*)(match + 1) - hTwinuiPcshell;
+                printf("symbols_PTRS.twinui_pcshell_PTRS[0] = %llX\n", symbols_PTRS.twinui_pcshell_PTRS[0]);
+            }
+        }
+        if (!symbols_PTRS.twinui_pcshell_PTRS[1] || symbols_PTRS.twinui_pcshell_PTRS[1] == 0xFFFFFFFF)
+        {
+            // 48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 30 49 8B D8 48 8B FA 48 8B F1 49 83 20 00 41 B0 03 B2 01
+            PBYTE match = FindPattern(
+                hTwinuiPcshell,
+                miTwinuiPcshell.lpBaseOfDll,
+                "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x30\x49\x8B\xD8\x48\x8B\xFA\x48\x8B\xF1\x49\x83\x20\x00\x41\xB0\x03\xB2\x01",
+                "xxxx?xxxx?xxxxxxxxxxxxxxxxxxxxxxx"
+            );
+            if (match)
+            {
+                symbols_PTRS.twinui_pcshell_PTRS[1] = match - hTwinuiPcshell;
+                printf("symbols_PTRS.twinui_pcshell_PTRS[1] = %llX\n", symbols_PTRS.twinui_pcshell_PTRS[1]);
+            }
+        }
+        if (!symbols_PTRS.twinui_pcshell_PTRS[2] || symbols_PTRS.twinui_pcshell_PTRS[2] == 0xFFFFFFFF)
+        {
+            // Ref: SwitchItemThumbnailElement::ShowContextMenu()
+            // E8 ? ? ? ? E8 ? ? ? ? 0F B7 C8 E8 ? ? ? ? F7 D8
+            //    ^^^^^^^
+            PBYTE match = FindPattern(
+                hTwinuiPcshell,
+                miTwinuiPcshell.lpBaseOfDll,
+                "\xE8\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x0F\xB7\xC8\xE8\x00\x00\x00\x00\xF7\xD8",
+                "x????x????xxxx????xx"
+            );
+            if (match)
+            {
+                symbols_PTRS.twinui_pcshell_PTRS[2] = match + 5 + *(int*)(match + 1) - hTwinuiPcshell;
+                printf("symbols_PTRS.twinui_pcshell_PTRS[2] = %llX\n", symbols_PTRS.twinui_pcshell_PTRS[2]);
+            }
+        }
+        if (!symbols_PTRS.twinui_pcshell_PTRS[3] || symbols_PTRS.twinui_pcshell_PTRS[3] == 0xFFFFFFFF)
+        {
+            // Ref: SwitchItemThumbnailElement::ShowContextMenu()
+            // E8 ? ? ? ? 85 DB 74 29
+            //    ^^^^^^^
+            PBYTE match = FindPattern(
+                hTwinuiPcshell,
+                miTwinuiPcshell.lpBaseOfDll,
+                "\xE8\x00\x00\x00\x00\x85\xDB\x74\x29",
+                "x????xxxx"
+            );
+            if (match)
+            {
+                symbols_PTRS.twinui_pcshell_PTRS[3] = match + 5 + *(int*)(match + 1) - hTwinuiPcshell;
+                printf("symbols_PTRS.twinui_pcshell_PTRS[3] = %llX\n", symbols_PTRS.twinui_pcshell_PTRS[3]);
+            }
+        }
+        if (!symbols_PTRS.twinui_pcshell_PTRS[4] || symbols_PTRS.twinui_pcshell_PTRS[4] == 0xFFFFFFFF)
+        {
+            // E8 ? ? ? ? 90 49 8D 56 38 49 8B CE
+            //    ^^^^^^^
+            PBYTE match = FindPattern(
+                hTwinuiPcshell,
+                miTwinuiPcshell.lpBaseOfDll,
+                "\xE8\x00\x00\x00\x00\x90\x49\x8D\x56\x38\x49\x8B\xCE",
+                "x????xxxxxxxx"
+            );
+            if (match)
+            {
+                symbols_PTRS.twinui_pcshell_PTRS[4] = match + 5 + *(int*)(match + 1) - hTwinuiPcshell;
+                printf("symbols_PTRS.twinui_pcshell_PTRS[4] = %llX\n", symbols_PTRS.twinui_pcshell_PTRS[4]);
+            }
+        }
+        if (!symbols_PTRS.twinui_pcshell_PTRS[5] || symbols_PTRS.twinui_pcshell_PTRS[5] == 0xFFFFFFFF)
+        {
+            // E8 ? ? ? ? 90 48 8D 56 38 48 8B CE
+            //    ^^^^^^^
+            PBYTE match = FindPattern(
+                hTwinuiPcshell,
+                miTwinuiPcshell.lpBaseOfDll,
+                "\xE8\x00\x00\x00\x00\x90\x48\x8D\x56\x38\x48\x8B\xCE",
+                "x????xxxxxxxx"
+            );
+            if (match)
+            {
+                symbols_PTRS.twinui_pcshell_PTRS[5] = match + 5 + *(int*)(match + 1) - hTwinuiPcshell;
+                printf("symbols_PTRS.twinui_pcshell_PTRS[5] = %llX\n", symbols_PTRS.twinui_pcshell_PTRS[5]);
+            }
+        }
+        if (!symbols_PTRS.twinui_pcshell_PTRS[6] || symbols_PTRS.twinui_pcshell_PTRS[6] == 0xFFFFFFFF)
+        {
+            // 48 83 EC 28 41 B0 03 B2 01
+            PBYTE match = FindPattern(
+                hTwinuiPcshell,
+                miTwinuiPcshell.lpBaseOfDll,
+                "\x48\x83\xEC\x28\x41\xB0\x03\xB2\x01",
+                "xxxxxxxxx"
+            );
+            if (match)
+            {
+                symbols_PTRS.twinui_pcshell_PTRS[6] = match - hTwinuiPcshell;
+                printf("symbols_PTRS.twinui_pcshell_PTRS[6] = %llX\n", symbols_PTRS.twinui_pcshell_PTRS[6]);
+            }
+        }
+        if (!symbols_PTRS.twinui_pcshell_PTRS[7] || symbols_PTRS.twinui_pcshell_PTRS[7] == 0xFFFFFFFF)
+        {
+            // Ref: CMultitaskingViewManager::_CreateMTVHost()
+            // 4C 89 74 24 ? ? 8B ? ? 8B ? 8B D7 48 8B CE E8 ? ? ? ? 8B
+            //                                               ^^^^^^^
+            PBYTE match = FindPattern(
+                hTwinuiPcshell,
+                miTwinuiPcshell.lpBaseOfDll,
+                "\x4C\x89\x74\x24\x00\x00\x8B\x00\x00\x8B\x00\x8B\xD7\x48\x8B\xCE\xE8\x00\x00\x00\x00\x8B",
+                "xxxx??x??x?xxxxxx????x"
+            );
+            if (match)
+            {
+                match += 16;
+                symbols_PTRS.twinui_pcshell_PTRS[7] = match + 5 + *(int*)(match + 1) - hTwinuiPcshell;
+                printf("symbols_PTRS.twinui_pcshell_PTRS[7] = %llX\n", symbols_PTRS.twinui_pcshell_PTRS[7]);
+            }
+        }
+        if (!symbols_PTRS.twinui_pcshell_PTRS[8] || symbols_PTRS.twinui_pcshell_PTRS[8] == 0xFFFFFFFF)
+        {
+            // Ref: CMultitaskingViewManager::_CreateMTVHost
+            // 4C 89 74 24 ? ? 8B ? ? 8B ? 8B D7 48 8B CE E8 ? ? ? ? 90
+            //                                               ^^^^^^^
+            PBYTE match = FindPattern(
+                hTwinuiPcshell,
+                miTwinuiPcshell.lpBaseOfDll,
+                "\x4C\x89\x74\x24\x00\x00\x8B\x00\x00\x8B\x00\x8B\xD7\x48\x8B\xCE\xE8\x00\x00\x00\x00\x90",
+                "xxxx??x??x?xxxxxx????x"
+            );
+            if (match)
+            {
+                match += 16;
+                symbols_PTRS.twinui_pcshell_PTRS[8] = match + 5 + *(int*)(match + 1) - hTwinuiPcshell;
+                printf("symbols_PTRS.twinui_pcshell_PTRS[8] = %llX\n", symbols_PTRS.twinui_pcshell_PTRS[8]);
+            }
+        }
+    }
 
     if (symbols_PTRS.twinui_pcshell_PTRS[0] && symbols_PTRS.twinui_pcshell_PTRS[0] != 0xFFFFFFFF)
     {
@@ -10351,6 +11016,7 @@ DWORD Inject(BOOL bIsExplorer)
             ((uintptr_t)hTwinuiPcshell + symbols_PTRS.twinui_pcshell_PTRS[5]);
     }
 
+    rv = -1;
     if (symbols_PTRS.twinui_pcshell_PTRS[6] && symbols_PTRS.twinui_pcshell_PTRS[6] != 0xFFFFFFFF)
     {
         CLauncherTipContextMenu_ShowLauncherTipContextMenuFunc = (INT64(*)(void*, POINT*))
@@ -10360,13 +11026,13 @@ DWORD Inject(BOOL bIsExplorer)
             (void**)&CLauncherTipContextMenu_ShowLauncherTipContextMenuFunc,
             CLauncherTipContextMenu_ShowLauncherTipContextMenuHook
         );
-        if (rv != 0)
-        {
-            FreeLibraryAndExitThread(hModule, rv);
-            return rv;
-        }
+    }
+    if (rv != 0)
+    {
+        printf("Failed to hook CLauncherTipContextMenu_ShowLauncherTipContextMenu(). rv = %d\n", rv);
     }
 
+    rv = -1;
     if (symbols_PTRS.twinui_pcshell_PTRS[7] && symbols_PTRS.twinui_pcshell_PTRS[7] != 0xFFFFFFFF)
     {
         if (IsWindows11Version22H2OrHigher())
@@ -10380,11 +11046,6 @@ DWORD Inject(BOOL bIsExplorer)
                 (void**)&twinui_pcshell_CMultitaskingViewManager__CreateXamlMTVHostFunc,
                 twinui_pcshell_CMultitaskingViewManager__CreateXamlMTVHostHook
             );
-            if (rv != 0)
-            {
-                FreeLibraryAndExitThread(hModule, rv);
-                return rv;
-            }
         }
         else
         {
@@ -10395,15 +11056,18 @@ DWORD Inject(BOOL bIsExplorer)
                 (void**)&twinui_pcshell_IsUndockedAssetAvailableFunc,
                 twinui_pcshell_IsUndockedAssetAvailableHook
             );
-            if (rv != 0)
-            {
-                FreeLibraryAndExitThread(hModule, rv);
-                return rv;
-            }
         }
     }
+    if (rv != 0)
+    {
+        if (IsWindows11Version22H2OrHigher())
+            printf("Failed to hook twinui_pcshell_CMultitaskingViewManager__CreateXamlMTVHost(). rv = %d\n", rv);
+        else
+            printf("Failed to hook twinui_pcshell_IsUndockedAssetAvailable(). rv = %d\n", rv);
+    }
 
-    /*if (symbols_PTRS.twinui_pcshell_PTRS[TWINUI_PCSHELL_SB_CNT - 1] && symbols_PTRS.twinui_pcshell_PTRS[TWINUI_PCSHELL_SB_CNT - 1] != 0xFFFFFFFF)
+    /*rv = -1;
+    if (symbols_PTRS.twinui_pcshell_PTRS[TWINUI_PCSHELL_SB_CNT - 1] && symbols_PTRS.twinui_pcshell_PTRS[TWINUI_PCSHELL_SB_CNT - 1] != 0xFFFFFFFF)
     {
         winrt_Windows_Internal_Shell_implementation_MeetAndChatManager_OnMessageFunc = (INT64(*)(void*, POINT*))
             ((uintptr_t)hTwinuiPcshell + symbols_PTRS.twinui_pcshell_PTRS[TWINUI_PCSHELL_SB_CNT - 1]);
@@ -10412,12 +11076,43 @@ DWORD Inject(BOOL bIsExplorer)
             (void**)&winrt_Windows_Internal_Shell_implementation_MeetAndChatManager_OnMessageFunc,
             winrt_Windows_Internal_Shell_implementation_MeetAndChatManager_OnMessageHook
         );
-        if (rv != 0)
-        {
-            FreeLibraryAndExitThread(hModule, rv);
-            return rv;
-        }
+    }
+    if (rv != 0)
+    {
+        printf("Failed to hook winrt_Windows_Internal_Shell_implementation_MeetAndChatManager_OnMessage(). rv = %d\n", rv);
     }*/
+
+#ifdef _WIN64
+#if USE_MOMENT_3_FIXES_ON_MOMENT_2
+    // Use this only for testing, since the RtlQueryFeatureConfiguration() hook is perfect.
+    // Only tested on 22621.1992.
+    BOOL bPerformMoment2Patches = IsWindows11Version22H2Build1413OrHigher();
+#else
+    // This is the only way to fix stuff since the flag "26008830" and the code when it's not enabled are gone.
+    // Tested on:
+    // - 22621.2134, 22621.2283, 22621.2359 (RP)
+    // - 23545.1000
+    BOOL bPerformMoment2Patches = IsWindows11Version22H2Build2134OrHigher();
+#endif
+    bPerformMoment2Patches &= bOldTaskbar;
+    if (bPerformMoment2Patches)
+    {
+        // Fix flyout placement: Our goal with these patches is to get `mi.rcWork` assigned
+        Moment2PatchActionCenter(&miTwinuiPcshell);
+        Moment2PatchControlCenter(&miTwinuiPcshell);
+        Moment2PatchToastCenter(&miTwinuiPcshell);
+
+        // Fix task view
+        Moment2PatchTaskView(&miTwinuiPcshell);
+
+        // Fix volume and brightness popups
+        HANDLE hHardwareConfirmator = LoadLibraryW(L"Windows.Internal.HardwareConfirmator.dll");
+        MODULEINFO miHardwareConfirmator;
+        GetModuleInformation(GetCurrentProcess(), hHardwareConfirmator, &miHardwareConfirmator, sizeof(MODULEINFO));
+        Moment2PatchHardwareConfirmator(&miHardwareConfirmator);
+    }
+#endif
+
     VnPatchIAT(hTwinuiPcshell, "API-MS-WIN-CORE-REGISTRY-L1-1-0.DLL", "RegGetValueW", twinuipcshell_RegGetValueW);
     //VnPatchIAT(hTwinuiPcshell, "api-ms-win-core-debug-l1-1-0.dll", "IsDebuggerPresent", IsDebuggerPresentHook);
     printf("Setup twinui.pcshell functions done\n");
@@ -10595,7 +11290,10 @@ DWORD Inject(BOOL bIsExplorer)
     if (IsWindows11())
     {
         HANDLE hInputSwitch = LoadLibraryW(L"InputSwitch.dll");
-        printf("[IME] Context menu patch status: %d\n", PatchContextMenuOfNewMicrosoftIME(NULL));
+        if (bOldTaskbar)
+        {
+            printf("[IME] Context menu patch status: %d\n", PatchContextMenuOfNewMicrosoftIME(NULL));
+        }
         if (hInputSwitch)
         {
             VnPatchIAT(hInputSwitch, "user32.dll", "TrackPopupMenuEx", inputswitch_TrackPopupMenuExHook);
@@ -10760,7 +11458,7 @@ DWORD Inject(BOOL bIsExplorer)
 
 
 
-    if (bDisableOfficeHotkeys)
+    // if (bDisableOfficeHotkeys)
     {
         VnPatchIAT(hExplorer, "user32.dll", "RegisterHotKey", explorer_RegisterHotkeyHook);
     }
