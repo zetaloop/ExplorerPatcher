@@ -67,6 +67,7 @@ Win10 开始菜单汉化不全问题及补丁，详见 [这个议题](https://gi
 * [原理](https://github.com/valinet/ExplorerPatcher/wiki/How-does-it-work)
 * [杀毒软件误报](https://github.com/valinet/ExplorerPatcher/wiki/Antivirus-false-positives)
 * [编译](https://github.com/valinet/ExplorerPatcher/wiki/Compiling)
+* [官方 Discord](https://discord.gg/gsPcfqHTD2)
 
 ## 项目收藏记录
 
