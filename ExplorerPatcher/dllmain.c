@@ -9301,32 +9301,6 @@ BOOL twinui_RegisterHotkeyHook(HWND hWnd, int id, UINT fsModifiers, UINT vk)
 #pragma endregion
 
 
-#pragma region "Redirect certain library loads to other versions"
-HMODULE patched_LoadLibraryExW(LPCWSTR lpLibFileName, HANDLE hFile, DWORD dwFlags)
-{
-    WCHAR path[MAX_PATH];
-    GetSystemDirectoryW(path, MAX_PATH);
-    wcscat_s(path, MAX_PATH, L"\\AppResolver.dll");
-    if (!_wcsicmp(path, lpLibFileName))
-    {
-        GetWindowsDirectoryW(path, MAX_PATH);
-        wcscat_s(path, MAX_PATH, L"\\SystemApps\\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\\AppResolverLegacy.dll");
-        return LoadLibraryExW(path, hFile, dwFlags);
-    }
-    if (IsWindows11Version22H2Build1413OrHigher()) return LoadLibraryExW(lpLibFileName, hFile, dwFlags);
-    GetSystemDirectoryW(path, MAX_PATH);
-    wcscat_s(path, MAX_PATH, L"\\StartTileData.dll");
-    if (!_wcsicmp(path, lpLibFileName))
-    {
-        GetWindowsDirectoryW(path, MAX_PATH);
-        wcscat_s(path, MAX_PATH, L"\\SystemApps\\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\\StartTileDataLegacy.dll");
-        return LoadLibraryExW(path, hFile, dwFlags);
-    }
-    return LoadLibraryExW(lpLibFileName, hFile, dwFlags);
-}
-#pragma endregion
-
-
 #pragma region "Fix taskbar thumbnails and acrylic in newer OS builds (22572+)"
 #ifdef _WIN64
 unsigned int (*GetTaskbarColor)(INT64 u1, INT64 u2) = NULL;
@@ -9811,6 +9785,7 @@ DWORD InjectBasicFunctions(BOOL bIsExplorer, BOOL bInstall)
             }
             VnPatchIAT(hExplorerFrame, "API-MS-WIN-CORE-STRING-L1-1-0.DLL", "CompareStringOrdinal", ExplorerFrame_CompareStringOrdinal);
             VnPatchIAT(hExplorerFrame, "user32.dll", "GetSystemMetricsForDpi", explorerframe_GetSystemMetricsForDpi);
+            VnPatchIAT(hExplorerFrame, "api-ms-win-core-com-l1-1-0.dll", "CoCreateInstance", ExplorerFrame_CoCreateInstanceHook);
         }
         else
         {
@@ -9824,6 +9799,7 @@ DWORD InjectBasicFunctions(BOOL bIsExplorer, BOOL bInstall)
             }
             VnPatchIAT(hExplorerFrame, "API-MS-WIN-CORE-STRING-L1-1-0.DLL", "CompareStringOrdinal", CompareStringOrdinal);
             VnPatchIAT(hExplorerFrame, "user32.dll", "GetSystemMetricsForDpi", GetSystemMetricsForDpi);
+            VnPatchIAT(hExplorerFrame, "api-ms-win-core-com-l1-1-0.dll", "CoCreateInstance", CoCreateInstance);
             FreeLibrary(hExplorerFrame);
             FreeLibrary(hExplorerFrame);
         }
@@ -9858,54 +9834,33 @@ DWORD InjectBasicFunctions(BOOL bIsExplorer, BOOL bInstall)
         }
     }
 
-    DWORD dwPermitOldStartTileData = FALSE;
-    DWORD dwSize = sizeof(DWORD);
     if (bInstall)
     {
-        dwSize = sizeof(DWORD);
+        DWORD dwSize = sizeof(DWORD);
         RegGetValueW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", L"Start_ShowClassicMode", RRF_RT_DWORD, NULL, &dwStartShowClassicMode, &dwSize);
-        dwSize = sizeof(DWORD);
-        RegGetValueW(HKEY_CURRENT_USER, L"Software\\ExplorerPatcher", L"PermitOldStartTileDataOneShot", RRF_RT_DWORD, NULL, &dwPermitOldStartTileData, &dwSize);
     }
-    if (dwStartShowClassicMode && dwPermitOldStartTileData)
+
+#ifdef _WIN64
+    // As of writing, this function is never invoked with bInstall=TRUE, so we don't handle the case if it's false for now
+    RtlQueryFeatureConfigurationFunc = GetProcAddress(GetModuleHandleW(L"ntdll.dll"), "RtlQueryFeatureConfiguration");
+    int rv = -1;
+    if (RtlQueryFeatureConfigurationFunc)
     {
-        HANDLE hCombase = LoadLibraryW(L"combase.dll");
-        if (hCombase)
-        {
-            if (bInstall)
-            {
-                WCHAR wszPath[MAX_PATH], wszExpectedPath[MAX_PATH];
-                ZeroMemory(wszPath, MAX_PATH);
-                ZeroMemory(wszExpectedPath, MAX_PATH);
-                DWORD dwLength = MAX_PATH;
-                HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, GetCurrentProcessId());
-                if (hProcess)
-                {
-                    QueryFullProcessImageNameW(hProcess, 0, wszPath, &dwLength);
-                    CloseHandle(hProcess);
-                }
-                if (GetWindowsDirectoryW(wszExpectedPath, MAX_PATH))
-                {
-                    wcscat_s(wszExpectedPath, MAX_PATH, L"\\explorer.exe");
-                    if (!_wcsicmp(wszPath, wszExpectedPath))
-                    {
-                        dwPermitOldStartTileData = FALSE;
-                        dwSize = sizeof(DWORD);
-                        RegDeleteKeyValueW(HKEY_CURRENT_USER, L"Software\\ExplorerPatcher", L"PermitOldStartTileDataOneShot");
-                        VnPatchIAT(hCombase, "api-ms-win-core-libraryloader-l1-2-0.dll", "LoadLibraryExW", patched_LoadLibraryExW);
-                    }
-                }
-                else
-                {
-                    VnPatchIAT(hCombase, "api-ms-win-core-libraryloader-l1-2-0.dll", "LoadLibraryExW", LoadLibraryExW);
-                    FreeLibrary(hCombase);
-                    FreeLibrary(hCombase);
-                }
-            }
-        }
+        rv = funchook_prepare(
+            funchook,
+            (void**)&RtlQueryFeatureConfigurationFunc,
+            RtlQueryFeatureConfigurationHook
+        );
     }
+    if (rv != 0)
+    {
+        printf("Failed to hook RtlQueryFeatureConfiguration(). rv = %d\n", rv);
+    }
+#endif
 }
 
+
+#pragma region "Enable old Alt+Tab"
 INT64(*twinui_pcshell_IsUndockedAssetAvailableFunc)(INT a1, INT64 a2, INT64 a3, const char* a4);
 INT64 twinui_pcshell_IsUndockedAssetAvailableHook(INT a1, INT64 a2, INT64 a3, const char* a4)
 {
@@ -9936,7 +9891,11 @@ INT64 twinui_pcshell_CMultitaskingViewManager__CreateXamlMTVHostHook(INT64 _this
         return twinui_pcshell_CMultitaskingViewManager__CreateDCompMTVHostFunc(_this, a2, a3, a4, a5);
     return twinui_pcshell_CMultitaskingViewManager__CreateXamlMTVHostFunc(_this, a2, a3, a4, a5);
 }
+#pragma endregion
 
+
+#pragma region "Fixes related to the removal of STTest feature flag (22621.2134+)"
+#ifdef _WIN64
 HRESULT(*twinui_pcshell_PenMenuSystemTrayManager__GetDynamicSystemTrayHeightForMonitorFunc)(IInspectable* _this, HMONITOR hMonitor, float* outHeight);
 HRESULT twinui_pcshell_PenMenuSystemTrayManager__GetDynamicSystemTrayHeightForMonitorHook(IInspectable* _this, HMONITOR hMonitor, float* outHeight)
 {
@@ -9951,7 +9910,6 @@ HRESULT twinui_pcshell_PenMenuSystemTrayManager__GetDynamicSystemTrayHeightForMo
     return twinui_pcshell_PenMenuSystemTrayManager__GetDynamicSystemTrayHeightForMonitorFunc(_this, hMonitor, outHeight);
 }
 
-#ifdef _WIN64
 static struct
 {
     int coroInstance_rcOut; // 22621.1992: 0x10
@@ -10426,12 +10384,11 @@ BOOL Moment2PatchHardwareConfirmator(LPMODULEINFO mi)
     return TRUE;
 }
 #endif
+#pragma endregion
 
-BOOL IsDebuggerPresentHook()
-{
-    return FALSE;
-}
 
+#pragma region "Enable EP weather on Windows Server SKUs"
+#ifdef _WIN64
 BOOL PeopleBand_IsOS(DWORD dwOS)
 {
     if (dwOS == OS_ANYSERVER) return FALSE;
@@ -10461,7 +10418,12 @@ BOOL explorer_IsOS(DWORD dwOS)
     }
     return IsOS(dwOS);
 }
+#endif
+#pragma endregion
 
+
+#pragma region "Find offsets of needed functions when symbols are not available"
+#ifdef _WIN64
 void TryToFindTwinuiPCShellOffsets(DWORD* pOffsets)
 {
     // We read from the file instead of from memory because other tweak software might've modified the functions we're looking for
@@ -10634,6 +10596,132 @@ cleanup:
     free(pFile);
     CloseHandle(hFile);
 }
+#endif
+#pragma endregion
+
+
+#pragma region "Fix Pin to Start from Explorer not working when using Windows 10 start menu"
+#ifdef _WIN64
+HRESULT(*AppResolver_StartDocked_GetStartScreenManagerExtensionStaticsFunc)(void** out);
+HRESULT(*StartTileData_StartDocked_GetStartScreenManagerExtensionStaticsFunc)(void** out);
+HRESULT StartDocked_GetStartScreenManagerExtensionStaticsHook(void** out)
+{
+    if (dwStartShowClassicMode)
+    {
+        // Keep the value of out as NULL and return S_OK to execute the old code
+        return S_OK;
+    }
+    return AppResolver_StartDocked_GetStartScreenManagerExtensionStaticsFunc(out);
+}
+
+typedef struct CCacheShortcut CCacheShortcut;
+extern HRESULT(*AppResolver_CAppResolverCacheBuilder__AddUserPinnedShortcutToStartFunc)(const CCacheShortcut* a2, const void* a3);
+extern HRESULT AppResolver_CAppResolverCacheBuilder__AddUserPinnedShortcutToStart(const CCacheShortcut* a2, const void* a3);
+
+static void FindGetStartScreenManagerExtensionStatics(const MODULEINFO* pModuleInfo, HRESULT(**ppfnOut)(void**))
+{
+    // StartDocked::GetStartScreenManagerExtensionStatics
+    // 48 89 5C 24 ? 48 89 74 24 ? 55 57 41 56 48 8D 6C 24 ? 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 45 37 ?? 8B F1 48 83 21 00
+    PBYTE match = FindPattern(
+        pModuleInfo->lpBaseOfDll,
+        pModuleInfo->SizeOfImage,
+        "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x55\x57\x41\x56\x48\x8D\x6C\x24\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x45\x37\x00\x8B\xF1\x48\x83\x21\x00",
+        "xxxx?xxxx?xxxxxxxx?xxx????xxx????xxxxxxx?xxxxxx"
+    );
+    if (match)
+    {
+        *ppfnOut = match;
+    }
+}
+
+static void PatchAppResolver()
+{
+    HANDLE hAppResolver = LoadLibraryW(L"AppResolver.dll");
+    MODULEINFO miAppResolver;
+    GetModuleInformation(GetCurrentProcess(), hAppResolver, &miAppResolver, sizeof(MODULEINFO));
+
+    FindGetStartScreenManagerExtensionStatics(&miAppResolver, &AppResolver_StartDocked_GetStartScreenManagerExtensionStaticsFunc);
+    if (AppResolver_StartDocked_GetStartScreenManagerExtensionStaticsFunc)
+    {
+        printf("AppResolver.dll!StartDocked::GetStartScreenManagerExtensionStatics() = %llX\n", (PBYTE)AppResolver_StartDocked_GetStartScreenManagerExtensionStaticsFunc - (PBYTE)hAppResolver);
+    }
+
+    // CAppResolverCacheBuilder::_AddUserPinnedShortcutToStart()
+    // 8B ? 48 8B D3 E8 ? ? ? ? 48 8B 8D
+    //                  ^^^^^^^
+    PBYTE match = FindPattern(
+        hAppResolver,
+        miAppResolver.SizeOfImage,
+        "\x8B\x00\x48\x8B\xD3\xE8\x00\x00\x00\x00\x48\x8B\x8D",
+        "x?xxxx????xxx"
+    );
+    if (match)
+    {
+        match += 5;
+        match = match + 5 + *(int*)(match + 1);
+        AppResolver_CAppResolverCacheBuilder__AddUserPinnedShortcutToStartFunc = match;
+        printf("CAppResolverCacheBuilder::_AddUserPinnedShortcutToStart() = %llX\n", match - (PBYTE)hAppResolver);
+    }
+
+    int rv = -1;
+    if (AppResolver_CAppResolverCacheBuilder__AddUserPinnedShortcutToStartFunc)
+    {
+        rv = funchook_prepare(
+            funchook,
+            (void**)&AppResolver_CAppResolverCacheBuilder__AddUserPinnedShortcutToStartFunc,
+            AppResolver_CAppResolverCacheBuilder__AddUserPinnedShortcutToStart
+        );
+    }
+    if (rv != 0)
+    {
+        printf("Failed to hook CAppResolverCacheBuilder::_AddUserPinnedShortcutToStart(). rv = %d\n", rv);
+        return; // Must be hooked properly otherwise our GetStartScreenManagerExtensionStatics hook will make it crash
+    }
+
+    rv = -1;
+    if (AppResolver_StartDocked_GetStartScreenManagerExtensionStaticsFunc)
+    {
+        rv = funchook_prepare(
+            funchook,
+            (void**)&AppResolver_StartDocked_GetStartScreenManagerExtensionStaticsFunc,
+            StartDocked_GetStartScreenManagerExtensionStaticsHook
+        );
+    }
+    if (rv != 0)
+    {
+        printf("Failed to hook AppResolver.dll!StartDocked::GetStartScreenManagerExtensionStatics(). rv = %d\n", rv);
+    }
+}
+
+static void PatchStartTileData()
+{
+    HANDLE hStartTileData = LoadLibraryW(L"StartTileData.dll");
+    MODULEINFO miStartTileData;
+    GetModuleInformation(GetCurrentProcess(), hStartTileData, &miStartTileData, sizeof(MODULEINFO));
+
+    FindGetStartScreenManagerExtensionStatics(&miStartTileData, &StartTileData_StartDocked_GetStartScreenManagerExtensionStaticsFunc);
+    if (StartTileData_StartDocked_GetStartScreenManagerExtensionStaticsFunc)
+    {
+        printf("StartTileData.dll!StartDocked::GetStartScreenManagerExtensionStatics() = %llX\n", (PBYTE)StartTileData_StartDocked_GetStartScreenManagerExtensionStaticsFunc - (PBYTE)hStartTileData);
+    }
+
+    int rv = -1;
+    if (StartTileData_StartDocked_GetStartScreenManagerExtensionStaticsFunc)
+    {
+        rv = funchook_prepare(
+            funchook,
+            (void**)&StartTileData_StartDocked_GetStartScreenManagerExtensionStaticsFunc,
+            StartDocked_GetStartScreenManagerExtensionStaticsHook
+        );
+    }
+    if (rv != 0)
+    {
+        printf("Failed to hook StartTileData.dll!StartDocked::GetStartScreenManagerExtensionStatics(). rv = %d\n", rv);
+    }
+}
+#endif
+#pragma endregion
+
 
 DWORD Inject(BOOL bIsExplorer)
 {
@@ -10663,10 +10751,10 @@ DWORD Inject(BOOL bIsExplorer)
     Explorer_RefreshUI(99);
 
 #ifdef _WIN64
-    if (bIsExplorer)
+    // if (bIsExplorer)
     {
         funchook = funchook_create();
-        printf("funchook create %d\n", funchook != 0);
+        // printf("funchook create %d\n", funchook != 0);
     }
 #endif
 
@@ -10847,10 +10935,19 @@ DWORD Inject(BOOL bIsExplorer)
 
     if (!bIsExplorer)
     {
-        return;
+#ifdef _WIN64
+        rv = funchook_install(funchook, 0);
+        if (rv != 0)
+        {
+            printf("Failed to install hooks. rv = %d\n", rv);
+        }
+#endif
+        return 0;
     }
 
 #ifdef _WIN64
+    extern void InitializeWilLogCallback();
+    InitializeWilLogCallback();
     wprintf(L"Running on Windows %d, OS Build %d.%d.%d.%d.\n", IsWindows11() ? 11 : 10, global_rovi.dwMajorVersion, global_rovi.dwMinorVersion, global_rovi.dwBuildNumber, global_ubr);
 #endif
 
@@ -10930,21 +11027,6 @@ DWORD Inject(BOOL bIsExplorer)
         printf("Loaded symbols\n");
     }
 
-    RtlQueryFeatureConfigurationFunc = GetProcAddress(GetModuleHandleW(L"ntdll.dll"), "RtlQueryFeatureConfiguration");
-    if (RtlQueryFeatureConfigurationFunc) {
-        rv = funchook_prepare(
-            funchook,
-            (void**)&RtlQueryFeatureConfigurationFunc,
-            RtlQueryFeatureConfigurationHook
-        );
-        if (rv != 0)
-        {
-            FreeLibraryAndExitThread(hModule, rv);
-            return FALSE;
-        }
-    }
-    printf("Setup ntdll functions done\n");
-
 
     HANDLE hUser32 = LoadLibraryW(L"user32.dll");
     CreateWindowInBand = GetProcAddress(hUser32, "CreateWindowInBand");
@@ -10985,10 +11067,14 @@ DWORD Inject(BOOL bIsExplorer)
     VnPatchIAT(hExplorer, "uxtheme.dll", "OpenThemeDataForDpi", explorer_OpenThemeDataForDpi);
     VnPatchIAT(hExplorer, "uxtheme.dll", "DrawThemeBackground", explorer_DrawThemeBackground);
     VnPatchIAT(hExplorer, "uxtheme.dll", "CloseThemeData", explorer_CloseThemeData);
-    // Fix Windows 10 taskbar high DPI button width bug
     if (IsWindows11())
     {
+        // Fix Windows 10 taskbar high DPI button width bug
         VnPatchIAT(hExplorer, "api-ms-win-ntuser-sysparams-l1-1-0.dll", "GetSystemMetrics", patched_GetSystemMetrics);
+
+        // Fix Pin to Start/Unpin from Start
+        PatchAppResolver();
+        PatchStartTileData();
     }
     //VnPatchIAT(hExplorer, "api-ms-win-core-libraryloader-l1-2-0.dll", "LoadStringW", explorer_LoadStringWHook);
     if (bClassicThemeMitigations)
@@ -11270,7 +11356,6 @@ DWORD Inject(BOOL bIsExplorer)
 #endif
 
     VnPatchIAT(hTwinuiPcshell, "API-MS-WIN-CORE-REGISTRY-L1-1-0.DLL", "RegGetValueW", twinuipcshell_RegGetValueW);
-    //VnPatchIAT(hTwinuiPcshell, "api-ms-win-core-debug-l1-1-0.dll", "IsDebuggerPresent", IsDebuggerPresentHook);
     printf("Setup twinui.pcshell functions done\n");
 
 
@@ -11432,11 +11517,6 @@ DWORD Inject(BOOL bIsExplorer)
     printf("Setup shell32 functions done\n");
 
 
-    HANDLE hExplorerFrame = GetModuleHandleW(L"ExplorerFrame.dll");
-    VnPatchIAT(hExplorerFrame, "api-ms-win-core-com-l1-1-0.dll", "CoCreateInstance", ExplorerFrame_CoCreateInstanceHook);
-    printf("Setup explorerframe functions done\n");
-
-
     HANDLE hWindowsStorage = LoadLibraryW(L"windows.storage.dll");
     SHELL32_CanDisplayWin8CopyDialogFunc = GetProcAddress(hShell32, "SHELL32_CanDisplayWin8CopyDialog");
     if (SHELL32_CanDisplayWin8CopyDialogFunc) VnPatchDelayIAT(hWindowsStorage, "ext-ms-win-shell-exports-internal-l1-1-0.dll", "SHELL32_CanDisplayWin8CopyDialog", SHELL32_CanDisplayWin8CopyDialogHook);
@@ -11506,50 +11586,24 @@ DWORD Inject(BOOL bIsExplorer)
         ResetEvent(hEvent);
     }*/
 
-    if (bOldTaskbar)
+    if (IsWindows11())
     {
-        if (IsWindows11())
+        if (bOldTaskbar)
         {
-            CreateThread(
-                0,
-                0,
-                PlayStartupSound,
-                0,
-                0,
-                0
-            );
+            CreateThread(0, 0, PlayStartupSound, 0, 0, 0);
             printf("Play startup sound thread...\n");
-        }
-    }
-
-
-    if (bOldTaskbar)
-    {
-        if (IsWindows11())
-        {
-            CreateThread(
-                0,
-                0,
-                SignalShellReady,
-                dwExplorerReadyDelay,
-                0,
-                0
-            );
+            CreateThread(0, 0, SignalShellReady, dwExplorerReadyDelay, 0, 0);
             printf("Signal shell ready...\n");
         }
-    }
-    else
-    {
-        CreateThread(
-            0,
-            0,
-            FixTaskbarAutohide,
-            0,
-            0,
-            0
-        );
-        RegDeleteKeyValueW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", L"TaskbarGlomLevel");
-        RegDeleteKeyValueW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", L"MMTaskbarGlomLevel");
+        else
+        {
+            CreateThread(0, 0, FixTaskbarAutohide, 0, 0, 0);
+            if (IsWindows11Version23H2OrHigher())
+            {
+                RegDeleteKeyValueW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", L"TaskbarGlomLevel");
+                RegDeleteKeyValueW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", L"MMTaskbarGlomLevel");
+            }
+        }
     }
 
     if (IsWindows11Version22H2OrHigher() && bOldTaskbar)
@@ -12777,10 +12831,9 @@ void InjectStartMenu()
 
         if (IsWindows11())
         {
-            // Redirects to StartTileData from 22000.51 which works with the legacy menu
-            LoadLibraryW(L"combase.dll");
-            HANDLE hCombase = GetModuleHandleW(L"combase.dll");
-            VnPatchIAT(hCombase, "api-ms-win-core-libraryloader-l1-2-0.dll", "LoadLibraryExW", patched_LoadLibraryExW);
+            // Fixes Pin to Start/Unpin from Start
+            PatchAppResolver();
+            PatchStartTileData();
 
             // Redirects to pri files from 22000.51 which work with the legacy menu
             LoadLibraryW(L"MrmCoreR.dll");
