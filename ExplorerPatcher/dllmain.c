@@ -11048,7 +11048,10 @@ DWORD Inject(BOOL bIsExplorer)
     if (bOldTaskbar && global_rovi.dwBuildNumber >= 22572)
     {
         VnPatchIAT(hExplorer, "dwmapi.dll", "DwmUpdateThumbnailProperties", explorer_DwmUpdateThumbnailPropertiesHook);
-        PatchExplorer_UpdateWindowAccentProperties();
+        if (global_rovi.dwBuildNumber < 25000) // TODO Needs fixing in Canary
+        {
+            PatchExplorer_UpdateWindowAccentProperties();
+        }
     }
     if (IsWindows11())
     {
@@ -11533,7 +11536,7 @@ DWORD Inject(BOOL bIsExplorer)
         else
         {
             CreateThread(0, 0, FixTaskbarAutohide, 0, 0, 0);
-            if (IsWindows11Version23H2OrHigher())
+            if (!IsWindows11Version22H2Build2361OrHigher())
             {
                 RegDeleteKeyValueW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", L"TaskbarGlomLevel");
                 RegDeleteKeyValueW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", L"MMTaskbarGlomLevel");
