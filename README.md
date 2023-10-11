@@ -3,7 +3,7 @@
 
 这是简体中文的修改版。由 zetaloop 制作分享，遵循原作 GPL-2.0 协议。
 
-[Original English version 英文原版链接](https://github.com/valinet/ExplorerPatcher) | 原作者捐赠：[PayPal](https://www.paypal.com/donate?business=valentingabrielradu%40gmail.com&no_recurring=0&item_name=ExplorerPatcher&currency_code=EUR)
+[**>>> English Version click here <<<**](https://github.com/valinet/ExplorerPatcher) | 原作者捐赠：[PayPal](https://www.paypal.com/donate?business=valentingabrielradu%40gmail.com&no_recurring=0&item_name=ExplorerPatcher&currency_code=EUR)
 
 ![编译状况](https://github.com/zetaloop/ExplorerPatcher/actions/workflows/build.yml/badge.svg)
 
