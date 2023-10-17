@@ -97,7 +97,7 @@
 
 ;T 托盘菜单
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;b 任务栏和托盘启用皮肤
+;b 启用任务栏与托盘皮肤
 "SkinMenus"=dword:00000001
 ;b 托盘图标居中对齐
 "CenterMenus"=dword:00000001
@@ -119,7 +119,7 @@
 ;c 3 “显示桌面”按钮
 ;x 1 启用 (默认)
 ;x 0 禁用
-;x 2 启用但看不见
+;x 2 隐藏外观
 "TaskbarSD"=dword:00000001
 ;g SystemTray_Section109
 ;s SystemTray_Section117 !IsOldTaskbar
@@ -130,7 +130,7 @@
 ;s SystemTray_Windows10Section IsOldTaskbar
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;p 2
-;b 系统图标换成 Windows 11 风格 *
+;b 使用 Win11 风格的系统图标 *
 "SkinIcons"=dword:00000001
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;a 右键网络图标打开网络和 Internet 设置时，
@@ -220,7 +220,7 @@
 ;d 禁用导航栏 **
 @=""
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;b 禁用新版搜索栏样式
+;b 禁用现代搜索栏样式
 ;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_DisableModernSearchBar"=dword:00000000
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;b 缩小地址栏高度 **
@@ -286,7 +286,7 @@
 ;"Virtualized_{D17F1E1A-5919-4427-8F89-A1A8503CA3EB}_Start_MaximumFrequentApps"=dword:00000006
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StartPage]
 ;a 使用多个屏幕，按 Win 键打开开始菜单时，
-;c 10 打开位置
+;c 10 打开的位置
 ;x 1 主显示器 (默认)
 ;x 0 鼠标光标所在显示器
 ;x 2 显示器 #2
@@ -625,16 +625,16 @@
 
 ;T 其他
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;b 记忆关闭时设置所处的页面
+;b 下次打开本设置时跳转到关闭时的页面
 "LastSectionInProperties"=dword:00000000
 ;b 按 Win+C 打开时间，而非打开 Teams *
 "ClockFlyoutOnWinC"=dword:00000000
 ;b 任务栏工具栏之间显示分隔符 *
 "ToolbarSeparators"=dword:00000000
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;b 将本设置（属性）添加到 Win+X 菜单中
+;b 将属性（EP 设置）添加到 Win+X 菜单中
 "PropertiesInWinX"=dword:00000000
-;b Win+X 菜单中属性这一项不显示快捷键
+;b Win+X 菜单中属性（EP 设置）不显示快捷键
 "NoMenuAccelerator"=dword:00000000
 ;b 禁用 Ctrl+Alt+Shift+Win Office 快捷键 *
 "DisableOfficeHotkeys"=dword:00000000
@@ -678,7 +678,7 @@
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
 ;z 3 自动更新
 ;x 1 仅通知 (默认)
-;x 0 自动安装
+;x 0 弹窗提示安装
 ;x 2 不检查更新
 "UpdatePolicy"=dword:00000001
 ;b 接收测试版更新 (不推荐)
@@ -688,11 +688,11 @@
 ;t 更新服务器:
 ;w 稳定版
 ;输入一个支持 GitHub release API 的网址。如需自建更新服务器，请查阅软件 Wiki。
-;github.com/ZetaSp/ExplorerPatcher/releases/latest
+;github.com/zetaloop/ExplorerPatcher/releases/latest
 "UpdateURL"=""
 ;w 测试版
 ;输入一个支持 GitHub pre-release API 的网址。如需自建更新服务器，请查阅软件 Wiki。
-;api.github.com/repos/ZetaSp/ExplorerPatcher/releases?per_page=1
+;api.github.com/repos/zetaloop/ExplorerPatcher/releases?per_page=1
 "UpdateURLStaging"=""
 ;y 检查更新
 ;;;EP_CHECK_FOR_UPDATES
@@ -728,7 +728,7 @@
 ;d 启用旧版视图控件 SysListView32 *
 @=""
 [HKEY_CURRENT_USER\Software\ExplorerPatcher]
-;b 不修改任务栏右键菜单，隐藏本设置入口（属性）
+;b 不修改任务栏右键菜单，隐藏 EP 设置入口（属性）
 "NoPropertiesInContextMenu"=dword:00000000
 ;b 启用符号文件下载 *
 "EnableSymbolDownload"=dword:00000001

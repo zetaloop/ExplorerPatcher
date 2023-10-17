@@ -492,7 +492,7 @@ DWORD DownloadSymbols(DownloadSymbolsParams* params)
                 buffer,
                 DownloadOKXML,
                 Utf8Text("当前系统版本"),
-                szReportedVersion
+                szReportedVersion,
                 Utf8Text("的符号文件下载完成"),
                 Utf8Text("重启文件管理器来生效并启用增强功能。")
             );
