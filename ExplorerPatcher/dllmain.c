@@ -4296,6 +4296,7 @@ INT64 winrt_Windows_Internal_Shell_implementation_MeetAndChatManager_OnMessageHo
 
 #pragma region "Enable old taskbar"
 #ifdef _WIN64
+HRESULT(*explorer_RoGetActivationFactoryFunc)(HSTRING activatableClassId, GUID* iid, void** factory);
 HRESULT explorer_RoGetActivationFactoryHook(HSTRING activatableClassId, GUID* iid, void** factory)
 {
     PCWSTR StringRawBuffer = WindowsGetStringRawBuffer(activatableClassId, 0);
@@ -4312,7 +4313,7 @@ HRESULT explorer_RoGetActivationFactoryHook(HSTRING activatableClassId, GUID* ii
             return S_OK;
         }
     }
-    return RoGetActivationFactory(activatableClassId, iid, factory);
+    return explorer_RoGetActivationFactoryFunc(activatableClassId, iid, factory);
 }
 
 FARPROC explorer_GetProcAddressHook(HMODULE hModule, const CHAR* lpProcName)
@@ -8062,27 +8063,15 @@ HRESULT explorer_DrawThemeTextEx(
     SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICSW), &ncm, 0);
 
     HFONT hFont = NULL;
-    if (bIsActiveUnhovered)
+    if (bIsActiveUnhovered || bIsActiveHovered)
     {
-        hFont = CreateFontIndirectW(&(ncm.lfCaptionFont));
-    }
-    else if (bIsInactiveUnhovered)
-    {
-        hFont = CreateFontIndirectW(&(ncm.lfMenuFont));
-    }
-    else if (bIsActiveHovered)
-    {
-        hFont = CreateFontIndirectW(&(ncm.lfCaptionFont));
-    }
-    else if (bIsInactiveHovered)
-    {
-        hFont = CreateFontIndirectW(&(ncm.lfMenuFont));
+        ncm.lfCaptionFont.lfWeight = FW_BOLD;
     }
     else
     {
-        hFont = CreateFontIndirectW(&(ncm.lfMenuFont));
-        //wprintf(L"DrawThemeTextEx %d %d %s\n", iPartId, iStateId, pszText);
+        ncm.lfCaptionFont.lfWeight = FW_NORMAL;
     }
+    hFont = CreateFontIndirectW(&(ncm.lfCaptionFont));
 
     if (iPartId == 5 && iStateId == 0) // clock
     {
@@ -11001,16 +10990,16 @@ BOOL FixStartMenuAnimation(LPMODULEINFO mi)
     }
 
     DWORD dwOldProtect = 0;
-    if (VirtualProtect(match7a + 11, 3, PAGE_EXECUTE_READWRITE, &dwOldProtect))
+    if (VirtualProtect(match7a + 11, 1, PAGE_EXECUTE_READWRITE, &dwOldProtect))
     {
         match7a[0] = 0xEB;
-        VirtualProtect(match7a + 11, 3, dwOldProtect, &dwOldProtect);
+        VirtualProtect(match7a + 11, 1, dwOldProtect, &dwOldProtect);
 
         dwOldProtect = 0;
-        if (VirtualProtect(match7b + 11, 3, PAGE_EXECUTE_READWRITE, &dwOldProtect))
+        if (VirtualProtect(match7b + 11, 1, PAGE_EXECUTE_READWRITE, &dwOldProtect))
         {
             match7b[0] = 0xEB;
-            VirtualProtect(match7b + 11, 3, dwOldProtect, &dwOldProtect);
+            VirtualProtect(match7b + 11, 1, dwOldProtect, &dwOldProtect);
         }
     }
 
@@ -11396,6 +11385,9 @@ DWORD Inject(BOOL bIsExplorer)
     {
         VnPatchIAT(hExplorer, "user32.dll", (LPCSTR)2005, explorer_SetChildWindowNoActivateHook);
         VnPatchDelayIAT(hExplorer, "ext-ms-win-rtcore-ntuser-window-ext-l1-1-0.dll", "SendMessageW", explorer_SendMessageW);
+        // A certain configuration update in 23560.1000 broke this method, this didn't get called with
+        // "RoGetActivationFactory" anymore. ~~We're now hooking RoGetActivationFactory directly.~~ Pulled back for now.
+        explorer_RoGetActivationFactoryFunc = RoGetActivationFactory;
         VnPatchIAT(hExplorer, "api-ms-win-core-libraryloader-l1-2-0.dll", "GetProcAddress", explorer_GetProcAddressHook);
         VnPatchIAT(hExplorer, "shell32.dll", "ShellExecuteW", explorer_ShellExecuteW);
         VnPatchIAT(hExplorer, "shell32.dll", "ShellExecuteExW", explorer_ShellExecuteExW);
@@ -11724,11 +11716,31 @@ DWORD Inject(BOOL bIsExplorer)
     printf("Setup twinui.pcshell functions done\n");
 
 
-    if (IsWindows11Version22H2OrHigher())
+    if (IsWindows11())
     {
         HANDLE hCombase = LoadLibraryW(L"combase.dll");
-        // Fixed a bug that crashed Explorer when a folder window was opened after a first one was closed on OS builds 22621+
-        VnPatchIAT(hCombase, "api-ms-win-core-libraryloader-l1-2-0.dll", "LoadLibraryExW", Windows11v22H2_combase_LoadLibraryExW);
+        /*if (bOldTaskbar) // TODO Pulled back for now, crashes on 22621.2428
+        {
+            // Hook RoGetActivationFactory() for old taskbar
+            explorer_RoGetActivationFactoryFunc = GetProcAddress(hCombase, "RoGetActivationFactory");
+            if (explorer_RoGetActivationFactoryFunc)
+            {
+                rv = funchook_prepare(
+                   funchook,
+                   (void**)&explorer_RoGetActivationFactoryFunc,
+                   explorer_RoGetActivationFactoryHook
+               );
+            }
+            if (rv != 0)
+            {
+                printf("Failed to hook RoGetActivationFactory(). rv = %d\n", rv);
+            }
+        }*/
+        if (IsWindows11Version22H2OrHigher())
+        {
+            // Fixed a bug that crashed Explorer when a folder window was opened after a first one was closed on OS builds 22621+
+            VnPatchIAT(hCombase, "api-ms-win-core-libraryloader-l1-2-0.dll", "LoadLibraryExW", Windows11v22H2_combase_LoadLibraryExW);
+        }
         printf("Setup combase functions done\n");
     }
 
@@ -12569,6 +12581,96 @@ LSTATUS StartUI_RegGetValueW(HKEY hkey, LPCWSTR lpSubKey, LPCWSTR lpValue, DWORD
     return RegGetValueW(hkey, lpSubKey, lpValue, dwFlags, pdwType, pvData, pcbData);
 }
 
+typedef enum Parser_XamlBufferType
+{
+    XBT_Text,
+    XBT_Binary,
+    XBT_MemoryMappedResource
+} Parser_XamlBufferType;
+
+typedef struct Parser_XamlBuffer
+{
+    unsigned int m_count;
+    Parser_XamlBufferType m_bufferType;
+    const unsigned __int8* m_buffer;
+} Parser_XamlBuffer;
+
+static BOOL StartMenu_FillParserBuffer(Parser_XamlBuffer* pBuffer, int resourceId)
+{
+    HRSRC hRscr = FindResource(hModule, MAKEINTRESOURCE(resourceId), RT_RCDATA);
+    if (!hRscr)
+        return FALSE;
+
+    HGLOBAL hgRscr = LoadResource(hModule, hRscr);
+    if (!hgRscr)
+        return FALSE;
+
+    pBuffer->m_buffer = LockResource(hgRscr);
+    pBuffer->m_count = SizeofResource(hModule, hRscr);
+    pBuffer->m_bufferType = XBT_Binary;
+    return TRUE;
+}
+
+Parser_XamlBuffer g_EmptyRefreshedStylesXbfBuffer;
+
+HRESULT(*CCoreServices_TryLoadXamlResourceHelperFunc)(void* _this, void* pUri, bool* pfHasBinaryFile, void** ppMemory, Parser_XamlBuffer* pBuffer, void** ppPhysicalUri);
+HRESULT CCoreServices_TryLoadXamlResourceHelperHook(void* _this, void* pUri, bool* pfHasBinaryFile, void** ppMemory, Parser_XamlBuffer* pBuffer, void** ppPhysicalUri)
+{
+    HRESULT(*Clone)(void* _this, void** ppUri); // index 3
+    HRESULT(*GetPath)(void* _this, unsigned int* pBufferLength, wchar_t* pszBuffer); // index 12
+    void** vtable = *(void***)pUri;
+    Clone = vtable[3];
+    GetPath = vtable[12];
+    wchar_t thePath[MAX_PATH];
+    unsigned int len = MAX_PATH;
+    GetPath(pUri, &len, thePath);
+    // OutputDebugStringW(thePath); OutputDebugStringW(L"<<<<<\n");
+
+    if (!wcscmp(thePath, L"/JumpViewUI/RefreshedStyles.xaml"))
+    {
+        *pfHasBinaryFile = true;
+        *pBuffer = g_EmptyRefreshedStylesXbfBuffer;
+        if (ppPhysicalUri)
+            Clone(pUri, ppPhysicalUri);
+        return pBuffer->m_buffer ? S_OK : E_FAIL;
+    }
+
+    return CCoreServices_TryLoadXamlResourceHelperFunc(_this, pUri, pfHasBinaryFile, ppMemory, pBuffer, ppPhysicalUri);
+}
+
+static BOOL StartMenu_FixContextMenuXbfHijackMethod()
+{
+    LoadLibraryW(L"Windows.UI.Xaml.dll");
+    HANDLE hWindowsUIXaml = GetModuleHandleW(L"Windows.UI.Xaml.dll");
+    MODULEINFO mi;
+    GetModuleInformation(GetCurrentProcess(), hWindowsUIXaml, &mi, sizeof(mi));
+
+    if (!StartMenu_FillParserBuffer(&g_EmptyRefreshedStylesXbfBuffer, IDR_REFRESHEDSTYLES_XBF))
+        return FALSE;
+
+    // 49 89 43 C8 E8 ?? ?? ?? ?? 85 C0
+    //                ^^^^^^^^^^^
+    // Ref: CCoreServices::LoadXamlResource()
+    PBYTE match = FindPattern(
+        mi.lpBaseOfDll,
+        mi.SizeOfImage,
+        "\x49\x89\x43\xC8\xE8\x00\x00\x00\x00\x85\xC0",
+        "xxxxx????xx"
+    );
+    if (!match)
+        return FALSE;
+
+    match += 4;
+    match += 5 + *(int*)(match + 1);
+    CCoreServices_TryLoadXamlResourceHelperFunc = match;
+    funchook_prepare(
+        funchook,
+        (void**)&CCoreServices_TryLoadXamlResourceHelperFunc,
+        CCoreServices_TryLoadXamlResourceHelperHook
+    );
+    return TRUE;
+}
+
 LSTATUS StartUI_RegOpenKeyExW(HKEY hKey, LPCWSTR lpSubKey, DWORD ulOptions, REGSAM samDesired, PHKEY phkResult)
 {
     if (wcsstr(lpSubKey, L"$start.tilegrid$windows.data.curatedtilecollection.tilecollection\\Current"))
@@ -13201,13 +13303,17 @@ DWORD InjectStartMenu()
             PatchAppResolver();
             PatchStartTileData();
 
-            // Redirects to pri files from 22000.51 which work with the legacy menu
-            LoadLibraryW(L"MrmCoreR.dll");
-            HANDLE hMrmCoreR = GetModuleHandleW(L"MrmCoreR.dll");
-            VnPatchIAT(hMrmCoreR, "api-ms-win-core-file-l1-1-0.dll", "CreateFileW", StartUI_CreateFileW);
-            VnPatchIAT(hMrmCoreR, "api-ms-win-core-file-l1-1-0.dll", "GetFileAttributesExW", StartUI_GetFileAttributesExW);
-            VnPatchIAT(hMrmCoreR, "api-ms-win-core-file-l1-1-0.dll", "FindFirstFileW", StartUI_FindFirstFileW);
-            VnPatchIAT(hMrmCoreR, "api-ms-win-core-registry-l1-1-0.dll", "RegGetValueW", StartUI_RegGetValueW);
+            // Fixes context menu crashes
+            if (!StartMenu_FixContextMenuXbfHijackMethod()) {
+                // Fallback to the old method, but we'll have broken localization
+                // Redirects to pri files from 22000.51 which work with the legacy menu
+                LoadLibraryW(L"MrmCoreR.dll");
+                HANDLE hMrmCoreR = GetModuleHandleW(L"MrmCoreR.dll");
+                VnPatchIAT(hMrmCoreR, "api-ms-win-core-file-l1-1-0.dll", "CreateFileW", StartUI_CreateFileW);
+                VnPatchIAT(hMrmCoreR, "api-ms-win-core-file-l1-1-0.dll", "GetFileAttributesExW", StartUI_GetFileAttributesExW);
+                VnPatchIAT(hMrmCoreR, "api-ms-win-core-file-l1-1-0.dll", "FindFirstFileW", StartUI_FindFirstFileW);
+                VnPatchIAT(hMrmCoreR, "api-ms-win-core-registry-l1-1-0.dll", "RegGetValueW", StartUI_RegGetValueW);
+            }
 
             // Enables "Show more tiles" setting
             LoadLibraryW(L"Windows.CloudStore.dll");
