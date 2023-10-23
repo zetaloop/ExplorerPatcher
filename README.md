@@ -22,7 +22,7 @@
 1. 下载最新安装包：[GitHub](https://github.com/zetaloop/ExplorerPatcher/releases/latest/download/ep_setup.exe) | [GHProxy](https://ghproxy.com/https://github.com/zetaloop/ExplorerPatcher/releases/latest/download/ep_setup.exe)
 2. 运行安装包，允许管理员权限，自动开始安装。（暂时退出文件管理器、桌面，请等待 1~2 分钟）
 3. 安装完成后，迎接你的将是熟悉的 Win10 任务栏。右键任务栏打开“属性”就是本软件的设置界面，可自行配置。
-4. 下载安装 [修复包v3.0.zip](https://github.com/zetaloop/ExplorerPatcher/files/12137341/v3.0.zip) 补丁，修复 Win10 开始菜单中文翻译缺失、不显示 UWP 应用等问题（https://github.com/zetaloop/ExplorerPatcher/issues/6 ）。
+4. ~下载安装 [修复包v3.0.zip](https://github.com/zetaloop/ExplorerPatcher/files/12137341/v3.0.zip) 补丁，修复 Win10 开始菜单中文翻译缺失、不显示 UWP 应用等问题（https://github.com/zetaloop/ExplorerPatcher/issues/6 ）。~ 最新已经不需要了
 
 完成了！干得漂亮。
 
