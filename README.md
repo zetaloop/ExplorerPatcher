@@ -1,11 +1,14 @@
 # ExplorerPatcher Chinese Localization 中文汉化版
+
+[**>>> English Version click here <<<**](https://github.com/valinet/ExplorerPatcher)
+
 该项目旨在为 Windows 11 恢复高效的工作环境。
 
 这是简体中文的修改版。由 zetaloop 制作分享，遵循原作 GPL-2.0 协议。
 
-[**>>> English Version click here <<<**](https://github.com/valinet/ExplorerPatcher) | 原作者捐赠：[PayPal](https://www.paypal.com/donate?business=valentingabrielradu%40gmail.com&no_recurring=0&item_name=ExplorerPatcher&currency_code=EUR)
+英文原版 Discord 交流群 👇 | 原作者捐赠：[PayPal](https://www.paypal.com/donate?business=valentingabrielradu%40gmail.com&no_recurring=0&item_name=ExplorerPatcher&currency_code=EUR)
 
-![编译状况](https://github.com/zetaloop/ExplorerPatcher/actions/workflows/build.yml/badge.svg)
+![编译状况](https://github.com/zetaloop/ExplorerPatcher/actions/workflows/build.yml/badge.svg) [![官方 Discord](https://discordapp.com/api/guilds/1155912047897350204/widget.png?style=shield)](https://discord.gg/gsPcfqHTD2)
 
 <img alt="ep" src="https://github.com/zetaloop/ExplorerPatcher/assets/36418285/71462abc-4405-473b-950f-6d9d24c03c4e">
 
@@ -67,7 +70,6 @@ Win10 开始菜单汉化不全问题及补丁，详见 [这个议题](https://gi
 * [原理](https://github.com/valinet/ExplorerPatcher/wiki/How-does-it-work)
 * [杀毒软件误报](https://github.com/valinet/ExplorerPatcher/wiki/Antivirus-false-positives)
 * [编译](https://github.com/valinet/ExplorerPatcher/wiki/Compiling)
-* [官方 Discord](https://discord.gg/gsPcfqHTD2)
 
 ## 项目收藏记录
 
