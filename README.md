@@ -1,5 +1,5 @@
 > [!WARNING]
-> ### <*ExplorerPatcher已添加中文支持，该汉化正在考虑归档*>
+> ### <*ExplorerPatcher[已添加中文支持](https://github.com/valinet/ExplorerPatcher-L10N)，该汉化正在考虑归档*>
 # ExplorerPatcher Chinese Localization 中文汉化版
 
 [**>>> English Version click here <<<**](https://github.com/valinet/ExplorerPatcher)
