@@ -1,5 +1,5 @@
 > [!WARNING]
-> ### < *ExplorerPatcher 原版 [已提供中文支持](https://github.com/valinet/ExplorerPatcher-L10N)，汉化已并入原版，此处不再更新* >
+> ### < *[ExplorerPatcher 原版已支持中文（点击下载）](https://github.com/valinet/ExplorerPatcher/releases)，汉化并入原版 [L10N](https://github.com/valinet/ExplorerPatcher-L10N)，此处不再更新* >
 # ~~ExplorerPatcher Chinese Localization 中文汉化版~~
 
 [**>>> English Version click here <<<**](https://github.com/valinet/ExplorerPatcher)
